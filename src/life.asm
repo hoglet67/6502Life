@@ -31,7 +31,26 @@
 ; STEPHEN HAWLEY   9/85
 ;---------------------------------
 
+
 ORG &800
+
+ZP1 = &00
+ZP2 = &02
+B1  = &04
+B2  = &05
+B3  = &06
+
+
+; Apple 2 was 280 x 192
+; each row was 40 bytes, with bits 6..0 bits determining the pixel state and bit 7 determining the colours
+ROWLEN = &28
+
+CLIST = &4000
+
+SPTR1 = &6000
+SPTR2 = &6100
+HINDX = &6200
+SHAPE = &6300
 
 .codestart
 
@@ -66,49 +85,49 @@ ORG &800
 .CELL
 {
          LDX VERT
-         LDA &6000,X  ; SET UP PTRS 
-         STA &01      ; TO SCREEN
-         LDA &6100,X  ; FOR 1ST LINE
-         STA &00
-         LDA &6001,X  ; SET UP PTRS
-         STA &03      ; TO SCREEN
-         LDA &6101,X  ; FOR 2ND LINE
-         STA &02
+         LDA SPTR1,X  ; SET UP PTRS 
+         STA ZP1+1    ; TO SCREEN
+         LDA SPTR2,X  ; FOR 1ST LINE
+         STA ZP1
+         LDA SPTR1+1,X; SET UP PTRS
+         STA ZP2+1    ; TO SCREEN
+         LDA SPTR2+1,X; FOR 2ND LINE
+         STA ZP2
          LDY HORZ
-         LDA &6300,Y  ; GET SHAPE #
+         LDA SHAPE,Y  ; GET SHAPE #
          TAX
          LDA BYTE1,X  ; GET 1ST BYTE
-         STA &04
+         STA B1 
          LDA BYTE2,X  ; GET 2ND BYTE
-         STA &05
+         STA B2 
          LDA BYTE3,X  ; GET 3RD BYTE
-         STA &06
-         LDA &6200,Y  ; GET HORZ SCRN
+         STA B3 
+         LDA HINDX,Y  ; GET HORZ SCRN
          TAY          ; INDEX
-         LDA &04
-         EOR (&00),Y  ; STORE 1ST
-         STA (&00),Y  ; BYTE AT VERT
-         LDA &04    
-         EOR (&02),Y  ; STORE 1ST
-         STA (&02),Y  ; BYTE @ VERT+1
+         LDA B1 
+         EOR (ZP1),Y  ; STORE 1ST
+         STA (ZP1),Y  ; BYTE AT VERT
+         LDA B1     
+         EOR (ZP2),Y  ; STORE 1ST
+         STA (ZP2),Y  ; BYTE @ VERT+1
          INY        
-         CPY #&28     ; EXIT IF PAST
+         CPY #ROWLEN  ; EXIT IF PAST
          BEQ L1       ; FAR RIGHT
-         LDA &05
-         EOR (&00),Y  ; STORE 2ND
-         STA (&00),Y  ; BYTE AT VERT
-         LDA &05    
-         EOR (&02),Y  ; STORE 2ND
-         STA (&02),Y  ; BYTE @ VERT+1
+         LDA B2 
+         EOR (ZP1),Y  ; STORE 2ND
+         STA (ZP1),Y  ; BYTE AT VERT
+         LDA B2     
+         EOR (ZP2),Y  ; STORE 2ND
+         STA (ZP2),Y  ; BYTE @ VERT+1
          INY
-         CPY #&28     ; EXIT IF PAST
+         CPY #ROWLEN  ; EXIT IF PAST
          BEQ L1       ; FAR RIGHT
-         LDA &06
-         EOR (&00),Y  ; STORE 3RD
-         STA (&00),Y  ; BYTE AT VERT
-         LDA &06
-         EOR (&02),Y  ; STORE 3RD
-         STA (&02),Y  ; BYTE @ VERT+1
+         LDA B3 
+         EOR (ZP1),Y  ; STORE 3RD
+         STA (ZP1),Y  ; BYTE AT VERT
+         LDA B3 
+         EOR (ZP2),Y  ; STORE 3RD
+         STA (ZP2),Y  ; BYTE @ VERT+1
 .L1      RTS
 }
 ;---------------------------------
@@ -121,26 +140,26 @@ ORG &800
          LDA #&00
          STA RESULT   ; CLEAR RESULT
          LDX VERT
-         LDA &6000,X  ; SET SCRN PTRS
-         STA &01
-         LDA &6100,X
-         STA &00
+         LDA SPTR1,X  ; SET SCRN PTRS
+         STA ZP1+1
+         LDA SPTR2,X
+         STA ZP1 
          LDY HORZ
-         LDA &6300,Y
+         LDA SHAPE,Y
          TAX
          LDA BYTE1,X  ; ONLY NEED TO
-         STA &04      ; TEST 2 BYTES
+         STA B1       ; TEST 2 BYTES
          LDA BYTE2,X
-         STA &05
-         LDA &6200,Y
+         STA B2 
+         LDA HINDX,Y
          TAY          ; TEST 1ST BYTE
-         LDA (&00),Y  ; GET SCRN AND
-         AND &04      ; ISOLATE CELL
+         LDA (ZP1),Y  ; GET SCRN AND
+         AND B1       ; ISOLATE CELL
          BEQ L1       ; 0=NO MATCH
          INC RESULT   ; ADD 1 TO RSLT
 .L1      INY          ; TEST 2ND BYTE
-         LDA (&00),Y  ; GET SCRN AND
-         AND &05      ; ISOLATE CELL
+         LDA (ZP1),Y  ; GET SCRN AND
+         AND B2       ; ISOLATE CELL
          BEQ L2       ; 0=NO MATCH
          INC RESULT   ; ADD 1 TO RSLT
 .L2      LDA RESULT   ; PUT RESULT IN
@@ -155,9 +174,9 @@ ORG &800
 ; COORDINATES.
 .CELLCH
          LDA VERT
-.C1      STA &4000    ; STORE VERT
+.C1      STA CLIST    ; STORE VERT
          LDA HORZ 
-.C2      STA &4001    ; STORE HORZ
+.C2      STA CLIST+1  ; STORE HORZ
          INC C2+1     ; INC ADDRS
          INC C2+1
          INC C1+1     ; SELFMODIFYING
@@ -178,7 +197,7 @@ ORG &800
 ;---------------------------------
 .GENER
 {
-         LDA #&40     ; SETS UP PTS
+         LDA #>CLIST  ; SETS UP PTS
          STA C1+2     ; TO LIST OF 
          STA C2+2     ; CHANGED CELLS
          LDA #&00
@@ -325,7 +344,7 @@ ORG &800
 ; MAY OR MAY NOT IMPLEMENT THIS.
 .DISPL
 {
-         LDA #&40     ; RESET PTS TO
+         LDA #>CLIST  ; RESET PTS TO
          STA D2+2     ; CELL LIST.
          STA D1+2
          LDA #&00
@@ -338,9 +357,9 @@ ORG &800
          LDA C2+1     ; LEFT TO MAKE.
          CMP D2+1
          BEQ D3       ; EXIT IF NOT.
-.D1      LDA &4000    ; GET VERTICAL
+.D1      LDA CLIST    ; GET VERTICAL
          STA VERT 
-.D2      LDA &4001    ; GET HORZ.
+.D2      LDA CLIST+1  ; GET HORZ.
          STA HORZ 
          JSR CELL     ; PLOT CELL.
          INC D2+1     ; GET ADDRESS
@@ -361,15 +380,15 @@ ORG &800
          STA BOT 
          LDX #&09 
          STX TOP
-.L1      LDA &6000,X
-         STA &01
-         LDA &6100,X
-         STA &00
+.L1      LDA SPTR1,X
+         STA ZP1+1
+         LDA SPTR2,X
+         STA ZP1
          LDY #&00
-.L2      LDA (&00),Y
+.L2      LDA (ZP1),Y
          BNE L3      
          INY    
-         CPY #&28
+         CPY #ROWLEN
          BNE L2  
          INX    
          INX  
@@ -379,15 +398,15 @@ ORG &800
          RTS
 .L3      STX TOP
          LDX BOT
-.L4      LDA &6000,X
-         STA &01     
-         LDA &6100,X
-         STA &00     
+.L4      LDA SPTR1,X
+         STA ZP1+1     
+         LDA SPTR2,X
+         STA ZP1     
          LDY #&00
-.L5      LDA (&00),Y
+.L5      LDA (ZP1),Y
          BNE L6      
          INY        
-         CPY #&28
+         CPY #ROWLEN
          BNE L5   
          DEX    
          DEX   
@@ -401,24 +420,24 @@ ORG &800
 .VLINES
 {
          LDX #&06
-.L1      STX &02  
-         LDA &6000,X
-         STA &01     
-         LDA &6100,X
-         STA &00    
+.L1      STX ZP2  
+         LDA SPTR1,X
+         STA ZP1+1     
+         LDA SPTR2,X
+         STA ZP1    
          LDX #&00 
          LDY #&00 
 .L2      LDA VDAT,X 
-         EOR (&00),Y
-         STA (&00),Y
+         EOR (ZP1),Y
+         STA (ZP1),Y
          INX         
          TXA
          AND #&03
          TAX      
          INY 
-         CPY #&28
+         CPY #ROWLEN
          BNE L2   
-         LDX &02
+         LDX ZP2
          INX     
          CPX #&BC
          BNE L1   
@@ -427,24 +446,24 @@ ORG &800
 .HLINES
 {
          LDX #&08
-.L1      STX &02 
-         LDA &6000,X
-         STA &01     
-         LDA &6100,X
-         STA &00    
+.L1      STX ZP2 
+         LDA SPTR1,X
+         STA ZP1+1     
+         LDA SPTR2,X
+         STA ZP1    
          LDX #&00
          LDY #&00
 .L2      LDA HDAT,X
-         EOR (&00),Y
-         STA (&00),Y
+         EOR (ZP1),Y
+         STA (ZP1),Y
          INX         
          TXA
          AND #&03
          TAX      
          INY      
-         CPY #&28
+         CPY #ROWLEN
          BNE L2   
-         LDX &02
+         LDX ZP2
          INX     
          INX
          INX
@@ -463,19 +482,19 @@ ORG &800
 ;---------------------------------
 .CLR
 {
-         BIT &C052
-         BIT &C057
-         BIT &C050
+         BIT &C052      ; CLRMIXED
+         BIT &C057      ; SETHIRES
+         BIT &C050      ; CLRTEXT
          LDX #&00 
-.L1      LDA &6000,X
-         STA &01    
-         LDA &6100,X
-         STA &00     
+.L1      LDA SPTR1,X
+         STA ZP1+1    
+         LDA SPTR2,X
+         STA ZP1     
          LDA #&00 
          TAY     
-.L2      STA (&00),Y
+.L2      STA (ZP1),Y
          INY        
-         CPY #&28
+         CPY #ROWLEN
          BNE L2   
          INX     
          CPX #&C0
@@ -498,24 +517,24 @@ ORG &800
          STA VERT
          LDA #&00
          STA CSTAT
-.ST1     BIT &C010
+.ST1     BIT &C010      ; STROBE unlatched keyboard data
 .L1      DEC CCNT 
          BNE L2
          LDA CSTAT 
          EOR #&80 
          STA CSTAT
          JSR CELL 
-.L2      LDA &C000 
-         BPL L1   
-         CMP #&C1
+.L2      LDA &C000      ; KEYBOARD 
+         BPL L1         ; nothing pressed
+         CMP #&C1       ; ascii 41 = A = move cursor up
          BNE L3   
          LDA VERT
-         CMP #&06
+         CMP #&06       ; top limit = 6
          BEQ ST1
          LDX CSTAT
          BEQ L21
          JSR CELL  
-.L21     LDA VERT  
+.L21     LDA VERT       ; decrement VERT by 3
          SEC     
          SBC #&03
          STA VERT
@@ -523,10 +542,10 @@ ORG &800
          BEQ ST1 
          JSR CELL
 .L22     JMP ST1  
-.L3      CMP #&DA
+.L3      CMP #&DA       ; ascii 5A = Z = move cursor down
          BNE L4
          LDA VERT
-         CMP #&BA
+         CMP #&BA       ; bottom limit = BA = 186 (6,9,12,...,183,186 gives 61 vertical positions)
          BEQ L22 
          LDX CSTAT
          BEQ L31
@@ -539,42 +558,42 @@ ORG &800
          BEQ L22
          JSR CELL
 .L32     JMP ST1   
-.L4      CMP #&88
+.L4      CMP #&88       ; ascii 08 = cursor left
          BNE L5   
-         LDA HORZ
+         LDA HORZ       ; left limit = 0
          BEQ L32
          LDX CSTAT
          BEQ L41
          JSR CELL
-.L41     DEC HORZ  
+.L41     DEC HORZ       ; decrement HORZ by 2
          DEC HORZ
          LDX CSTAT
          BEQ L32 
          JSR CELL
 .L42     JMP ST1   
-.L5      CMP #&95
+.L5      CMP #&95       ; ascii 15 = cursor right
          BNE L6   
          LDA HORZ
-         CMP #&8A
+         CMP #&8A       ; right limit = 138 (0,2,4,...,136,138 gives 70 horizontal positions)
          BEQ L42
          LDX CSTAT
          BEQ L51
          JSR CELL
-.L51     INC HORZ 
+.L51     INC HORZ       ; increment HORZ by  2
          INC HORZ
          LDX CSTAT
          BEQ L42
          JSR CELL
 .L52     JMP ST1  
-.L6      CMP #&C7
+.L6      CMP #&C7       ; ascii 47 = G, toggle grid
          BNE L7  
          JSR GRID
 .L62     JMP ST1 
-.L7      CMP #&A0
+.L7      CMP #&A0       ; ascii 20 = space, toggle cell
          BNE L8   
          JSR CELL
 .L72     JMP ST1  
-.L8      CMP #&8D
+.L8      CMP #&8D       ; ascii 0D = return, start computing generations
          BNE L72
          LDA CSTAT
          BEQ L9    
@@ -584,7 +603,7 @@ ORG &800
 .L9      LDA GRD  
          BEQ L10 
          JSR GRID
-.L10     BIT &C010
+.L10     BIT &C010      ; STROBE unlatched keyboard data
          LDA VERT 
          STA CV
          LDA HORZ
@@ -592,8 +611,8 @@ ORG &800
 .L11     JSR OPTMV
          JSR GENER
          JSR DISPL
-         LDA &C000
-         BPL L11   
+         LDA &C000     ; read KEYBOARD 
+         BPL L11       ; loop back if no key pressed
          JMP START
 }
 
