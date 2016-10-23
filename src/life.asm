@@ -32,7 +32,7 @@
 ;---------------------------------
 
 
-ORG &800
+BASE = &6000
 
 ZP1 = &00
 ZP2 = &02
@@ -47,13 +47,117 @@ ROWLEN = &28
 
 CLIST = &4000
 
-SPTR1 = &6000
-SPTR2 = &6100
-HINDX = &6200
-SHAPE = &6300
+
+ORG BASE-4
+        
 
 .codestart
+        EQUW BASE
+        EQUW MAIN
+        
+.SCANLINEHI
+       EQUB &20,&24,&28,&2C,&30,&34,&38,&3C
+       EQUB &20,&24,&28,&2C,&30,&34,&38,&3C
+       EQUB &21,&25,&29,&2D,&31,&35,&39,&3D
+       EQUB &21,&25,&29,&2D,&31,&35,&39,&3D
+       EQUB &22,&26,&2A,&2E,&32,&36,&3A,&3E
+       EQUB &22,&26,&2A,&2E,&32,&36,&3A,&3E
+       EQUB &23,&27,&2B,&2F,&33,&37,&3B,&3F
+       EQUB &23,&27,&2B,&2F,&33,&37,&3B,&3F
+       EQUB &20,&24,&28,&2C,&30,&34,&38,&3C
+       EQUB &20,&24,&28,&2C,&30,&34,&38,&3C
+       EQUB &21,&25,&29,&2D,&31,&35,&39,&3D
+       EQUB &21,&25,&29,&2D,&31,&35,&39,&3D
+       EQUB &22,&26,&2A,&2E,&32,&36,&3A,&3E
+       EQUB &22,&26,&2A,&2E,&32,&36,&3A,&3E
+       EQUB &23,&27,&2B,&2F,&33,&37,&3B,&3F
+       EQUB &23,&27,&2B,&2F,&33,&37,&3B,&3F
+       EQUB &20,&24,&28,&2C,&30,&34,&38,&3C
+       EQUB &20,&24,&28,&2C,&30,&34,&38,&3C
+       EQUB &21,&25,&29,&2D,&31,&35,&39,&3D
+       EQUB &21,&25,&29,&2D,&31,&35,&39,&3D
+       EQUB &22,&26,&2A,&2E,&32,&36,&3A,&3E
+       EQUB &22,&26,&2A,&2E,&32,&36,&3A,&3E
+       EQUB &23,&27,&2B,&2F,&33,&37,&3B,&3F
+       EQUB &23,&27,&2B,&2F,&33,&37,&3B,&3F
 
+ORG BASE + &100
+        
+.SCANLINELO
+       EQUB &00,&00,&00,&00,&00,&00,&00,&00
+       EQUB &80,&80,&80,&80,&80,&80,&80,&80
+       EQUB &00,&00,&00,&00,&00,&00,&00,&00
+       EQUB &80,&80,&80,&80,&80,&80,&80,&80
+       EQUB &00,&00,&00,&00,&00,&00,&00,&00
+       EQUB &80,&80,&80,&80,&80,&80,&80,&80
+       EQUB &00,&00,&00,&00,&00,&00,&00,&00
+       EQUB &80,&80,&80,&80,&80,&80,&80,&80
+       EQUB &28,&28,&28,&28,&28,&28,&28,&28
+       EQUB &A8,&A8,&A8,&A8,&A8,&A8,&A8,&A8
+       EQUB &28,&28,&28,&28,&28,&28,&28,&28
+       EQUB &A8,&A8,&A8,&A8,&A8,&A8,&A8,&A8
+       EQUB &28,&28,&28,&28,&28,&28,&28,&28
+       EQUB &A8,&A8,&A8,&A8,&A8,&A8,&A8,&A8
+       EQUB &28,&28,&28,&28,&28,&28,&28,&28
+       EQUB &A8,&A8,&A8,&A8,&A8,&A8,&A8,&A8
+       EQUB &50,&50,&50,&50,&50,&50,&50,&50
+       EQUB &D0,&D0,&D0,&D0,&D0,&D0,&D0,&D0
+       EQUB &50,&50,&50,&50,&50,&50,&50,&50
+       EQUB &D0,&D0,&D0,&D0,&D0,&D0,&D0,&D0
+       EQUB &50,&50,&50,&50,&50,&50,&50,&50
+       EQUB &D0,&D0,&D0,&D0,&D0,&D0,&D0,&D0
+       EQUB &50,&50,&50,&50,&50,&50,&50,&50
+       EQUB &D0,&D0,&D0,&D0,&D0,&D0,&D0,&D0
+
+ORG BASE + &200
+
+.EVEN7S
+       EQUB &00,&00,&00,&00,&00,&00,&00,&02
+       EQUB &02,&02,&02,&02,&02,&02,&04,&04
+       EQUB &04,&04,&04,&04,&04,&06,&06,&06
+       EQUB &06,&06,&06,&06,&08,&08,&08,&08
+       EQUB &08,&08,&08,&0A,&0A,&0A,&0A,&0A
+       EQUB &0A,&0A,&0C,&0C,&0C,&0C,&0C,&0C
+       EQUB &0C,&0E,&0E,&0E,&0E,&0E,&0E,&0E
+       EQUB &10,&10,&10,&10,&10,&10,&10,&12
+       EQUB &12,&12,&12,&12,&12,&12,&14,&14
+       EQUB &14,&14,&14,&14,&14,&16,&16,&16
+       EQUB &16,&16,&16,&16,&18,&18,&18,&18
+       EQUB &18,&18,&18,&1A,&1A,&1A,&1A,&1A
+       EQUB &1A,&1A,&1C,&1C,&1C,&1C,&1C,&1C
+       EQUB &1C,&1E,&1E,&1E,&1E,&1E,&1E,&1E
+       EQUB &20,&20,&20,&20,&20,&20,&20,&22
+       EQUB &22,&22,&22,&22,&22,&22,&24,&24
+       EQUB &24,&24,&24,&24,&24,&26,&26,&26
+       EQUB &26,&26,&26,&26
+
+ORG BASE + &300
+        
+.SEVENS
+       EQUB &00,&01,&02,&03,&04,&05,&06,&00
+       EQUB &01,&02,&03,&04,&05,&06,&00,&01
+       EQUB &02,&03,&04,&05,&06,&00,&01,&02
+       EQUB &03,&04,&05,&06,&00,&01,&02,&03
+       EQUB &04,&05,&06,&00,&01,&02,&03,&04
+       EQUB &05,&06,&00,&01,&02,&03,&04,&05
+       EQUB &06,&00,&01,&02,&03,&04,&05,&06
+       EQUB &00,&01,&02,&03,&04,&05,&06,&00
+       EQUB &01,&02,&03,&04,&05,&06,&00,&01
+       EQUB &02,&03,&04,&05,&06,&00,&01,&02
+       EQUB &03,&04,&05,&06,&00,&01,&02,&03
+       EQUB &04,&05,&06,&00,&01,&02,&03,&04
+       EQUB &05,&06,&00,&01,&02,&03,&04,&05
+       EQUB &06,&00,&01,&02,&03,&04,&05,&06
+       EQUB &00,&01,&02,&03,&04,&05,&06,&00
+       EQUB &01,&02,&03,&04,&05,&06,&00,&01
+       EQUB &02,&03,&04,&05,&06,&00,&01,&02
+       EQUB &03,&04,&05,&06
+
+
+ORG BASE + &400
+
+      JMP MAIN
+        
 .LASTV   EQUB &00
 .LASTH   EQUB &00
 .STAT    EQUB &00
@@ -76,7 +180,8 @@ SHAPE = &6300
 .CH      EQUB &00
 .CSTAT   EQUB &00
 .CCNT    EQUB &00
-
+        
+        
 ; CELL EXCLUSIVE-OR'S A CELL AT
 ; THE LOCATION INDICATED BY
 ; VERT AND HORZ. EXCL-OR ALLOWS
@@ -85,16 +190,16 @@ SHAPE = &6300
 .CELL
 {
          LDX VERT
-         LDA SPTR1,X  ; SET UP PTRS 
+         LDA SCANLINEHI,X  ; SET UP PTRS 
          STA ZP1+1    ; TO SCREEN
-         LDA SPTR2,X  ; FOR 1ST LINE
+         LDA SCANLINELO,X  ; FOR 1ST LINE
          STA ZP1
-         LDA SPTR1+1,X; SET UP PTRS
+         LDA SCANLINEHI+1,X; SET UP PTRS
          STA ZP2+1    ; TO SCREEN
-         LDA SPTR2+1,X; FOR 2ND LINE
+         LDA SCANLINELO+1,X; FOR 2ND LINE
          STA ZP2
          LDY HORZ
-         LDA SHAPE,Y  ; GET SHAPE #
+         LDA SEVENS,Y  ; GET SHAPE #
          TAX
          LDA BYTE1,X  ; GET 1ST BYTE
          STA B1 
@@ -102,7 +207,7 @@ SHAPE = &6300
          STA B2 
          LDA BYTE3,X  ; GET 3RD BYTE
          STA B3 
-         LDA HINDX,Y  ; GET HORZ SCRN
+         LDA EVEN7S,Y  ; GET HORZ SCRN
          TAY          ; INDEX
          LDA B1 
          EOR (ZP1),Y  ; STORE 1ST
@@ -140,18 +245,18 @@ SHAPE = &6300
          LDA #&00
          STA RESULT   ; CLEAR RESULT
          LDX VERT
-         LDA SPTR1,X  ; SET SCRN PTRS
+         LDA SCANLINEHI,X  ; SET SCRN PTRS
          STA ZP1+1
-         LDA SPTR2,X
+         LDA SCANLINELO,X
          STA ZP1 
          LDY HORZ
-         LDA SHAPE,Y
+         LDA SEVENS,Y
          TAX
          LDA BYTE1,X  ; ONLY NEED TO
          STA B1       ; TEST 2 BYTES
          LDA BYTE2,X
          STA B2 
-         LDA HINDX,Y
+         LDA EVEN7S,Y
          TAY          ; TEST 1ST BYTE
          LDA (ZP1),Y  ; GET SCRN AND
          AND B1       ; ISOLATE CELL
@@ -380,9 +485,9 @@ SHAPE = &6300
          STA BOT 
          LDX #&09 
          STX TOP
-.L1      LDA SPTR1,X
+.L1      LDA SCANLINEHI,X
          STA ZP1+1
-         LDA SPTR2,X
+         LDA SCANLINELO,X
          STA ZP1
          LDY #&00
 .L2      LDA (ZP1),Y
@@ -398,9 +503,9 @@ SHAPE = &6300
          RTS
 .L3      STX TOP
          LDX BOT
-.L4      LDA SPTR1,X
+.L4      LDA SCANLINEHI,X
          STA ZP1+1     
-         LDA SPTR2,X
+         LDA SCANLINELO,X
          STA ZP1     
          LDY #&00
 .L5      LDA (ZP1),Y
@@ -421,9 +526,9 @@ SHAPE = &6300
 {
          LDX #&06
 .L1      STX ZP2  
-         LDA SPTR1,X
+         LDA SCANLINEHI,X
          STA ZP1+1     
-         LDA SPTR2,X
+         LDA SCANLINELO,X
          STA ZP1    
          LDX #&00 
          LDY #&00 
@@ -447,9 +552,9 @@ SHAPE = &6300
 {
          LDX #&08
 .L1      STX ZP2 
-         LDA SPTR1,X
+         LDA SCANLINEHI,X
          STA ZP1+1     
-         LDA SPTR2,X
+         LDA SCANLINELO,X
          STA ZP1    
          LDX #&00
          LDY #&00
@@ -486,9 +591,9 @@ SHAPE = &6300
          BIT &C057      ; SETHIRES
          BIT &C050      ; CLRTEXT
          LDX #&00 
-.L1      LDA SPTR1,X
+.L1      LDA SCANLINEHI,X
          STA ZP1+1    
-         LDA SPTR2,X
+         LDA SCANLINELO,X
          STA ZP1     
          LDA #&00 
          TAY     
@@ -615,7 +720,7 @@ SHAPE = &6300
          BPL L11       ; loop back if no key pressed
          JMP START
 }
-
+        
 .codeend
 
-SAVE "LIFE", codestart, codeend, MAIN
+SAVE "LIFE", codestart, codeend
