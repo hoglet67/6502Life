@@ -25,30 +25,9 @@ row0            = &8D           ; pointer to row0 in the workspace (the row abov
 row2            = &8F           ; pointer to row0 in the workspace (the row beloe)
 scrn            = &91           ; pointer to the next row in screen memory
 
-scrn_base       = &8000         ; base address of screen memory
-
-wkspc0          = &3400         ; workspace 1 (temp copy of a screen row)
-wkspc1          = &3421         ; workspace 2 (temp copy of a screen row)
-wkspc2          = &3442         ; workspace 3 (temp copy of a screen row)
-
-sum             = &3463         ; pixel accumulator
-
-gen_lo          = &0324         ; generation counter
-gen_hi          = &0340         ; the C integer variable on the Atom
-                                ; &340 should be &33F (bug in the original code)
-step            = &032A         ; if zero, then just calculate one generation then return
-                                ; the I integer variable on the Atom
-
-pia2            = &B002         ; 8255 on the Atom, for detecting the REPT key
-pia1            = &B001         ; 8255 on the Atom, for detecting the SHIFT and CTRL keys
-
 cells_per_byte  = &08           ; bits per cell, also bits per byte, do not change!
 bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
-rows_per_screen = &BE           ; Y resolytion on the Atom in CLEAR 4 is 192
 
-org               &2980         ; base address of the code on the Atom
-
-.start
 
 .update_row
         LDA scrn                ; save screen row to 8B/8C and set 91/92 to next screen row
@@ -186,6 +165,7 @@ org               &2980         ; base address of the code on the Atom
         BNE gen_no_carry
         INC gen_hi              ; increment generation count (LSB of variable D - BUG!!! should be 033F)
 .gen_no_carry
+IF _ATOM
         LDA pia2                ; Test for REPT key (display generations)
         AND #&40
         BEQ return              ; yes, exit to BASIC to render generation count
@@ -196,6 +176,7 @@ org               &2980         ; base address of the code on the Atom
         CMP #&C0
         BEQ update_screen       ; no, then lets do the next generation
 .return
+ENDIF
         RTS                     ; Return to BASIC
 
 ;; Main entry point
@@ -280,6 +261,3 @@ org               &2980         ; base address of the code on the Atom
 }
         RTS
 
-.end
-
-SAVE "",start,end, update_screen
