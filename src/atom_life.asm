@@ -11,236 +11,269 @@
 ; 8F/90=&3442 (row 2 initially set to workspace 2, not yet populated)
 ; 91/92=&8000 (screen row 1)
 
+pixels          = &80
+sum_idx         = &82
+tmpY            = &83
+tmpC            = &84
+numrows         = &85
+row1            = &87
+sum_ptr         = &89
+scrn_tmp        = &8B
+row0            = &8D
+row2            = &8F
+scrn            = &91
 
-org &2980
+scrn_base       = &8000
+
+wkspc0          = &3400
+wkspc1          = &3421
+wkspc2          = &3442
+sum             = &3463
+
+gen_lo          = &0324          ; variable C on the Atom
+gen_hi          = &0340
+step            = &032A          ; variable I on the Atom
+pia2            = &B002
+pia1            = &B001
+
+cells_per_byte  = &08
+bytes_per_row   = &20
+rows_per_screen = &BE
+
+org               &2980
 
 .start
-        
-.L2980
-        LDA &91      ; save screen row to 8B/8C and set 91/92 to next screen row
-        STA &8B
+
+.update_row
+        LDA scrn                ; save screen row to 8B/8C and set 91/92 to next screen row
+        STA scrn_tmp
         CLC
-        ADC #&20     ; Patched depending on MODE
-        STA &91
-        LDA &92
-        STA &8C
-        BCC L2991
-        INC &92
-.L2991
-        JSR L2AAE    ; copy screen row 2 into workspace row 2 into and accumulate pixels
+        ADC #bytes_per_row
+        STA scrn
+        LDA scrn + 1
+        STA scrn_tmp + 1
+        BCC no_scrn_carry
+        INC scrn + 1
+.no_scrn_carry
+        JSR insert_row          ; copy screen row 2 into workspace row 2 into and accumulate pixels
 
-        LDY #&FF     ; Patched depending on MODE
-        STY &82
-        LDY #&1F     ; Patched depending on MODE
-.L299A        
-        STY &83
+        LDY #bytes_per_row * cells_per_byte - 1
+        STY sum_idx
+        LDY #bytes_per_row - 1
 
-        LDA (&87),Y  ; initially workspace row 1 (the one being re-calculated)
-        STA &80
-        ORA (&8D),Y  ; initially workspace row 0
-        ORA (&8F),Y  ; initially workspace row 2
+.update_loop:
+        STY tmpY
+
+        LDA (row1), Y           ; initially workspace row 1 (the one being re-calculated)
+        STA pixels
+        ORA (row0), Y           ; initially workspace row 0
+        ORA (row2), Y           ; initially workspace row 2
         DEY
-        ORA (&87),Y  ; initially workspace row 1 8px/1-byte left
+        ORA (row1), Y           ; initially workspace row 1 8px/1-byte left
         INY
         INY
-        ORA (&87),Y  ; initially workspace row 1 8px/1-byte right
-        BNE L29BB    ; test if any pixels present? If so, then need to compute neighbour counds
+        ORA (row1), Y           ; initially workspace row 1 8px/1-byte right
+        BNE work_to_do          ; test if any pixels present? If so, then need to compute neighbour counds
 
-        SEC          ; move to next byte of 8 pixels
-        LDA &82
-        SBC #&08
-        STA &82
-        LDY &83
+        SEC                     ; move to next byte of 8 pixels
+        LDA sum_idx
+        SBC #cells_per_byte
+        STA sum_idx
+        LDY tmpY
         DEY
-        BPL L299A
-        BMI L29F9
-.L29BB
-        LDX #&07     ; compute neighbour counts for 8 cells
-        LDY &82
-.L29BF
+        BPL update_loop
+        BMI delete_row
+
+.work_to_do
+        LDX #cells_per_byte - 1 ; compute neighbour counts for 8 cells
+        LDY sum_idx
+.cell_loop
         INY
-        LDA &3463,Y  ; three rows have already been added together
+        LDA sum, Y              ; three rows have already been added together
         CLC
         DEY
-        ADC &3463,Y
+        ADC sum, Y
         DEY
-        ADC &3463,Y  ; A is now a neighbour count including self
-        STY &82
-        ROL &84      ; carry = previously stashed cell
-        ROR &80      ; carry = current cell from screen memory byte read earlier
-        BCC L29E1    ; branch if current cell is dead
-        CMP #&05     ; test if cell count (inc self) is 5 or more
-        BCS L29E5    ; branch if current cell needs to dies
-        CMP #&03     ; cell count (inc self) is 3 or 4, cell lives, otherwise dies
-        ROR &84      ; stash newly calculated cell
-        DEX          ; move onto next of 8 cells
-        BPL L29BF    ; more to process?
-        BMI L29EB    ; no
-.L29E1
-        CMP #&03     ; new cell is born if count exactly 3
-        BEQ L29E6
-.L29E5
-        CLC          ; otherwise cell stays off
-.L29E6
-        ROR &84      ; stash newly calculated cell
-        DEX          ; move to next of 8 pixels
-        BPL L29BF    ; more to process?
+        ADC sum, Y              ; A is now a neighbour count including self
+        STY sum_idx
+        ROL tmpC                ; carry = previously stashed cell
+        ROR pixels              ; carry = current cell from screen memory byte read earlier
+        BCC cell_is_off         ; branch if current cell is dead
+.cell_is_on
+        CMP #&05                ; test if cell count (inc self) is 5 or more
+        BCS cell_dies           ; branch if current cell needs to dies
+        CMP #&03                ; cell count (inc self) is 3 or 4, cell lives, otherwise dies
+        ROR tmpC                ; stash newly calculated cell
+        DEX                     ; move onto next of 8 cells
+        BPL cell_loop           ; more to process?
+        BMI write_screen        ; no
+.cell_is_off
+        CMP #&03                ; new cell is born if count exactly 3
+        BEQ cell_lives
+.cell_dies:
+        CLC                     ; otherwise cell stays off
+.cell_lives
+        ROR tmpC                ; stash newly calculated cell
+        DEX                     ; move to next of 8 pixels
+        BPL cell_loop           ; more to process?
 
-.L29EB
-        STY &82      ; done with processing 8 cells
-        ROL &84      ; carry = previously stashed cell
-        LDA &80
+.write_screen
+        STY sum_idx             ; done with processing 8 cells
+        ROL tmpC                ; carry = previously stashed cell
+        LDA pixels
         ROR A
-        LDY &83
-        STA (&8B),Y  ; save byte back to real screen memory
-        DEY          ; decrement index within row
-        BPL L299A    ; test if row is done, loop back if not
+        LDY tmpY
+        STA (scrn_tmp), Y       ; save byte back to real screen memory
+        DEY                     ; decrement index within row
+        BPL update_loop         ; test if row is done, loop back if not
 
-.L29F9        
-        LDX #&FF     ; Patched depending on MODE
-        LDY #&1F     ; Patched depending on MODE
-.L29FD
-        LDA (&8D),Y  ; 8D initially points to row 0
-        BNE L2A0B
+.delete_row
+        LDX #bytes_per_row * cells_per_byte - 1
+        LDY #bytes_per_row - 1
+.delete_loop
+        LDA (row0), Y           ; 8D initially points to row 0
+        BNE decrement_counts
         TXA
         SEC
-        SBC #&08     ; this block of code almost identical to
-        TAX          ; subroutine at 2AAE, except it subtracts
-        DEY          ; from the pixel accumulator
-        BPL L29FD
-        BMI L2A1E
-.L2A0B        
-        STY &83
-        LDY #&07
-.L2A0F        
+        SBC #cells_per_byte     ; this block of code almost identical to
+        TAX                     ; subroutine at 2AAE, except it subtracts
+        DEY                     ; from the pixel accumulator
+        BPL delete_loop
+        BMI rotate_buffers
+.decrement_counts
+        STY tmpY
+        LDY #cells_per_byte - 1
+.delete_loop2
         ROR A
-        BCC L2A15
-        DEC &3463,X  ; subtract the row from the pixel accumulator
-.L2A15
+        BCC skip_decrement
+        DEC sum, X              ; subtract the row from the pixel accumulator
+.skip_decrement
         DEX
         DEY
-        BPL L2A0F
-        LDY &83
+        BPL delete_loop2
+        LDY tmpY
         DEY
-        BPL L29FD
-.L2A1E
-        LDX &87      ; stash old row 1 pointer in X and Y
-        LDY &88
+        BPL delete_loop
 
-        LDA &8F      ; copy 8F/90 to 87/88
-        STA &87      ; i.e. point row 1 to old row 2
-        LDA &90
-        STA &88
+.rotate_buffers
+        LDX row1                ; stash old row 1 pointer in X and Y
+        LDY row1 + 1
 
-        LDA &8D      ; copy 8D/8E to 8F/90
-        STA &8F      ; i.e. point row 2 to old row 0 (that old data will be overwritten with next row)
-        LDA &8E
-        STA &90
+        LDA row2                ; copy 8F/90 to 87/88
+        STA row1                ; i.e. point row 1 to old row 2
+        LDA row2 + 1
+        STA row1 + 1
 
-        STX &8D      ; copy 87/88 to 8D/8E
-        STY &8E      ; i.e. point row 0 to old row 1
+        LDA row0                ; copy 8D/8E to 8F/90
+        STA row2                ; i.e. point row 2 to old row 0 (that old data will be overwritten with next row)
+        LDA row0 + 1
+        STA row2 + 1
 
-        DEC &85      ; decrment the row counter
-        BEQ L2A3D
-        JMP L2980    ; loop back for more rows
-.L2A3D
-        INC &0324    ; increment generation count (LSB of variable C)
-        BNE L2A45
-        INC &0340    ; increment generation count (LSB of variable D - BUG!!! should be 033F)
-.L2A45
-        LDA &B002    ; Test for REPT key (display generations)
+        STX row0                ; copy 87/88 to 8D/8E
+        STY row0 + 1            ; i.e. point row 0 to old row 1
+
+        DEC numrows             ; decrment the row counter
+        BEQ gen_complete
+        JMP update_row          ; loop back for more rows
+.gen_complete
+        INC gen_lo              ; increment generation count (LSB of variable C)
+        BNE gen_no_carry
+        INC gen_hi              ; increment generation count (LSB of variable D - BUG!!! should be 033F)
+.gen_no_carry
+        LDA pia2                ; Test for REPT key (display generations)
         AND #&40
-        BEQ L2A5A    ; yes, exit to BASIC to render generation count
+        BEQ return              ; yes, exit to BASIC to render generation count
         LDA &032A
-        BEQ L2A5A
-        LDA &B001    ; Test for SHIFT or CTRL key (exit to editor)
+        BEQ return
+        LDA pia1                ; Test for SHIFT or CTRL key (exit to editor)
         AND #&C0
         CMP #&C0
-        BEQ L2A5B    ; no, then lets do the next generation
-.L2A5A
-        RTS          ; Return to BASIC
+        BEQ update_screen       ; no, then lets do the next generation
+.return
+        RTS                     ; Return to BASIC
 
 ;; Main entry point
 ;; Continuously loop updating display with new generations
-.exec
-.L2A5B
-        LDY #&FF     ; Patched depending on MODE
+.update_screen
+        LDY #bytes_per_row * cells_per_byte - 1
         LDA #&00
-.L2A5F
-        STA &3463,Y  ; clear pixel accumulator
+.clear_sum_loop
+        STA sum, Y              ; clear pixel accumulator
         DEY
-        BNE L2A5F
-        LDA #&00     ; Point 90/91 to start of display memory
-        STA &91
-        LDA #&80
-        STA &92
-        LDA #&00     ; 8F/90=&3400 (workspace row 0)
-        STA &8F
-        LDA #&34
-        STA &90
-        JSR L2AAE    ; copy screen row 0 into workspace row 0 and accumulate pixels
-        LDA #&20     ; Patched depending on MODE
-        STA &91
-        LDA #&21     ; 8F/90=&3421 (workspace row 1)
-        STA &8F
-        LDA #&34
-        STA &90
-        JSR L2AAE    ; copy screen row 1 into workspace row 1 into and accumulate pixels
-        LDA #&BE     ; Patched depending on MODE (number ot rows - 2)
-        STA &85
-        LDA #&21     ; 87/88=&3421 (workspace row 1)
-        STA &87
-        LDA #&34
-        STA &88
-        LDA #&63     ; 89/8A=&3463 (pixel accumulator)
-        STA &89
-        LDA #&34
-        STA &8A
-        LDA #&00     ; 8D/8E=&3400 (workspace row 0)
-        STA &8D
-        LDA #&34
-        STA &8E
-        LDA #&42     ; 8F/90=&3442 (workspace row 2)
-        STA &8F
-        LDA #&34
-        STA &90
-        JMP L2980    ; compute row?
+        BNE clear_sum_loop
+        LDA #<scrn_base         ; Point 90/91 to start of display memory
+        STA scrn
+        LDA #>scrn_base
+        STA scrn + 1
+        LDA #<wkspc0            ; 8F/90=&3400 (workspace row 0)
+        STA row2
+        LDA #>wkspc0
+        STA row2 + 1
+        JSR insert_row   ; copy screen row 0 into workspace row 0 and accumulate pixels
+        LDA #bytes_per_row
+        STA scrn
+        LDA #<wkspc1            ; 8F/90=&3421 (workspace row 1)
+        STA row2
+        LDA #>wkspc1
+        STA row2 + 1
+        JSR insert_row          ; copy screen row 1 into workspace row 1 into and accumulate pixels
+        LDA #rows_per_screen
+        STA numrows
+        LDA #<wkspc1            ; 87/88=&3421 (workspace row 1)
+        STA row1
+        LDA #>wkspc1
+        STA row1 + 1
+        LDA #<sum               ; 89/8A=&3463 (pixel accumulator)
+        STA sum_ptr             ; THIS IS UNUSED
+        LDA #>sum
+        STA sum_ptr + 1         ; THIS IS UNUSED
+        LDA #<wkspc0            ; 8D/8E=&3400 (workspace row 0)
+        STA row0
+        LDA #>wkspc0
+        STA row0 + 1
+        LDA #<wkspc2            ; 8F/90=&3442 (workspace row 2)
+        STA row2
+        LDA #>wkspc2
+        STA row2 + 1
+        JMP update_row          ; update the screen rows
 
 ; Copy screen row into temp workspace
 ; 91/92 point into screen memory
-; 8F/90 point into one of three workspace row buffers (3400, 3421 or 3442)
+; 8F/90 point into one of three workspace buffers (3400, 3421 or 3442)
 ; expand each pixel into value of 0 or 1 and accumulate these in 3463
 
-.L2AAE
-        LDX #&FF     ; Patched depending on MODE
-        LDY #&1F     ; Patched depending on MODE
-.L2AB2
-        LDA (&91),Y
-        STA (&8F),Y
-        BNE L2AC1
+.insert_row
+{
+        LDX #bytes_per_row * cells_per_byte - 1
+        LDY #bytes_per_row - 1
+.copy_loop
+        LDA (scrn), Y
+        STA (row2), Y
+        BNE increment_counts
         TXA
         SEC
-        SBC #&08
+        SBC #cells_per_byte
         TAX
         DEY
-        BPL L2AB2
+        BPL copy_loop
         RTS
-.L2AC1
-        STY &83
-        LDY #&07
-.L2AC5
+.increment_counts
+        STY tmpY
+        LDY #cells_per_byte - 1
+.copy_loop2
         ROR A
-        BCC L2ACB
-        INC &3463,X
-.L2ACB
+        BCC skip_increment
+        INC sum, X
+.skip_increment
         DEX
         DEY
-        BPL L2AC5
-        LDY &83
+        BPL copy_loop2
+        LDY tmpY
         DEY
-        BPL L2AB2
+        BPL copy_loop
+}
         RTS
-        
+
 .end
 
-SAVE "",start,end, exec
+SAVE "",start,end, update_screen
