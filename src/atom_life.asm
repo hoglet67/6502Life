@@ -11,36 +11,42 @@
 ; 8F/90=&3442 (row 2 initially set to workspace 2, not yet populated)
 ; 91/92=&8000 (screen row 1)
 
-pixels          = &80
-sum_idx         = &82
-tmpY            = &83
-tmpC            = &84
-numrows         = &85
-row1            = &87
-sum_ptr         = &89
-scrn_tmp        = &8B
-row0            = &8D
-row2            = &8F
-scrn            = &91
+; md5sum of the original Atom code is afda749173d62159e28003243b098c95
+        
+pixels          = &80           ; block of 8 pixels (cells) being updates
+sum_idx         = &82           ; index into the pixel accumulator
+tmpY            = &83           ; temp storage for Y register
+tmpC            = &84           ; temp storage for carry flag
+numrows         = &85           ; row counter, decrements down to zer0
+row1            = &87           ; pointer to row1 in the workspace (the one being updated)
+sum_ptr         = &89           ; set but not UNUSED
+scrn_tmp        = &8B           ; pointer to the current row in screen memory
+row0            = &8D           ; pointer to row0 in the workspace (the row above)
+row2            = &8F           ; pointer to row0 in the workspace (the row beloe)
+scrn            = &91           ; pointer to the next row in screen memory
 
-scrn_base       = &8000
+scrn_base       = &8000         ; base address of screen memory
 
-wkspc0          = &3400
-wkspc1          = &3421
-wkspc2          = &3442
-sum             = &3463
+wkspc0          = &3400         ; workspace 1 (temp copy of a screen row)
+wkspc1          = &3421         ; workspace 2 (temp copy of a screen row)
+wkspc2          = &3442         ; workspace 3 (temp copy of a screen row)
 
-gen_lo          = &0324          ; variable C on the Atom
-gen_hi          = &0340
-step            = &032A          ; variable I on the Atom
-pia2            = &B002
-pia1            = &B001
+sum             = &3463         ; pixel accumulator
 
-cells_per_byte  = &08
-bytes_per_row   = &20
-rows_per_screen = &BE
+gen_lo          = &0324         ; generation counter
+gen_hi          = &0340         ; the C integer variable on the Atom
+                                ; &340 should be &33F (bug in the original code)
+step            = &032A         ; if zero, then just calculate one generation then return
+                                ; the I integer variable on the Atom
 
-org               &2980
+pia2            = &B002         ; 8255 on the Atom, for detecting the REPT key
+pia1            = &B001         ; 8255 on the Atom, for detecting the SHIFT and CTRL keys
+
+cells_per_byte  = &08           ; bits per cell, also bits per byte, do not change!
+bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
+rows_per_screen = &BE           ; Y resolytion on the Atom in CLEAR 4 is 192
+
+org               &2980         ; base address of the code on the Atom
 
 .start
 
@@ -183,7 +189,7 @@ org               &2980
         LDA pia2                ; Test for REPT key (display generations)
         AND #&40
         BEQ return              ; yes, exit to BASIC to render generation count
-        LDA &032A
+        LDA step
         BEQ return
         LDA pia1                ; Test for SHIFT or CTRL key (exit to editor)
         AND #&C0
