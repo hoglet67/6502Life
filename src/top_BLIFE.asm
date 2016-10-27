@@ -13,14 +13,22 @@ sum             = &3463         ; pixel accumulator
 gen_lo          = &1FFE         ; generation counter
 gen_hi          = &1FFF         ; the C% integer variable on the Beeb
 
+wrcvec          = &020E
+        
+OSWORD          = &FFF1
+OSWRCH          = &FFEE
+        
 org               &2000         ; base address of the code on the Beeb
 
 .start
 
+include "vdu_driver.asm"
+        
 include "atom_life.asm"
+
+include "beeb_wrapper.asm"
 
 .end
 
-SAVE "",start,end, update_screen
-        
+SAVE "",start, end, beeb_life
         
