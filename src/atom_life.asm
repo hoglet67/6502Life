@@ -24,7 +24,10 @@ scrn_tmp        = &8B           ; pointer to the current row in screen memory
 row0            = &8D           ; pointer to row0 in the workspace (the row above)
 row2            = &8F           ; pointer to row0 in the workspace (the row beloe)
 scrn            = &91           ; pointer to the next row in screen memory
-
+IF not(_ATOM)
+delta           = &93           ; pointer to 8-line block storing difference between this and next
+ENDIF
+        
 cells_per_byte  = &08           ; bits per cell, also bits per byte, do not change!
 bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
 
@@ -108,6 +111,11 @@ bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
         LDA pixels
         ROR A
         LDY tmpY
+IF not(_ATOM)
+        EOR (scrn_tmp), Y       ; calculate delta
+        STA (delta),Y
+        EOR (scrn_tmp), Y       ; undo calculate delta        
+ENDIF        
         STA (scrn_tmp), Y       ; save byte back to real screen memory
         DEY                     ; decrement index within row
         BPL update_loop         ; test if row is done, loop back if not
@@ -157,6 +165,17 @@ bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
         STX row0                ; copy 87/88 to 8D/8E
         STY row0 + 1            ; i.e. point row 0 to old row 1
 
+IF not(_ATOM)
+        LDA delta               ; point delta to the next line
+        CLC
+        ADC #bytes_per_row      ; we assume delta buffer is page aligned
+        STA delta               ; so when it wraps to zero, it is full (8 rows)
+        BNE skip_send           ; full? send across to the Host
+        JSR send_delta          ; delta is now page aligned again
+        JSR clear_delta         ; clear the delta buffer
+        
+.skip_send        
+ENDIF
         DEC numrows             ; decrment the row counter
         BEQ gen_complete
         JMP update_row          ; loop back for more rows
@@ -174,14 +193,21 @@ IF _ATOM
         LDA pia1                ; Test for SHIFT or CTRL key (exit to editor)
         AND #&C0
         CMP #&C0
-        BEQ update_screen       ; no, then lets do the next generation
+        BEQ next_generation     ; no, then lets do the next generation
 .return
+ELSE
+        LDA #&00
+        STA delta
+        JSR send_delta          ; delta is now page aligned again
+        JSR clear_delta         ; clear the delta buffer
+        LDA #&20
+        STA delta
 ENDIF
         RTS                     ; Return to BASIC
 
 ;; Main entry point
 ;; Continuously loop updating display with new generations
-.update_screen
+.next_generation
         LDY #bytes_per_row * cells_per_byte - 1
         LDA #&00
 .clear_sum_loop

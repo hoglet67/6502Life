@@ -35,29 +35,47 @@
         STA scrn_base + 129 * bytes_per_row + bytes_per_row / 2
 
 
+        LDA #<scrn_base
+        STA delta
+        LDA #>scrn_base
+        STA delta + 1
+        LDX #&20
+.send_loop
+        JSR send_delta
+        INC delta + 1
+        DEX
+        BNE send_loop
+
+        LDA #<delta_base
+        STA delta
+        LDA #>delta_base
+        STA delta + 1
+
+        JSR clear_delta
+
+        LDA #&20                ; start at line 1, as line 0 is skipped by generation code
+        STA delta
+        
 .generation_loop
         
-        LDA #<scrn_base
-        STA ptr
-        LDA #>scrn_base
-        STA ptr + 1
-        LDX #&20
-.send_blocks
-        JSR send_block
-        INC ptr + 1
-        DEX
-        BNE send_blocks
+        JSR next_generation
 
-        JSR update_screen
-        
         JMP generation_loop
 
+.clear_delta
+        LDY #&00
+        TYA
+.clear_delta_loop
+        STA (delta), Y
+        DEY
+        BNE clear_delta_loop
+        RTS
 
 ;; Send one one strip 8 pixels heigh x 256 pixels wide to VDU driver
 ;; Converting from row linear atom" to character striped "beeb" screen format on the fly
 ;; And compressing zeros
 
-.send_block
+.send_delta
 
 ;; X is the index in beeb format
 
@@ -68,7 +86,7 @@
 
 ;; always send the data for X=0
         LDY #0
-        LDA (ptr), Y
+        LDA (delta), Y
 
 .wait_for_space1        
         BIT &FEF8
@@ -81,7 +99,7 @@
                 
         LDA char_to_linear_map, X
         TAY
-        LDA (ptr), Y
+        LDA (delta), Y
 
         BEQ skip_blank        
         

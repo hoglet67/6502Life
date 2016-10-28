@@ -10,6 +10,8 @@ wkspc2          = &3442         ; workspace 3 (temp copy of a screen row)
 
 sum             = &3463         ; pixel accumulator
 
+delta_base      = &3800         ; 8 row buffer for accumulating delta
+        
 gen_lo          = &1FFE         ; generation counter
 gen_hi          = &1FFF         ; the C% integer variable on the Beeb
 
