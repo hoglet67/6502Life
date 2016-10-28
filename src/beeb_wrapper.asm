@@ -83,8 +83,79 @@
         
         JSR next_generation
 
+        JSR mirror_edges
+        
         JMP generation_loop
 
+        
+MACRO COPY_ROW from, to
+{        
+        LDA #<(scrn_base + from * bytes_per_row)
+        STA scrn_tmp
+        LDA #>(scrn_base + from * bytes_per_row)
+        STA scrn_tmp + 1
+        LDA #<(scrn_base + to * bytes_per_row)
+        STA scrn
+        LDA #>(scrn_base + to * bytes_per_row)
+        STA scrn + 1
+        LDY #bytes_per_row - 1
+.copy_loop
+        LDA (scrn_tmp), Y
+        STA (scrn), Y
+        DEY
+        BPL copy_loop
+}
+ENDMACRO
+        
+MACRO COPY_COLUMN from, to
+{
+        LDA #<scrn_base
+        STA scrn
+        LDA #>scrn_base
+        STA scrn + 1
+        LDX #0
+.loop
+        LDY #(from DIV 8) 
+        LDA (scrn), Y
+        LDY #(to DIV 8) 
+        AND #(&80 >> (from MOD 8))
+        BEQ pixel_zero
+.pixel_one        
+        LDA (scrn), Y
+        ORA #(&80 >> (to MOD 8))
+        BNE store
+.pixel_zero        
+        LDA (scrn), Y
+        AND #(&80 >> (to MOD 8)) EOR &FF
+.store
+        STA (scrn), Y
+        CLC
+        LDA scrn
+        ADC #bytes_per_row
+        STA scrn
+        BCC nocarry
+        INC scrn + 1
+.nocarry        
+        INX
+        BNE loop
+}
+ENDMACRO
+
+;; For some reason an extra pixel of padding is needed on left/right
+;; probably due to an edge condition with atom life engine
+extra = 1
+        
+.mirror_edges
+        ;; Copy row 1 to row 255
+        COPY_ROW 1, 255
+        ;; Copy row 254 to row 0
+        COPY_ROW 254, 0        
+        ;; Copy col 1 to col 255
+        COPY_COLUMN 1 + extra, 255 - extra        
+        ;; Copy col 254 to col 0
+        COPY_COLUMN 254 - extra, 0 + extra
+        RTS
+        
 .clear_delta
         LDY #&00
         TYA
