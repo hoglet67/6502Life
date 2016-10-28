@@ -23,14 +23,11 @@
 
 ;; Plot initial pattern roughtly in the middle
 
-;;        .ooo.... = 0x70
-;;        .o...... = 0x40
+;;        .oo..... = 0x60
 ;;        oo...... = 0xC0
 ;;        .o...... = 0x40
 
-        LDA #&70
-        STA scrn_base + 126 * bytes_per_row + bytes_per_row / 2
-        LDA #&40
+        LDA #&60
         STA scrn_base + 127 * bytes_per_row + bytes_per_row / 2
         LDA #&C0
         STA scrn_base + 128 * bytes_per_row + bytes_per_row / 2
