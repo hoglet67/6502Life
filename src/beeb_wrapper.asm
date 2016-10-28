@@ -1,6 +1,19 @@
-        
+.init_string
+        ;; Turn of Cursor
+        EQUB 0, 0, 0, 0, 0, 0, 0, 0, 1, 23
+        ;; Mode 4 
+        EQUB 4, 22
+.init_string_end
+
 .beeb_life
 
+        LDX #init_string_end - init_string - 1
+.init_loop
+        LDA init_string, X
+        JSR OSWRCH
+        DEX
+        BPL init_loop
+        
         JSR install_vdu_driver
 
 ;; Clear screen

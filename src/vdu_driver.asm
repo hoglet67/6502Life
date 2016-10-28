@@ -1,8 +1,10 @@
-ptr           = &80
-escflag       = &FF
-mode4_base    = &5800
-mode4_linelen = 320
+ptr            = &80
+escflag        = &FF
+mode4_base     = &5800 + 6 * 8   ; offset by 8 characters to make space for gen count
+mode4_linelen  = 320
 
+gen_count_size = 2               ; size, in bytes, of the generatiomn count
+        
 .vdu_driver_start
         
         PHA
@@ -10,7 +12,17 @@ mode4_linelen = 320
         PHA
         TYA
         PHA
+
+        LDA #&00
+        LDX #gen_count_size - 2
+.clear_count_loop
+        STA gen_count, X
+        DEX
+        BPL clear_count_loop
+                
 .screen
+        JSR display_count
+        
         LDY #<mode4_base
         STY ptr
         LDA #>mode4_base
@@ -48,9 +60,55 @@ mode4_linelen = 320
         PLA
         RTS
 
+.display_count
+        LDA #30
+        JSR oldoswrch
+        LDX #gen_count_size - 1
+        LDY #0
+.display_count_loop
+        LDA gen_count, Y
+        JSR print_bcd
+        INY
+        DEX
+        BPL display_count_loop
+
+        SED
+        SEC
+        LDX #gen_count_size - 1
+.inc_count_loop        
+        LDA gen_count, X
+        ADC #&00
+        STA gen_count, X
+        DEX
+        BPL inc_count_loop
+        CLD
+        
+        RTS
+
+.print_bcd
+        PHA
+        LSR A
+        LSR A
+        LSR A
+        LSR A
+        JSR print_bcd_digit
+        PLA
+.print_bcd_digit
+        AND #&0F
+        ORA #&30
+
+.oldoswrch
+        JMP (oldwrcvec)
+        
 .oldwrcvec
         EQUW &E0A4
 
+        
+.gen_count
+FOR i, 0, gen_count_size - 1        
+        EQUB 0
+NEXT
+        
 .vdu_driver_end
                 
 .install_vdu_driver
@@ -86,12 +144,6 @@ mode4_linelen = 320
         LDA ptr + 1
         CMP #>vdu_driver_end
         BNE copy_vdu_loop
-
-;; Read old OSWRCH vector        
-        LDA #22
-        JSR OSWRCH
-        LDA #4
-        JSR OSWRCH
 
 ;; Write OSWRCH vector
         LDA #<wrcvec
