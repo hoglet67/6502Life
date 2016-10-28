@@ -78,7 +78,16 @@
 
         LDA #&20                ; start at line 1, as line 0 is skipped by generation code
         STA delta
-        
+
+        LDA #&FF                ; fill workspace buffers with 0xFF
+        LDY #&00                ; so work-skipping optimization will be pessimistic
+.init_ws_loop
+        STA wkspc0, Y           ; a better solution would be to add correct
+        STA wkspc1, Y           ; wrapping to work-skipping optimization in
+        STA wkspc2, Y           ; atom_life engine
+        INY
+        BNE init_ws_loop
+                
 .generation_loop
         
         JSR next_generation
@@ -149,11 +158,14 @@ extra = 1
         ;; Copy row 1 to row 255
         COPY_ROW 1, 255
         ;; Copy row 254 to row 0
-        COPY_ROW 254, 0        
+        COPY_ROW 254, 0
+
+        ;; Copying columns is not actually necessary, as the atom life engine mirrors l/r
+        
         ;; Copy col 1 to col 255
-        COPY_COLUMN 1 + extra, 255 - extra        
+        ;; COPY_COLUMN 1 + extra, 255 - extra        
         ;; Copy col 254 to col 0
-        COPY_COLUMN 254 - extra, 0 + extra
+        ;; COPY_COLUMN 254 - extra, 0 + extra
         RTS
         
 .clear_delta

@@ -5,10 +5,10 @@ rows_per_screen = &FE           ; Y resolution
 scrn_base       = &4000         ; base address of screen memory
 
 wkspc0          = &3400         ; workspace 1 (temp copy of a screen row)
-wkspc1          = &3421         ; workspace 2 (temp copy of a screen row)
-wkspc2          = &3442         ; workspace 3 (temp copy of a screen row)
+wkspc1          = &3500         ; workspace 2 (temp copy of a screen row)
+wkspc2          = &3600         ; workspace 3 (temp copy of a screen row)
 
-sum             = &3463         ; pixel accumulator
+sum             = &3700         ; pixel accumulator
 
 delta_base      = &3800         ; 8 row buffer for accumulating delta
         

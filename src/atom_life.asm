@@ -208,11 +208,11 @@ ENDIF
 ;; Main entry point
 ;; Continuously loop updating display with new generations
 .next_generation
-        LDY #bytes_per_row * cells_per_byte - 1
+        LDY #(bytes_per_row * cells_per_byte MOD 256)
         LDA #&00
 .clear_sum_loop
-        STA sum, Y              ; clear pixel accumulator
         DEY
+        STA sum, Y              ; clear pixel accumulator
         BNE clear_sum_loop
         LDA #<scrn_base         ; Point 90/91 to start of display memory
         STA scrn
