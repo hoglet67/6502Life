@@ -74,6 +74,13 @@
         INC scrn + 1
         DEX
         BNE random_loop
+        LDY #bytes_per_row - 1
+        LDA #0
+.clear_loop
+        STA scrn_base, Y         ; blank the top row
+        STA scrn_base + &1FE0, Y ; blank the bottom row
+        DEY
+        BPL clear_loop        
         RTS
 }
 
