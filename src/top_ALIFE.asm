@@ -27,6 +27,4 @@ include "atom_life.asm"
 
 .end
 
-SAVE "",start,end, next_generation
-        
-        
+SAVE "",start,end

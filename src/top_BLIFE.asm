@@ -24,6 +24,8 @@ org               &2000         ; base address of the code on the Beeb
 
 .start
 
+JMP beeb_life        
+        
 include "vdu_driver.asm"
         
 include "atom_life.asm"
@@ -32,5 +34,5 @@ include "beeb_wrapper.asm"
 
 .end
 
-SAVE "",start, end, beeb_life
+SAVE "",start, end
         
