@@ -47,3 +47,15 @@ do
     echo "    mdsum is "`md5sum <../${build}/${name}`
 done
 cd ..
+
+# Create the !boot file
+echo -e -n "*RUN BLIFE\r" > ${build}/\!BOOT
+
+# Add into the SSD
+tools/mmb_utils/putfile.pl ${build}/${ssd} ${build}/\!BOOT
+
+# Add a title
+tools/mmb_utils/title.pl ${build}/${ssd} "Co Pro Life"
+
+# Make bootable
+tools/mmb_utils/opt4.pl ${build}/${ssd} 3
