@@ -167,7 +167,7 @@
         EQUW pattern5
         EQUW pattern6
         EQUW pattern7
-        EQUW 0  ; pattern8
+        EQUW pattern8
         EQUW 0  ; pattern9
         EQUW 0
 
@@ -304,11 +304,13 @@
 
 .pattern8
         EQUB pattern8_name - pattern8
-        EQUB 1                  ; pattern depth in rows
+        EQUB 3                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
-        EQUB %00000000
+        EQUB %11100000
+        EQUB %10000000
+        EQUB %01000000
 .pattern8_name
-        EQUS "Undefined", 0
+        EQUS "Glider", 0
 
 .pattern9
         EQUB pattern9_name - pattern9
