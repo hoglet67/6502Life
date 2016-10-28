@@ -135,9 +135,9 @@ NEXT
         LDA (ptr), Y
         JSR osword_06        
         INC ptr
-        BNE nocarry
+        BNE copy_vdu_nocarry
         INC ptr + 1
-.nocarry
+.copy_vdu_nocarry
         LDA ptr
         CMP #<vdu_driver_end
         BNE copy_vdu_loop

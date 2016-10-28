@@ -1,23 +1,44 @@
-.init_string
-        ;; Turn of Cursor
-        EQUB 0, 0, 0, 0, 0, 0, 0, 0, 1, 23
-        ;; Mode 4 
-        EQUB 4, 22
-.init_string_end
 
 .beeb_life
 
-        LDX #init_string_end - init_string - 1
-.init_loop
-        LDA init_string, X
-        JSR OSWRCH
+        JSR print_string
+        
+        EQUB 22, 4
+        EQUS "Pattern selection", 10, 10, 13
+        NOP
+        
+        JSR list_patterns
         DEX
-        BPL init_loop
+        TXA
+        ORA #&30
+        PHA
+        
+        JSR print_string
+        EQUB 10, 13
+        EQUS "Press key 0-"        
+        NOP
+        
+        PLA
+        JSR OSWRCH
+
+        JSR print_string
+        EQUS " for pattern, ", 10, 13
+        EQUS "anything else for random: "
+        NOP
+        
+        JSR OSRDCH
+        JSR OSWRCH
+        
+        PHA
+
+        JSR print_string        
+        EQUB 22, 4
+        EQUB 23, 1, 0, 0, 0, 0, 0, 0, 0, 0
+        NOP
         
         JSR install_vdu_driver
 
 ;; Clear screen
-
         LDA #<scrn_base
         STA scrn
         LDA #>scrn_base
@@ -34,20 +55,9 @@
         BNE clear_loop
 
 
-;; Plot initial pattern roughtly in the middle
-
-;;        .oo..... = 0x60
-;;        oo...... = 0xC0
-;;        .o...... = 0x40
-
-        LDA #&60
-        STA scrn_base + 127 * bytes_per_row + bytes_per_row / 2
-        LDA #&C0
-        STA scrn_base + 128 * bytes_per_row + bytes_per_row / 2
-        LDA #&40
-        STA scrn_base + 129 * bytes_per_row + bytes_per_row / 2
-
-
+        PLA                     ; create initial pattern
+        JSR draw_pattern
+        
         LDA #<scrn_base
         STA delta
         LDA #>scrn_base
@@ -129,7 +139,6 @@
         
         RTS
 
-        
 .char_to_linear_map
 FOR x, 0, 31
   FOR y, 0, 7
