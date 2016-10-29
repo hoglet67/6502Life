@@ -1,102 +1,13 @@
+;; ************************************************************
+;; Variables
+;; ************************************************************
 
-.beeb_life
+MODE = 4
 
-        JSR print_string
-        
-        EQUB 22, 4
-        EQUS "Pattern selection", 10, 10, 13
-        NOP
-        
-        JSR list_patterns
-        DEX
-        TXA
-        ORA #&30
-        PHA
-        
-        JSR print_string
-        EQUB 10, 13
-        EQUS "Press key 0-"        
-        NOP
-        
-        PLA
-        JSR OSWRCH
+;; ************************************************************
+;; Macros
+;; ************************************************************
 
-        JSR print_string
-        EQUS " for pattern, ", 10, 13
-        EQUS "anything else for random: "
-        NOP
-        
-        JSR OSRDCH
-        JSR OSWRCH
-        
-        PHA
-
-        JSR print_string        
-        EQUB 22, 4
-        EQUB 23, 1, 0, 0, 0, 0, 0, 0, 0, 0
-        NOP
-        
-        JSR install_vdu_driver
-
-;; Clear screen
-        LDA #<scrn_base
-        STA scrn
-        LDA #>scrn_base
-        STA scrn + 1
-        LDX #&20
-        LDY #0
-        TYA
-.clear_loop        
-        STA (scrn), Y
-        INY
-        BNE clear_loop
-        INC scrn + 1
-        DEX
-        BNE clear_loop
-
-
-        PLA                     ; create initial pattern
-        JSR draw_pattern
-        
-        LDA #<scrn_base
-        STA delta
-        LDA #>scrn_base
-        STA delta + 1
-        LDX #&20
-.send_loop
-        JSR send_delta
-        INC delta + 1
-        DEX
-        BNE send_loop
-
-        LDA #<delta_base
-        STA delta
-        LDA #>delta_base
-        STA delta + 1
-
-        JSR clear_delta
-
-        LDA #&20                ; start at line 1, as line 0 is skipped by generation code
-        STA delta
-
-        LDA #&FF                ; fill workspace buffers with 0xFF
-        LDY #&00                ; so work-skipping optimization will be pessimistic
-.init_ws_loop
-        STA wkspc0, Y           ; a better solution would be to add correct
-        STA wkspc1, Y           ; wrapping to work-skipping optimization in
-        STA wkspc2, Y           ; atom_life engine
-        INY
-        BNE init_ws_loop
-                
-.generation_loop
-        
-        JSR next_generation
-
-        JSR mirror_edges
-        
-        JMP generation_loop
-
-        
 MACRO COPY_ROW from, to
 {        
         LDA #<(scrn_base + from * bytes_per_row)
@@ -150,6 +61,114 @@ MACRO COPY_COLUMN from, to
 }
 ENDMACRO
 
+
+;; ************************************************************
+;; Beeb Life Main Entry Point
+;; ************************************************************
+
+.beeb_life
+
+        JSR print_string
+        
+        EQUB 22, MODE
+        EQUS "Pattern selection", 10, 10, 13
+        NOP
+        
+        JSR list_patterns
+        DEX
+        TXA
+        ORA #&30
+        PHA
+        
+        JSR print_string
+        EQUB 10, 13
+        EQUS "Press key 0-"        
+        NOP
+        
+        PLA
+        JSR OSWRCH
+
+        JSR print_string
+        EQUS " for pattern, ", 10, 13
+        EQUS "anything else for random: "
+        NOP
+        
+        JSR OSRDCH
+        JSR OSWRCH
+        
+        PHA
+
+        JSR print_string        
+        EQUB 22, MODE
+        EQUB 23, 1, 0, 0, 0, 0, 0, 0, 0, 0
+        NOP
+
+;; Clear screen
+        LDA #<scrn_base
+        STA scrn
+        LDA #>scrn_base
+        STA scrn + 1
+        LDX #&20
+        LDY #0
+        TYA
+.clear_loop        
+        STA (scrn), Y
+        INY
+        BNE clear_loop
+        INC scrn + 1
+        DEX
+        BNE clear_loop
+
+        PLA                     ; create initial pattern
+        JSR draw_pattern
+
+IF _ATOM_LIFE_ENGINE
+
+;; ************************************************************
+;; ATOM LIFE ENGINE
+;; ************************************************************
+        
+        JSR install_vdu_driver
+        
+        LDA #<scrn_base
+        STA delta
+        LDA #>scrn_base
+        STA delta + 1
+        LDX #&20
+.send_loop
+        JSR send_delta
+        INC delta + 1
+        DEX
+        BNE send_loop
+
+        LDA #<delta_base
+        STA delta
+        LDA #>delta_base
+        STA delta + 1
+
+        JSR clear_delta
+
+        LDA #&20                ; start at line 1, as line 0 is skipped by generation code
+        STA delta
+
+        LDA #&FF                ; fill workspace buffers with 0xFF
+        LDY #&00                ; so work-skipping optimization will be pessimistic
+.init_ws_loop
+        STA wkspc0, Y           ; a better solution would be to add correct
+        STA wkspc1, Y           ; wrapping to work-skipping optimization in
+        STA wkspc2, Y           ; atom_life engine
+        INY
+        BNE init_ws_loop
+                
+.generation_loop
+
+        JSR next_generation
+
+        JSR mirror_edges
+  
+        JMP generation_loop
+        
+
 ;; For some reason an extra pixel of padding is needed on left/right
 ;; probably due to an edge condition with atom life engine
 extra = 1
@@ -168,63 +187,65 @@ extra = 1
         ;; COPY_COLUMN 254 - extra, 0 + extra
         RTS
         
-.clear_delta
-        LDY #&00
-        TYA
-.clear_delta_loop
-        STA (delta), Y
-        DEY
-        BNE clear_delta_loop
-        RTS
+ELSE
 
-;; Send one one strip 8 pixels heigh x 256 pixels wide to VDU driver
-;; Converting from row linear atom" to character striped "beeb" screen format on the fly
-;; And compressing zeros
+;; ************************************************************
+;; LIST_LIFE_ENGINE
+;; ************************************************************
 
-.send_delta
+        ;; Initialize buffers
+        ;; Initial pattern is in buffer 1
 
-;; X is the index in beeb format
+        LDA #<buffer1
+        STA this
+        LDA #>buffer1
+        STA this + 1
+        JSR list_life_load_buffers
 
-        TXA
-        PHA
-        
-        LDX #0
+.generation_loop
 
-;; always send the data for X=0
-        LDY #0
-        LDA (delta), Y
+        LDA #12
+        JSR OSWRCH
 
-.wait_for_space1        
-        BIT &FEF8
-        BVC wait_for_space1
-        STA &FEF9               ; send data
+        ;; Display buffer 1
+        LDA #<buffer1
+        STA this
+        LDA #>buffer1
+        STA this + 1
+        JSR list_life_update_screen
 
-.skip_blank        
-        INX
-        BEQ wait_for_space2
-                
-        LDA char_to_linear_map, X
-        TAY
-        LDA (delta), Y
+        ;; Generate buffer 1 -> buffer 2
+        LDA #<buffer1
+        STA this
+        LDA #>buffer1
+        STA this + 1
+        LDA #<buffer2
+        STA new
+        LDA #>buffer2
+        STA new + 1
+        JSR list_life
 
-        BEQ skip_blank        
-        
-.wait_for_space2        
-        BIT &FEF8
-        BVC wait_for_space2
-        STX &FEF9               ; send index
-        
-        CPX #0
-        BNE wait_for_space1
+        LDA #12
+        JSR OSWRCH
 
-        PLA
-        TAX
-        
-        RTS
+        ;; Display buffer 2
+        LDA #<buffer2
+        STA this
+        LDA #>buffer2
+        STA this + 1
+        JSR list_life_update_screen
 
-.char_to_linear_map
-FOR x, 0, 31
-  FOR y, 0, 7
-     EQUB y * &20 + x
-  NEXT
-NEXT
+        ;; Generate buffer 2 -> buffer 1
+        LDA #<buffer2
+        STA this
+        LDA #>buffer2
+        STA this + 1
+        LDA #<buffer1
+        STA new
+        LDA #>buffer1
+        STA new + 1
+        JSR list_life
+
+        JMP generation_loop
+
+ENDIF

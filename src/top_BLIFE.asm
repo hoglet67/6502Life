@@ -1,4 +1,6 @@
 _ATOM           = FALSE
+
+_ATOM_LIFE_ENGINE = TRUE
         
 rows_per_screen = &FE           ; Y resolution
 
@@ -30,6 +32,8 @@ JMP beeb_life
 include "vdu_driver.asm"
         
 include "atom_life.asm"
+
+include "list_life.asm"
 
 include "beeb_wrapper.asm"
 

@@ -15,6 +15,7 @@ next   = &76
 xx     = &78
 yy     = &7A
 bitmap = &7C
+temp   = &7E
 
 ;; ************************************************************
 ;; Macros
@@ -27,6 +28,14 @@ MACRO M_INCREMENT zp
 .nocarry
 ENDMACRO
 
+MACRO M_DECREMENT zp
+        LDA zp
+        BNE nocarry
+        DEC zp + 1
+.nocarry
+        DEC zp
+ENDMACRO
+        
 MACRO M_INCREMENT_PTR zp
         INC zp
         INC zp
@@ -34,6 +43,9 @@ MACRO M_INCREMENT_PTR zp
         INC zp + 1
 .nocarry
 ENDMACRO
+
+;;       if(x > *this)
+;;          x = *this;
 
 MACRO M_ASSIGN_IF_GREATER val, ptr
         LDY #0
@@ -45,14 +57,19 @@ MACRO M_ASSIGN_IF_GREATER val, ptr
         BVC label
         EOR #&80
 .label
-        BPL skip_assign_x
+        BMI skip_assign_val
         LDA (ptr), Y
         STA val + 1
         DEY
         LDA (ptr), Y
-        STA val        
-.skip_assign_x
-ENDMACRO        
+        STA val
+.skip_assign_val
+ENDMACRO
+
+;;          if(*prev == x) {
+;;             bitmap |= 0100;
+;;             prev++;
+;;          }
 
 MACRO M_UPDATE_BITMAP_IF_EQUAL_TO_X ptr, bmaddr, bmmask
         LDY #0
@@ -108,19 +125,19 @@ ENDMACRO
 ;;          state[bitmap] = DEAD;
 ;;    }
 ;; }
-                
+
 .state
 FOR bm, %000000000, %111111111
     ; in BeebASM false = 0 and true = -1, hence the 9 at the start
     x = 9 + ((bm AND &001) = 0) + ((bm AND &002) = 0) + ((bm AND &004) = 0) + ((bm AND &008) = 0) + ((bm AND &010) = 0) + ((bm AND &020) = 0) + ((bm AND &040) = 0) + ((bm AND &080) = 0) + ((bm AND &100) = 0)
-    IF ((bm AND &20) = 0)
-        IF x = 2 OR x = 3
+    IF ((bm AND &10) <> 0)
+        IF ((x = 3) OR (x = 4))
             EQUB LIVE
         ELSE
             EQUB DEAD
         ENDIF
     ELSE
-        IF x = 3 
+        IF (x = 3)
             EQUB LIVE
         ELSE
             EQUB DEAD
@@ -169,7 +186,7 @@ NEXT
         LDA (new), Y
         BPL skip_inc
         M_INCREMENT_PTR new
-.skip_inc  
+.skip_inc
 }
 
 
@@ -191,7 +208,7 @@ NEXT
 ;;          next++;
 ;;    }
 
-{ 
+{
         ;; if(prev == next) {
         LDA prev
         CMP next
@@ -203,9 +220,8 @@ NEXT
         ;; if(*next == 0) {
         LDY #0
         LDA (next), Y
-        BNE next_not_zero
         INY
-        LDA (next), Y
+        ORA (next), Y
         BNE next_not_zero
 
         ;; *new = 0;
@@ -247,8 +263,8 @@ NEXT
         BNE skip_inc_prev
         M_INCREMENT_PTR prev
 .skip_inc_prev
-        M_INCREMENT yy
-            
+        M_DECREMENT yy
+
 ;;       if(*this == y)
 ;;          this++;
         LDY #0
@@ -290,7 +306,7 @@ NEXT
         STA (new), Y
         INY
         LDA yy + 1
-        LDA (new), Y
+        STA (new), Y
 
 ;;    for(;;) {
 
@@ -336,7 +352,7 @@ NEXT
 ;;          }
 
         M_UPDATE_BITMAP_IF_EQUAL_TO_X prev, bitmap, &40
-        
+
 ;;          if(*this == x) {
 ;;             bitmap |= 0200;
 ;;             this++;
@@ -361,7 +377,7 @@ NEXT
         LDA bitmap + 1
         BNE upper_half
         LDA state, X
-        BEQ else        
+        BEQ else
         BNE is_live
 .upper_half
         LDA state + &100, X
@@ -397,11 +413,11 @@ NEXT
 ;;          bitmap >>= 3;
 
         LSR bitmap + 1
-        ROR bitmap  
+        ROR bitmap
         LSR bitmap + 1
-        ROR bitmap  
+        ROR bitmap
         LSR bitmap + 1
-        ROR bitmap  
+        ROR bitmap
 
 ;;          x += 1;
 
@@ -422,15 +438,6 @@ NEXT
 
 .list_life_load_buffers
 {
-        LDA #<buffer1
-        STA this
-        LDA #>buffer1
-        STA this + 1
-
-        LDA #<buffer2
-        STA new
-        LDA #>buffer2
-        STA new + 1
 
         LDA #<scrn_base
         STA scrn
@@ -454,21 +461,29 @@ NEXT
         BPL test_blank_loop
 
 .next_row
-                  
+
+       LDA scrn
+       CLC
+       ADC #&20
+       STA scrn
+       LDA scrn + 1
+       ADC #0
+       STA scrn + 1
+
        LDA yy
        SEC
        SBC #1
        STA yy
        LDA yy + 1
        SBC #0
-       STA yy + 1                  
+       STA yy + 1
 
        ORA yy
        BNE row_loop
 
        ;; write the terminating zero
        M_WRITE this, yy
-       
+
        RTS
 
 .row_not_blank
@@ -502,27 +517,89 @@ NEXT
         CPY #&20
         BNE byte_loop
 
-        BEQ next_row
+        JMP next_row
 
 }
 
+;; ************************************************************
+;; list_life_update_screen()
+;; ************************************************************
 
+;; (this) points to the cell list
 
+;; for now we wll just emit plot commands
 
+.list_life_update_screen
+{
 
+.next_yy
+        LDY #0
+        LDA (this), Y
+        STA yy
+        INY
+        LDA (this), Y
+        STA yy + 1
 
+        M_INCREMENT_PTR this
 
+        ORA yy
+        BNE next_xx
+        RTS
 
+.next_xx
 
+        LDY #0
+        LDA (this), Y
+        STA xx
+        INY
+        LDA (this), Y
+        STA xx + 1
 
+        ;; If this is positive, then we have a new Y
+        BPL next_yy
 
+        M_INCREMENT_PTR this
 
+        ;; plot a point
 
+        LDA #25
+        JSR OSWRCH
+        LDA #69
+        JSR OSWRCH
 
+        LDA xx
+        CLC
+        ADC #0
+        STA temp
+        LDA xx + 1
+        ADC #&01
+        STA temp + 1
 
+        ASL temp
+        ROL temp + 1
+        ASL temp
+        ROL temp + 1
 
+        LDA temp
+        JSR OSWRCH
+        LDA temp + 1
+        JSR OSWRCH
 
+        LDA yy
+        CLC
+        STA temp
+        LDA yy + 1
+        STA temp + 1
 
+        ASL temp
+        ROL temp + 1
+        ASL temp
+        ROL temp + 1
 
+        LDA temp
+        JSR OSWRCH
+        LDA temp + 1
+        JSR OSWRCH
 
-
+        JMP next_xx
+}
