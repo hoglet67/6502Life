@@ -72,7 +72,16 @@ pat_depth  = &7A
         LDX #&20
         LDY #0
 .random_loop
+        LDA #&FF
+        STA (dst), Y
         JSR random
+        AND (dst), Y
+        STA (dst), Y
+        JSR random
+        AND (dst), Y
+        STA (dst), Y
+        JSR random
+        AND (dst), Y
         STA (dst), Y
         INY
         BNE random_loop
