@@ -118,23 +118,83 @@ life(int *this, int *new)
 	}
 }
 
+int dump_stats(int generation, int *list) {
+   int count = 0;
+   int *ptr = list;
+   printf("generation %5d ", generation);
+   while (*ptr) {
+      if (*ptr++ < 0) {
+         count++;
+      }
+   }
+   printf("count = %5d\n", count);
+//   ptr = list;
+//   while (*ptr) {
+//      printf("%d\n", *ptr++);
+//   }
+}
+
+int buffer1[10000];
+int buffer2[10000];
 
 int main() {
 
    int i;
 
-   int this[] = { 12, -11, -10, 11, -12, -11, 10, -11, 0 };
+   // r-pentomino
+   // .**
+   // **.
+   // .*.
+#if 0
+   int pattern[] = { 12, -11, -10, 11, -12, -11, 10, -11, 0 };
+#endif
 
+   // bunnies 9
+   // *.......
+   // **.....*
+   // ......*.
+   // ......*.
+   // .....*..
+   // ....*...
+   // ....*...
+   int pattern[] = { 12, -12,
+                  11, -12, -11, -5,
+                  10, -6,
+                   9, -6,
+                   8, -7,
+                   7, -8,
+                   6, -8,
+                   0};
 
-   int new[100];
-
-
-   life(this, new);
-
-   i = -1;
+   int *ptr1 = &pattern[0];
+   int *ptr2 = &buffer1[0];
+   
+   // Copy the pattern into the buffer 1
+   int coord = 0;
+   int offset = 0x4000;
    do {
-      i++;
-      printf("%d\n", new[i]);
-   } while (new[i] != 0);
+      coord = *ptr1++;
+      if (coord < 0) {
+         *ptr2++ = coord - offset;
+      } else if (coord > 0) {
+         *ptr2++ = coord + offset;
+      } else {
+         *ptr2++ = coord;
+      }
+   } while (coord != 0);
 
+   int gen = 0;
+
+   ptr1 = &buffer1[0];
+   ptr2 = &buffer2[0];
+
+   while (1) {
+      dump_stats(gen, ptr1);
+      life(ptr1, ptr2);
+      gen++;
+
+      dump_stats(gen, ptr2);
+      life(ptr2, ptr1);
+      gen++;
+   }
 }
