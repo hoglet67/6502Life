@@ -454,14 +454,18 @@ NEXT
         STA scrn + 1
 
         ;; y is positive and decreasing as you go down the screen
-        ;; 256 ... 1
+        ;; e.g. 1256 ... 1001
         LDA #<Y_START
         STA yy
         LDA #>Y_START
         STA yy + 1
 
+        LDX #0
+        
 .row_loop
-
+        TXA
+        PHA
+        
         LDY #&1F
 .test_blank_loop
         LDA (scrn), Y
@@ -487,9 +491,15 @@ NEXT
        SBC #0
        STA yy + 1
 
-       ORA yy
+       PLA
+       TAX
+       DEX
        BNE row_loop
 
+       LDA #0
+       STA yy
+       STA yy + 1
+        
        ;; write the terminating zero
        M_WRITE this, yy
 

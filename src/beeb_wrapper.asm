@@ -4,8 +4,8 @@
 
 MODE = 4
 
-X_START = &FEFF                 ; -256 .. -1
-Y_START = &0100                 ; 256 .. 1
+X_START = &BFFF                 ; in the middle of the negative range
+Y_START = &4000                 ; in the middle of the positive range
  
 ;; ************************************************************
 ;; Macros
