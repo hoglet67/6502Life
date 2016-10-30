@@ -3,7 +3,7 @@ escflag        = &FF
 mode4_base     = &5800 + 6 * 8   ; offset by 8 characters to make space for gen count
 mode4_linelen  = 320
 
-gen_count_size = 2               ; size, in bytes, of the generatiomn count
+gen_count_size = 3               ; size, in bytes, of the generatiomn count
         
 .vdu_driver_start
         
