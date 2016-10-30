@@ -6,21 +6,45 @@ mode4_linelen  = 320
 gen_count_size = 3               ; size, in bytes, of the generatiomn count
         
 .vdu_driver_start
+
+        ;; Hijack &FE and &FF - this will break plot commands!
         
+        CMP #&FE
+        BEQ clear_gen_count
+
+        CMP #&FF
+        BEQ update_display
+
+        JMP (oldwrcvec)
+
+.clear_gen_count
+{
+        PHA
+        TXA
+        PHA
+        
+        LDA #&00
+        LDX #gen_count_size - 2
+.loop
+        STA gen_count, X
+        DEX
+        BPL loop
+
+        PLA
+        TAX
+        PLA
+        RTS
+}        
+        
+        
+.update_display
+{
         PHA
         TXA
         PHA
         TYA
         PHA
-
-        LDA #&00
-        LDX #gen_count_size - 2
-.clear_count_loop
-        STA gen_count, X
-        DEX
-        BPL clear_count_loop
                 
-.screen
         JSR display_count
         
         LDY #<mode4_base
@@ -47,19 +71,15 @@ gen_count_size = 3               ; size, in bytes, of the generatiomn count
         ADC #>mode4_linelen
         STA ptr + 1
         BPL idle1
-        BIT escflag
-        BPL screen
-        LDA oldwrcvec
-        STA wrcvec
-        LDA oldwrcvec+1
-        STA wrcvec + 1
+        
         PLA
         TAY
         PLA
         TAX
         PLA
         RTS
-
+}
+        
 .display_count
         LDA #30
         JSR oldoswrch

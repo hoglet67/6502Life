@@ -7,7 +7,16 @@ MODE = 4
 X_START = &BFFF                 ; in the middle of the negative range
 Y_START = &4000                 ; in the middle of the positive range
 
-count = &7c
+count = &74
+        
+old_xstart = &78
+old_ystart = &7A
+new_xstart = &7C
+new_ystart = &7E
+
+PAN_POS = &0002
+
+PAN_NEG = &10000 - PAN_POS
         
 ;; ************************************************************
 ;; Macros
@@ -73,6 +82,11 @@ ENDMACRO
 
 .beeb_life
 
+        ;; Disable cursor editing, so cursors return ascii codes &88-&8B
+        LDA #&04
+        LDX #&01
+        JSR OSBYTE
+        
         JSR print_string
         
         EQUB 22, MODE
@@ -128,12 +142,18 @@ ENDMACRO
         JSR draw_pattern
 
         JSR install_vdu_driver
+
+        LDA #&FE                ; send the VDU command to reset the generation count
+        JSR OSWRCH
         
 IF _ATOM_LIFE_ENGINE
 
 ;; ************************************************************
 ;; ATOM LIFE ENGINE
 ;; ************************************************************
+
+        LDA #&FF                ; send the VDU command to expect a new display
+        JSR OSWRCH
 
         LDA #<scrn_base
         STA delta
@@ -166,6 +186,9 @@ IF _ATOM_LIFE_ENGINE
         BNE init_ws_loop
                 
 .generation_loop
+
+        LDA #&FF                ; send the VDU command to expect a new display
+        JSR OSWRCH
 
         JSR next_generation
 
@@ -220,9 +243,13 @@ ELSE
 
         ;; Configure the initial viewpoint
         LDA #<X_START
-        STA xstart
+        STA old_xstart
         LDA #>X_START
-        STA xstart + 1
+        STA old_xstart + 1
+        LDA #<Y_START
+        STA old_ystart
+        LDA #>Y_START
+        STA old_ystart + 1
 
         LDA #0
         STA count
@@ -280,17 +307,14 @@ ELSE
         JMP generation_loop
 
 
-MACRO M_COPY_PTR from, to
+MACRO M_COPY from, to
         LDA from
         STA to
         LDA from + 1
         STA to + 1        
 ENDMACRO
 
-MACRO M_UPDATE_COORD coord, d, mask
-        LDA count
-        AND #mask
-        BNE skip_update
+MACRO M_UPDATE_COORD coord, d
         LDA coord
         CLC
         ADC #<d
@@ -304,11 +328,49 @@ ENDMACRO
 .list_life_update_screen
 {
 
-        LDA #<Y_START
-        STA ystart
-        LDA #>Y_START
-        STA ystart + 1
+;; Every 3 generations scan the keyboard
 
+        M_COPY old_xstart, new_xstart
+        M_COPY old_ystart, new_ystart
+
+        LDA count
+        AND #&03
+        BNE continue
+        
+        LDA #&81
+        LDX #&00
+        LDY #&00
+        JSR OSBYTE
+        BCS continue
+        
+        ;; &88 = Left, &89 = Right, &8A = Up, &8B = Down
+        
+        CPX #&88
+        BNE not_left
+        M_UPDATE_COORD new_xstart, PAN_POS
+        JMP continue
+.not_left        
+        CPX #&89
+        BNE not_right
+        M_UPDATE_COORD new_xstart, PAN_NEG
+        JMP continue
+.not_right        
+        CPX #&8A
+        BNE not_up
+        M_UPDATE_COORD new_ystart, PAN_POS
+        JMP continue
+.not_up        
+        CPX #&8B
+        BNE not_down
+        M_UPDATE_COORD new_ystart, PAN_NEG
+.not_down
+
+.continue
+
+        
+        LDA #&FF                ; send the VDU command to expect a new display
+        JSR OSWRCH
+        
         LDX #&20
         
 .loop
@@ -317,36 +379,40 @@ ENDMACRO
         
         JSR clear_delta
 
-        M_COPY_PTR this, list
+        ;; Erase the old strip        
+        M_COPY old_xstart, xstart
+        M_COPY old_ystart, ystart
+        M_COPY this, list
         JSR list_life_update_delta
-        M_COPY_PTR list, this
+        M_COPY list, this
 
-;;      M_UPDATE_COORD xstart, &FFFF, &07
-                
-        M_COPY_PTR new, list
+        ;; Draw the new strip
+        M_COPY new_xstart, xstart                
+        M_COPY new_ystart, ystart
+        M_COPY new, list
         JSR list_life_update_delta 
-        M_COPY_PTR list, new
+        M_COPY list, new
 
-        
-;;      M_UPDATE_COORD xstart, &0001, &07
-        
         JSR send_delta
 
-        M_UPDATE_COORD ystart, &FFF8, &00
+        ;; Move the strip down 8 pixels
+        M_UPDATE_COORD old_ystart, &FFF8
+        M_UPDATE_COORD new_ystart, &FFF8
         
         PLA
         TAX
         DEX
         BNE loop
 
-;;      M_UPDATE_COORD xstart, &FFFF, &07
+        ;; Move the strip up 256 pixels
+        M_UPDATE_COORD old_ystart, &0100
+        M_UPDATE_COORD new_ystart, &0100
+
+        ;; Now make new permemany
+        M_COPY new_xstart, old_xstart
+        M_COPY new_ystart, old_ystart
         
         RTS
-
-
-
-        
-        
 }
 
 ENDIF

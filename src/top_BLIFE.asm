@@ -20,6 +20,7 @@ gen_hi          = &1FFF         ; the C% integer variable on the Beeb
 wrcvec          = &020E
         
 OSWORD          = &FFF1
+OSBYTE          = &FFF4
 OSWRCH          = &FFEE
 OSRDCH          = &FFE0
         
