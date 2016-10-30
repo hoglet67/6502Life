@@ -65,6 +65,23 @@ pat_depth  = &7A
 
 .random_pattern
 {
+
+        ;; Seed by reading system VIA T1C (&FE44)
+
+        LDX #4
+.seed_loop
+        TXA
+        PHA
+        LDA #&96
+        LDX #&44
+        JSR OSBYTE
+        TYA
+        STA seed, X
+        PLA
+        TAX
+        DEX
+        BPL seed_loop
+        
         LDA #<scrn_base
         STA dst
         LDA #>scrn_base
