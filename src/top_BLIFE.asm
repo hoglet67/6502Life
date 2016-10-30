@@ -1,6 +1,6 @@
 _ATOM           = FALSE
 
-_ATOM_LIFE_ENGINE = TRUE
+_ATOM_LIFE_ENGINE = FALSE
         
 rows_per_screen = &FE           ; Y resolution
 

@@ -4,6 +4,9 @@
 
 MODE = 4
 
+X_START = &FEFF                 ; -256 .. -1
+Y_START = &0100                 ; 256 .. 1
+ 
 ;; ************************************************************
 ;; Macros
 ;; ************************************************************
@@ -122,14 +125,14 @@ ENDMACRO
         PLA                     ; create initial pattern
         JSR draw_pattern
 
+        JSR install_vdu_driver
+        
 IF _ATOM_LIFE_ENGINE
 
 ;; ************************************************************
 ;; ATOM LIFE ENGINE
 ;; ************************************************************
-        
-        JSR install_vdu_driver
-        
+
         LDA #<scrn_base
         STA delta
         LDA #>scrn_base
@@ -147,7 +150,7 @@ IF _ATOM_LIFE_ENGINE
         STA delta + 1
 
         JSR clear_delta
-
+        
         LDA #&20                ; start at line 1, as line 0 is skipped by generation code
         STA delta
 
@@ -200,18 +203,21 @@ ELSE
         STA this
         LDA #>buffer1
         STA this + 1
-        JSR list_life_load_buffers
+        JSR list_life_load_buffer
 
+        ;; Buffer 2 is empty
+        LDA #0
+        STA buffer2
+        STA buffer2 + 1
+
+        ;; Delta buffer pointer points to fixed delta_base        
+        LDA #<delta_base
+        STA delta
+        LDA #>delta_base
+        STA delta + 1
+        
 .generation_loop
 
-        LDA #12
-        JSR OSWRCH
-
-        ;; Display buffer 1
-        LDA #<buffer1
-        STA this
-        LDA #>buffer1
-        STA this + 1
         JSR list_life_update_screen
 
         ;; Generate buffer 1 -> buffer 2
@@ -225,14 +231,6 @@ ELSE
         STA new + 1
         JSR list_life
 
-        LDA #12
-        JSR OSWRCH
-
-        ;; Display buffer 2
-        LDA #<buffer2
-        STA this
-        LDA #>buffer2
-        STA this + 1
         JSR list_life_update_screen
 
         ;; Generate buffer 2 -> buffer 1
@@ -248,4 +246,76 @@ ELSE
 
         JMP generation_loop
 
+
+.list_life_update_screen
+{
+
+        ;; Point xstart and y start 
+        LDA #<X_START
+        STA xstart
+        LDA #>X_START
+        STA xstart + 1
+        
+        LDA #<Y_START
+        STA ystart
+        LDA #>Y_START
+        STA ystart + 1
+
+        LDA #<buffer1
+        STA this
+        LDA #>buffer1
+        STA this + 1       
+
+        LDA #<buffer2
+        STA new
+        LDA #>buffer2
+        STA new + 1       
+
+        LDX #&20
+        
+.loop
+        TXA
+        PHA
+        
+        JSR clear_delta
+
+        LDA this
+        STA list
+        LDA this + 1
+        STA list + 1
+        JSR list_life_update_delta
+        LDA list
+        STA this
+        LDA list + 1
+        STA this + 1
+
+        LDA new
+        STA list
+        LDA new  + 1
+        STA list + 1
+        JSR list_life_update_delta
+        LDA list
+        STA new
+        LDA list + 1
+        STA new  + 1
+        
+        JSR send_delta
+
+        LDA ystart
+        SEC
+        SBC #8
+        STA ystart
+        LDA ystart + 1
+        SBC #0
+        STA ystart + 1
+        
+        PLA
+        TAX
+        DEX
+        BNE loop
+        RTS
+        
+}
+
 ENDIF
+        

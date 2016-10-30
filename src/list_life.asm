@@ -8,15 +8,24 @@ buffer2 = &A000                 ; A000-DFFF = 16K
 DEAD = 0
 LIVE = 1
 
-this   = &70
-new    = &72
-prev   = &74
-next   = &76
-xx     = &78
-yy     = &7A
-bitmap = &7C
-temp   = &7E
+this   = &70                    ; used by both
+new    = &72                    ; used by both
 
+prev   = &74                    ; used by list_life()
+next   = &76                    ; used by list_life()
+bitmap = &78                    ; used by list_life()
+
+list   = &74                    ; used by list_life_update_delta()
+xstart = &76                    ; used by list_life_update_delta()
+ystart = &78                    ; used by list_life_update_delta()
+        
+temp   = &7A                    ; used by both
+xx     = &7C                    ; used by both
+yy     = &7E                    ; used by both
+        
+xend   = &80                    ; used by list_life_update_delta()
+yend   = &82                    ; used by list_life_update_delta()
+        
 ;; ************************************************************
 ;; Macros
 ;; ************************************************************
@@ -35,7 +44,7 @@ MACRO M_DECREMENT zp
 .nocarry
         DEC zp
 ENDMACRO
-        
+
 MACRO M_INCREMENT_PTR zp
         INC zp
         INC zp
@@ -430,13 +439,13 @@ NEXT
 ;; }
 
 ;; ************************************************************
-;; list_life_load_buffers()
+;; list_life_load_buffer()
 ;; ************************************************************
 
-;; Initializes a list life buffer from a 256x256 screen
+;; Initializes the (this) buffer from the 256x256 screen_base
 ;;
 
-.list_life_load_buffers
+.list_life_load_buffer
 {
 
         LDA #<scrn_base
@@ -446,9 +455,9 @@ NEXT
 
         ;; y is positive and decreasing as you go down the screen
         ;; 256 ... 1
-        LDA #<(&0100)
+        LDA #<Y_START
         STA yy
-        LDA #>(&0100)
+        LDA #>Y_START
         STA yy + 1
 
 .row_loop
@@ -492,9 +501,9 @@ NEXT
         M_WRITE this, yy
 
         ;; x is negative and increasing as you go right across the screen
-        LDA #<(&FEFF)
+        LDA #<X_START
         STA xx
-        LDA #>(&FEFF)
+        LDA #>X_START
         STA xx + 1
 
         LDY #&00
@@ -522,25 +531,217 @@ NEXT
 }
 
 ;; ************************************************************
-;; list_life_update_screen()
+;; list_life_update_delta()
 ;; ************************************************************
 
-;; (this) points to the cell list
+;; (list) points to the cell list
+
+;; xend = xstart + 256;
+;; yend = ystart - 8;
+;; while (1) {
+;;     yy = *list;
+;;     if (ystart < yy) {
+;;         // Skip over x-coordinates
+;;         do {
+;;            list++;
+;;         } while (*list < 0);
+;;     } else if (yend < yy) {
+;;         temp = 32 * (ystart - yy);
+;;         while (1);
+;;            xx = *++list;
+;;            // Test if we have read a y coordinate
+;;            if (xx >= 0) {
+;;                break;
+;;            }
+;;            if (xx >= xstart && xx < xend) {
+;;              X_reg = temp + (xx - xstart) >> 3;
+;;              *(delta_base + X_reg) ^= mask[(xx - xstart) & 7];
+;;            }
+;;         }
+;;     } else {
+;;         return;
+;;     }
+;; }
+
+
+.list_life_update_delta
+{
+
+;; xend = xstart + 256;
+
+        LDA xstart
+        STA xend
+        LDA xstart + 1
+        CLC
+        ADC #1
+        STA xend + 1
+
+;; yend = ystart - 8;
+
+        LDA ystart
+        SEC
+        SBC #8
+        STA yend
+        LDA ystart + 1
+        SBC #0
+        STA yend + 1;
+
+;; while (1) {
+
+
+.while_level1
+
+;;     yy = *list;
+
+        LDY #0
+        LDA (list), Y
+        STA yy
+        INY
+        LDA (list), Y
+        STA yy + 1
+
+;;     if (ystart < yy) {
+
+        ;; yy and ystart can only be positive (or zero), so we can use 16-bit unsigned comparison
+        LDA ystart
+        CMP yy
+        LDA ystart + 1
+        SBC yy + 1
+
+        BCS else1
+
+;;         // Skip over x-coordinates
+;;         do {
+;;            list++;
+;;         } while (*list < 0);
+
+        LDY #1
+.skip_over_x
+        M_INCREMENT_PTR list
+        LDA (list), Y
+        BMI skip_over_x
+
+        BPL while_level1
+
+;;     } else if (yend < yy) {
+
+.else1
+        ;; yy and yend can only be positive (or zero), so we can use 16-bit unsigned comparison
+        LDA yend
+        CMP yy
+        LDA yend + 1
+        SBC yy + 1
+
+        BCS else2
+
+;;         temp = 32 * (ystart - yy);
+
+        ;; 8 bits is sufficient here, as the Y strip is 8 pixels high
+        LDA ystart
+        SEC
+        SBC yy
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        STA temp
+
+;;         while(1) {
+
+.while_level2
+
+;;            xx = *++list;
+
+        M_INCREMENT_PTR list
+
+        LDY #0
+        LDA (list), Y
+        STA xx
+        INY
+        LDA (list), Y
+        STA xx + 1
+
+;;            // Test if we have read a y coordinate
+;;            if (xx >= 0) {
+;;                break;
+;;            }
+        BPL while_level1
+
+;;            if (xx >= xstart && xx < xend) {
+
+        ;; xx and xstart and xend can only be negative, so we can use 16-bit unsigned comparison
+        LDA xx
+        CMP xstart
+        LDA xx + 1
+        SBC xstart + 1
+        BCC while_level2
+
+        LDA xend
+        CMP xx
+        LDA xend + 1
+        SBC xx + 1
+        BCC while_level2
+
+;;              X_reg = temp + (xx - xstart) >> 3;
+;;              *(delta_base + X_reg) ^= mask[(xx - xstart) & 7];
+
+        LDA xx
+        SEC
+        SBC xstart
+        TAY
+
+        LSR A
+        LSR A
+        LSR A
+        CLC
+        ADC temp
+        TAX
+
+        TYA
+        AND #&07
+        TAY
+
+        LDA delta_base, X
+        EOR pixel_mask, Y
+        STA delta_base, X
+
+        JMP while_level2
+
+;;     } else {
+;;         return;
+;;     }
+;; }
+
+
+.else2
+        RTS
+
+}
+
+.pixel_mask
+        EQUB &80, &40, &20, &10, &08, &04, &02, &01
+
+;; ************************************************************
+;; list_life_update_screen_vdu()
+;; ************************************************************
+
+;; (list) points to the cell list
 
 ;; for now we wll just emit plot commands
 
-.list_life_update_screen
+.list_life_update_screen_vdu
 {
 
 .next_yy
         LDY #0
-        LDA (this), Y
+        LDA (list), Y
         STA yy
         INY
-        LDA (this), Y
+        LDA (list), Y
         STA yy + 1
 
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR list
 
         ORA yy
         BNE next_xx
@@ -549,16 +750,16 @@ NEXT
 .next_xx
 
         LDY #0
-        LDA (this), Y
+        LDA (list), Y
         STA xx
         INY
-        LDA (this), Y
+        LDA (list), Y
         STA xx + 1
 
-        ;; If this is positive, then we have a new Y
+        ;; If list is positive, then we have a new Y
         BPL next_yy
 
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR list
 
         ;; plot a point
 
