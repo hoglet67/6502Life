@@ -6,7 +6,9 @@ MODE = 4
 
 X_START = &BFFF                 ; in the middle of the negative range
 Y_START = &4000                 ; in the middle of the positive range
- 
+
+count = &7c
+        
 ;; ************************************************************
 ;; Macros
 ;; ************************************************************
@@ -215,9 +217,27 @@ ELSE
         STA delta
         LDA #>delta_base
         STA delta + 1
+
+        ;; Configure the initial viewpoint
+        LDA #<X_START
+        STA xstart
+        LDA #>X_START
+        STA xstart + 1
+
+        LDA #0
+        STA count
         
 .generation_loop
 
+        ;; Erase buffer 2, draw buffer 1
+        LDA #<buffer2
+        STA this
+        LDA #>buffer2
+        STA this + 1
+        LDA #<buffer1
+        STA new
+        LDA #>buffer1
+        STA new + 1
         JSR list_life_update_screen
 
         ;; Generate buffer 1 -> buffer 2
@@ -231,6 +251,17 @@ ELSE
         STA new + 1
         JSR list_life
 
+        INC count
+        
+        ;; Erase buffer 1, draw buffer 2
+        LDA #<buffer1
+        STA this
+        LDA #>buffer1
+        STA this + 1
+        LDA #<buffer2
+        STA new
+        LDA #>buffer2
+        STA new + 1        
         JSR list_life_update_screen
 
         ;; Generate buffer 2 -> buffer 1
@@ -244,32 +275,39 @@ ELSE
         STA new + 1
         JSR list_life
 
+        INC count
+        
         JMP generation_loop
 
 
+MACRO M_COPY_PTR from, to
+        LDA from
+        STA to
+        LDA from + 1
+        STA to + 1        
+ENDMACRO
+
+MACRO M_UPDATE_COORD coord, d, mask
+        LDA count
+        AND #mask
+        BNE skip_update
+        LDA coord
+        CLC
+        ADC #<d
+        STA coord
+        LDA coord + 1
+        ADC #>d
+        STA coord + 1
+.skip_update        
+ENDMACRO
+        
 .list_life_update_screen
 {
 
-        ;; Point xstart and y start 
-        LDA #<X_START
-        STA xstart
-        LDA #>X_START
-        STA xstart + 1
-        
         LDA #<Y_START
         STA ystart
         LDA #>Y_START
         STA ystart + 1
-
-        LDA #<buffer1
-        STA this
-        LDA #>buffer1
-        STA this + 1       
-
-        LDA #<buffer2
-        STA new
-        LDA #>buffer2
-        STA new + 1       
 
         LDX #&20
         
@@ -279,41 +317,35 @@ ELSE
         
         JSR clear_delta
 
-        LDA this
-        STA list
-        LDA this + 1
-        STA list + 1
+        M_COPY_PTR this, list
         JSR list_life_update_delta
-        LDA list
-        STA this
-        LDA list + 1
-        STA this + 1
+        M_COPY_PTR list, this
 
-        LDA new
-        STA list
-        LDA new  + 1
-        STA list + 1
-        JSR list_life_update_delta
-        LDA list
-        STA new
-        LDA list + 1
-        STA new  + 1
+;;      M_UPDATE_COORD xstart, &FFFF, &07
+                
+        M_COPY_PTR new, list
+        JSR list_life_update_delta 
+        M_COPY_PTR list, new
+
+        
+;;      M_UPDATE_COORD xstart, &0001, &07
         
         JSR send_delta
 
-        LDA ystart
-        SEC
-        SBC #8
-        STA ystart
-        LDA ystart + 1
-        SBC #0
-        STA ystart + 1
+        M_UPDATE_COORD ystart, &FFF8, &00
         
         PLA
         TAX
         DEX
         BNE loop
+
+;;      M_UPDATE_COORD xstart, &FFFF, &07
+        
         RTS
+
+
+
+        
         
 }
 

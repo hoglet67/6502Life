@@ -31,15 +31,15 @@ JMP beeb_life
         
 include "vdu_driver.asm"
         
+include "utils.asm"
+
+include "patterns.asm"
+
 include "atom_life.asm"
 
 include "list_life.asm"
 
 include "beeb_wrapper.asm"
-
-include "patterns.asm"
-
-include "utils.asm"
 
 .end
 

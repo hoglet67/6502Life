@@ -24,9 +24,6 @@ scrn_tmp        = &8B           ; pointer to the current row in screen memory
 row0            = &8D           ; pointer to row0 in the workspace (the row above)
 row2            = &8F           ; pointer to row0 in the workspace (the row beloe)
 scrn            = &91           ; pointer to the next row in screen memory
-IF not(_ATOM)
-delta           = &93           ; pointer to 8-line block storing difference between this and next
-ENDIF
         
 cells_per_byte  = &08           ; bits per cell, also bits per byte, do not change!
 bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256

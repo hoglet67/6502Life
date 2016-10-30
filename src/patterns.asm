@@ -1,3 +1,8 @@
+src        = &74
+dst        = &76
+pat_width  = &78
+pat_depth  = &7A
+        
 .draw_pattern
 
         CMP #'0'
@@ -9,69 +14,69 @@
         ASL A
         TAX
         LDA pattern_table, X    ; find pattern definition
-        STA pixels
+        STA src
         LDA pattern_table + 1, X
-        STA pixels + 1
+        STA src + 1
 
         BEQ random_pattern      ; pattern not defined
 
-        JSR inc_pixels          ; skip pointer to pattern name
+        JSR inc_src          ; skip pointer to pattern name
 
         LDY #&00
-        LDA (pixels), Y         ; pattern depth
-        STA tmpY
-        JSR inc_pixels
+        LDA (src), Y         ; pattern depth
+        STA pat_depth
+        JSR inc_src
 
-        LDA (pixels), Y         ; pattern width in bytes
-        STA tmpC
-        JSR inc_pixels
+        LDA (src), Y         ; pattern width in bytes
+        STA pat_width
+        JSR inc_src
 
         LDA #<(scrn_base + 128 * bytes_per_row + bytes_per_row / 2)
-        STA scrn
+        STA dst
         LDA #>(scrn_base + 128 * bytes_per_row + bytes_per_row / 2)
-        STA scrn + 1
+        STA dst + 1
 
 .pattern_loop1
-        LDX tmpC                ; pattern width
+        LDX pat_width                ; pattern width
         LDY #0
 .pattern_loop2
-        LDA (pixels), Y
-        STA (scrn), Y
+        LDA (src), Y
+        STA (dst), Y
         INY
         DEX
         BNE pattern_loop2
         CLC
-        LDA scrn
+        LDA dst
         ADC #bytes_per_row
-        STA scrn
-        LDA scrn + 1
+        STA dst
+        LDA dst + 1
         ADC #0
-        STA scrn + 1
+        STA dst + 1
         CLC
-        LDA pixels
-        ADC tmpC
-        STA pixels
-        LDA pixels + 1
+        LDA src
+        ADC pat_width
+        STA src
+        LDA src + 1
         ADC #0
-        STA pixels + 1
-        DEC tmpY
+        STA src + 1
+        DEC pat_depth
         BNE pattern_loop1
         RTS
 
 .random_pattern
 {
         LDA #<scrn_base
-        STA scrn
+        STA dst
         LDA #>scrn_base
-        STA scrn + 1
+        STA dst + 1
         LDX #&20
         LDY #0
 .random_loop
         JSR random
-        STA (scrn), Y
+        STA (dst), Y
         INY
         BNE random_loop
-        INC scrn + 1
+        INC dst + 1
         DEX
         BNE random_loop
         LDY #bytes_per_row - 1
@@ -110,11 +115,11 @@
 }
 
 
-.inc_pixels
+.inc_src
 {
-        INC pixels
+        INC src
         BNE nocarry
-        INC pixels + 1
+        INC src + 1
 .nocarry
         RTS
 }
@@ -128,9 +133,9 @@
         ASL A
         TAY
         LDA pattern_table, Y    ; find pattern definition
-        STA pixels
+        STA src
         LDA pattern_table + 1, Y
-        STA pixels + 1
+        STA src + 1
         BEQ list_done
 
         TXA
@@ -140,10 +145,10 @@
         JSR OSWRCH
 
         LDY #0
-        LDA (pixels), Y
+        LDA (src), Y
         TAY
 .name_loop
-        LDA (pixels), Y
+        LDA (src), Y
         BEQ name_done
         JSR OSWRCH
         INY

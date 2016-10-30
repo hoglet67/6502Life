@@ -8,23 +8,21 @@ buffer2 = &4000                 ; 4000-9BFF = 23K
 DEAD = 0
 LIVE = 1
 
-this   = &70                    ; used by both
-new    = &72                    ; used by both
+this   = &50                    ; used by both
+new    = &52                    ; used by both
+temp   = &54                    ; used by both
+xx     = &56                    ; used by both
+yy     = &58                    ; used by both
 
-prev   = &74                    ; used by list_life()
-next   = &76                    ; used by list_life()
-bitmap = &78                    ; used by list_life()
+prev   = &5A                    ; used by list_life()
+next   = &5C                    ; used by list_life()
+bitmap = &5E                    ; used by list_life()
 
-list   = &74                    ; used by list_life_update_delta()
-xstart = &76                    ; used by list_life_update_delta()
-ystart = &78                    ; used by list_life_update_delta()
-        
-temp   = &7A                    ; used by both
-xx     = &7C                    ; used by both
-yy     = &7E                    ; used by both
-        
-xend   = &80                    ; used by list_life_update_delta()
-yend   = &82                    ; used by list_life_update_delta()
+list   = &60                    ; used by list_life_update_delta()
+xstart = &62                    ; used by list_life_update_delta()
+ystart = &64                    ; used by list_life_update_delta()
+xend   = &66                    ; used by list_life_update_delta()
+yend   = &68                    ; used by list_life_update_delta()
         
 ;; ************************************************************
 ;; Macros
