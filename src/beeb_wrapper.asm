@@ -281,22 +281,22 @@ ENDMACRO
         
         CPX #&88
         BNE not_left
-        M_UPDATE_COORD new_xstart, PAN_POS
+        M_UPDATE_COORD new_xstart, PAN_NEG
         JMP continue
 .not_left        
         CPX #&89
         BNE not_right
-        M_UPDATE_COORD new_xstart, PAN_NEG
+        M_UPDATE_COORD new_xstart, PAN_POS
         JMP continue
 .not_right        
         CPX #&8A
         BNE not_up
-        M_UPDATE_COORD new_ystart, PAN_POS
+        M_UPDATE_COORD new_ystart, PAN_NEG
         JMP continue
 .not_up        
         CPX #&8B
         BNE not_down
-        M_UPDATE_COORD new_ystart, PAN_NEG
+        M_UPDATE_COORD new_ystart, PAN_POS
 .not_down
 
 .continue
