@@ -262,14 +262,20 @@ ENDMACRO
 .list_life_update_screen
 {
 
-;; Every 3 generations scan the keyboard
+;; Every 8 generations scan the keyboard update the cell count
 
         M_COPY old_xstart, new_xstart
         M_COPY old_ystart, new_ystart
 
         LDA count
-        AND #&03
+        AND #&07
         BNE continue
+
+        LDA #<buffer1
+        STA list
+        LDA #>buffer1
+        STA list + 1        
+        JSR list_life_count_cells        
         
         LDA #&81
         LDX #&00

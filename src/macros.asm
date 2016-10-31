@@ -25,6 +25,15 @@ MACRO M_INCREMENT_PTR zp
 .nocarry
 ENDMACRO
 
+MACRO M_DECREMENT_PTR zp
+        LDA zp
+        BNE nocarry
+        DEC zp + 1
+.nocarry
+        DEC zp
+        DEC zp
+ENDMACRO
+
 ;;       if(x > *this)
 ;;          x = *this;
 
