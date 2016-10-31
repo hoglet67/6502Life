@@ -143,9 +143,9 @@ NEXT
 .install_vdu_driver
 
 ;; Read old OSWRCH vector
-        LDA #<wrcvec
+        LDA #<WRCVEC
         STA param
-        LDA #>wrcvec
+        LDA #>WRCVEC
         STA param + 1
         JSR osword_05
         STA oldwrcvec        
@@ -175,9 +175,9 @@ NEXT
         BNE copy_vdu_loop
 
 ;; Write OSWRCH vector
-        LDA #<wrcvec
+        LDA #<WRCVEC
         STA param
-        LDA #>wrcvec
+        LDA #>WRCVEC
         STA param + 1
         LDA #<vdu_driver_start
         JSR osword_06

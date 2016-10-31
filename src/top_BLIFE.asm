@@ -2,8 +2,6 @@ _ATOM           = FALSE
 
 _ATOM_LIFE_ENGINE = FALSE
 
-_BREEDER        = FALSE
-        
 rows_per_screen = &FE           ; Y resolution
 
 scrn_base       = &4000         ; base address of screen memory

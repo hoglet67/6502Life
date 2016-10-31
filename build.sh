@@ -48,6 +48,23 @@ do
 done
 cd ..
 
+# Add the patterns
+cd patterns
+for pattern in `ls *`
+do
+    # Copy the pattern into the R directory
+    cp ${pattern} ../${build}/R.${pattern}
+
+    # Create the .inf file
+    echo -e "R."${pattern}"\t0000\t0000" > ../${build}/R.${pattern}.inf
+
+    # Add into the SSD
+    ../tools/mmb_utils/putfile.pl ../${build}/${ssd} ../${build}/R.${pattern}
+
+done
+cd ..
+
+
 # Create the !boot file
 echo -e -n "*RUN BLIFE\r" > ${build}/\!BOOT
 
@@ -59,3 +76,6 @@ tools/mmb_utils/title.pl ${build}/${ssd} "Co Pro Life"
 
 # Make bootable
 tools/mmb_utils/opt4.pl ${build}/${ssd} 3
+
+# List the disk
+tools/mmb_utils/info.pl ${build}/${ssd}

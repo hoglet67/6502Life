@@ -1,15 +1,17 @@
 ;; ************************************************************
 ;; Code
 ;; ************************************************************
-        
+
 .draw_pattern
 
-        CMP #'0'
-        BCC random_pattern
-        CMP #'9' + 1
-        BCS random_pattern
+        CMP #PATTERN_BASE
+        BCC type_random
+        CMP #PATTERN_BASE + 16
+        BCS type_random
 
-        AND #&0F
+        SEC
+        SBC #PATTERN_BASE
+        
         ASL A
         TAX
         LDA pattern_table, X    ; find pattern definition
@@ -17,16 +19,29 @@
         LDA pattern_table + 1, X
         STA src + 1
 
-        BEQ random_pattern      ; pattern not defined
-
-        JSR inc_src          ; skip pointer to pattern name
+        BEQ type_random         ; pattern not defined
 
         LDY #&00
-        LDA (src), Y         ; pattern depth
-        STA pat_depth
-        JSR inc_src
+        LDA (src), Y            ; pattern depth
 
-        LDA (src), Y         ; pattern width in bytes
+        JSR inc_src             ; skip the pattern type 
+        JSR inc_src             ; skip pointer to pattern name
+        
+        CMP #TYPE_PATTERN
+        BEQ type_pattern
+
+        CMP #TYPE_RLE
+        BEQ type_rle
+
+.type_random        
+        JMP random_pattern
+        
+.type_pattern        
+        LDA (src), Y            ; pattern depth
+        STA pat_depth
+        JSR inc_src             ; pattern width
+
+        LDA (src), Y            ; pattern width in bytes
         STA pat_width
         JSR inc_src
 
@@ -36,7 +51,7 @@
         STA dst + 1
 
 .pattern_loop1
-        LDX pat_width                ; pattern width
+        LDX pat_width
         LDY #0
 .pattern_loop2
         LDA (src), Y
@@ -60,8 +75,42 @@
         STA src + 1
         DEC pat_depth
         BNE pattern_loop1
+
+        LDA #TYPE_PATTERN        
         RTS
 
+.type_rle
+        LDA src
+        STA osfile_block
+        LDA src + 1
+        STA osfile_block + 1
+        
+        LDA #&FF
+        LDX #<osfile_block
+        LDY #>osfile_block
+        JSR OSFILE
+
+        LDA #<buffer2
+        STA this
+        LDA #>buffer2
+        STA this + 1
+        LDA #<buffer1
+        STA new
+        LDA #>buffer1
+        STA new + 1
+        JSR rle_reader
+
+        LDA #TYPE_RLE
+        RTS
+
+.osfile_block
+        EQUW 0
+        EQUD buffer2
+        EQUB 0
+        EQUD 0
+        EQUD 0
+        EQUD 0
+        
 .random_pattern
 {
 
@@ -164,12 +213,13 @@
         BEQ list_done
 
         TXA
-        ORA #&30
+        CLC
+        ADC #PATTERN_BASE
         JSR OSWRCH
         LDA #' '
         JSR OSWRCH
 
-        LDY #0
+        LDY #1
         LDA (src), Y
         TAY
 .name_loop
@@ -189,6 +239,8 @@
         BNE pattern_loop
 
 .list_done
+        TXA
+        ADC #PATTERN_BASE - 1
         RTS
 }
 
@@ -196,61 +248,72 @@
         EQUB &11, &22, &33, &44, &55
 
 .pattern_table
-        EQUW pattern0
-        EQUW pattern1
-        EQUW pattern2
-        EQUW pattern3
-        EQUW pattern4
-        EQUW pattern5
-        EQUW pattern6
-        EQUW pattern7
-        EQUW pattern8
-        EQUW 0  ; pattern9
+        EQUW patternA
+        EQUW patternB
+        EQUW patternC
+        EQUW patternD
+        EQUW patternE
+        EQUW patternF
+        EQUW patternG
+        EQUW patternH
+        EQUW patternI
+        EQUW patternJ
+        EQUW patternK
+        EQUW patternL
+        EQUW patternM
+        EQUW 0
+        EQUW 0
+        EQUW 0
         EQUW 0
 
-.pattern0
-        EQUB pattern0_name - pattern0
+.patternA
+        EQUB TYPE_PATTERN
+        EQUB patternA_name - patternA
         EQUB 3                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
         EQUB %01100000
         EQUB %11000000
-        EQUB %01000000
-.pattern0_name
+        EQUB %01000000        
+.patternA_name
         EQUS "R-Pentomino", 0
 
-.pattern1
-        EQUB pattern1_name - pattern1
+.patternB
+        EQUB TYPE_PATTERN
+        EQUB patternB_name - patternB
         EQUB 3                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
         EQUB %01000000
         EQUB %00010000
         EQUB %11001110
-.pattern1_name
+.patternB_name
         EQUS "Acorn", 0
 
-.pattern2
-        EQUB pattern2_name - pattern2
+.patternC
+        EQUB TYPE_PATTERN
+        EQUB patternC_name - patternC
         EQUB 3                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
         EQUB %00000010
         EQUB %11000000
         EQUB %01000111
-.pattern2_name
+.patternC_name
         EQUS "Diehard", 0
 
 
-.pattern3
-        EQUB pattern3_name - pattern3
+.patternD
+        EQUB TYPE_PATTERN
+        EQUB patternD_name - patternD
         EQUB 3                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
         EQUB %10001110
         EQUB %11100100
         EQUB %01000000
-.pattern3_name
+.patternD_name
         EQUS "Rabbits", 0
 
-.pattern4
-        EQUB pattern4_name - pattern4
+.patternE
+        EQUB TYPE_PATTERN
+        EQUB patternE_name - patternE
         EQUB 7                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
         EQUB %10000000
@@ -260,11 +323,12 @@
         EQUB %01010000
         EQUB %10100000
         EQUB %10000000
-.pattern4_name
+.patternE_name
         EQUS "Queen Bee", 0
 
-.pattern5
-        EQUB pattern5_name - pattern5
+.patternF
+        EQUB TYPE_PATTERN
+        EQUB patternF_name - patternF
         EQUB 7                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
         EQUB %01000000
@@ -274,11 +338,12 @@
         EQUB %00000100
         EQUB %00001000
         EQUB %00001000
-.pattern5_name
+.patternF_name
         EQUS "Bunnies 9", 0
 
-.pattern6
-        EQUB pattern6_name - pattern6
+.patternG
+        EQUB TYPE_PATTERN
+        EQUB patternG_name - patternG
         EQUB 25                 ; pattern depth in rows
         EQUB 5                  ; pattern width in bytes
         EQUB %0,%00000000,%00010000,%00000000,%00000000
@@ -306,11 +371,12 @@
         EQUB %0,%00000000,%01100010,%00000000,%00000000
         EQUB %0,%00000000,%01101000,%00000000,%00000000
         EQUB %0,%00000000,%00010000,%00000000,%00000000
-.pattern6_name
+.patternG_name
         EQUS "Suppressed Puffer", 0
 
-.pattern7
-        EQUB pattern7_name - pattern7
+.patternH
+        EQUB TYPE_PATTERN
+        EQUB patternH_name - patternH
         EQUB 23                 ; pattern depth in rows
         EQUB 5                  ; pattern width in bytes
         EQUB %00000000,%00000000,%00000000,%00000100,%00000001
@@ -336,23 +402,45 @@
         EQUB %00000000,%01001000,%00000000,%00110000,%00001100
         EQUB %00000000,%00101000,%00000000,%00011100,%00000111
         EQUB %00000000,%00000000,%00000000,%00000100,%00000001
-.pattern7_name
+.patternH_name
         EQUS "Spaceship", 0
 
-.pattern8
-        EQUB pattern8_name - pattern8
+.patternI
+        EQUB TYPE_PATTERN
+        EQUB patternI_name - patternI
         EQUB 3                  ; pattern depth in rows
         EQUB 1                  ; pattern width in bytes
         EQUB %11100000
         EQUB %10000000
         EQUB %01000000
-.pattern8_name
+.patternI_name
         EQUS "Glider", 0
 
-.pattern9
-        EQUB pattern9_name - pattern9
-        EQUB 1                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %00000000
-.pattern9_name
-        EQUS "Undefined", 0
+.patternJ
+        EQUB TYPE_RLE
+        EQUB patternJ_name - patternJ
+        EQUS "R.BREEDER", 13
+.patternJ_name
+        EQUS "Gosper Breeder 1", 0
+
+.patternK
+        EQUB TYPE_RLE
+        EQUB patternK_name - patternK
+        EQUS "R.BLSHIP1", 13
+.patternK_name
+        EQUS "Blinker Ship 1", 0
+
+.patternL
+        EQUB TYPE_RLE
+        EQUB patternL_name - patternL
+        EQUS "R.FLYWING", 13
+.patternL_name
+        EQUS "Flying Wing", 0
+
+.patternM
+        EQUB TYPE_RLE
+        EQUB patternM_name - patternM
+        EQUS "R.PISHIP1", 13
+.patternM_name
+        EQUS "Pi Ship 1", 0
+        

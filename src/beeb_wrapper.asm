@@ -3,29 +3,32 @@
 ;; ************************************************************
 
 .beeb_life
+        
+        ;; Install the fast VDU driver for delta update
+        JSR install_vdu_driver
 
+        LDA #&FE                ; send the VDU command to reset the generation count
+        JSR OSWRCH
+        
         ;; Disable cursor editing, so cursors return ascii codes &88-&8B
         LDA #&04
         LDX #&01
         JSR OSBYTE
-        
+
         JSR print_string
-        
+
         EQUB 22, MODE
         EQUS "Pattern selection", 10, 10, 13
         NOP
-        
+
         JSR list_patterns
-        DEX
-        TXA
-        ORA #&30
         PHA
-        
+
         JSR print_string
         EQUB 10, 13
-        EQUS "Press key 0-"        
+        EQUS "Press key A-"
         NOP
-        
+
         PLA
         JSR OSWRCH
 
@@ -33,13 +36,13 @@
         EQUS " for pattern, ", 10, 13
         EQUS "anything else for random: "
         NOP
-        
+
         JSR OSRDCH
         JSR OSWRCH
-        
+
         PHA
 
-        JSR print_string        
+        JSR print_string
         EQUB 22, MODE
         EQUB 23, 1, 0, 0, 0, 0, 0, 0, 0, 0
         NOP
@@ -52,7 +55,7 @@
         LDX #&20
         LDY #0
         TYA
-.clear_loop        
+.clear_loop
         STA (scrn), Y
         INY
         BNE clear_loop
@@ -62,11 +65,6 @@
 
         PLA                     ; create initial pattern
         JSR draw_pattern
-
-        JSR install_vdu_driver
-
-        LDA #&FE                ; send the VDU command to reset the generation count
-        JSR OSWRCH
         
 IF _ATOM_LIFE_ENGINE
 
@@ -94,7 +92,7 @@ IF _ATOM_LIFE_ENGINE
         STA delta + 1
 
         JSR clear_delta
-        
+
         LDA #&20                ; start at line 1, as line 0 is skipped by generation code
         STA delta
 
@@ -106,7 +104,7 @@ IF _ATOM_LIFE_ENGINE
         STA wkspc2, Y           ; atom_life engine
         INY
         BNE init_ws_loop
-                
+
 .generation_loop
 
         LDA #&FF                ; send the VDU command to expect a new display
@@ -115,14 +113,14 @@ IF _ATOM_LIFE_ENGINE
         JSR next_generation
 
         JSR mirror_edges
-  
+
         JMP generation_loop
-        
+
 
 ;; For some reason an extra pixel of padding is needed on left/right
 ;; probably due to an edge condition with atom life engine
 extra = 1
-        
+
 .mirror_edges
         ;; Copy row 1 to row 255
         COPY_ROW 1, 255
@@ -130,13 +128,13 @@ extra = 1
         COPY_ROW 254, 0
 
         ;; Copying columns is not actually necessary, as the atom life engine mirrors l/r
-        
+
         ;; Copy col 1 to col 255
-        ;; COPY_COLUMN 1 + extra, 255 - extra        
+        ;; COPY_COLUMN 1 + extra, 255 - extra
         ;; Copy col 254 to col 0
         ;; COPY_COLUMN 254 - extra, 0 + extra
         RTS
-        
+
 ELSE
 
 ;; ************************************************************
@@ -146,30 +144,21 @@ ELSE
         ;; Initialize buffers
         ;; Initial pattern is in buffer 1
 
-IF _BREEDER
-        LDA #<breeder
+        CMP #TYPE_RLE           ; RLE patterns already in list structure
+        BEQ skip_load_buffer        
+        LDA #<buffer1           ; convert other types to list structure
         STA this
-        LDA #>breeder
+        LDA #>buffer1
         STA this + 1
-        LDA #<buffer1
-        STA new
-        LDA #>buffer1
-        STA new + 1        
-        JSR rle_reader
-ELSE        
-        LDA #<buffer1
-        STA this
-        LDA #>buffer1
-        STA this + 1        
         JSR list_life_load_buffer
-ENDIF
-        
+.skip_load_buffer
+
         ;; Buffer 2 is empty
         LDA #0
         STA buffer2
         STA buffer2 + 1
 
-        ;; Delta buffer pointer points to fixed delta_base        
+        ;; Delta buffer pointer points to fixed delta_base
         LDA #<delta_base
         STA delta
         LDA #>delta_base
@@ -187,7 +176,7 @@ ENDIF
 
         LDA #0
         STA count
-        
+
 .generation_loop
 
         ;; Erase buffer 2, draw buffer 1
@@ -213,7 +202,7 @@ ENDIF
         JSR list_life
 
         INC count
-        
+
         ;; Erase buffer 1, draw buffer 2
         LDA #<buffer1
         STA this
@@ -222,7 +211,7 @@ ENDIF
         LDA #<buffer2
         STA new
         LDA #>buffer2
-        STA new + 1        
+        STA new + 1
         JSR list_life_update_screen
 
         ;; Generate buffer 2 -> buffer 1
@@ -237,7 +226,7 @@ ENDIF
         JSR list_life
 
         INC count
-        
+
         JMP generation_loop
 
 
@@ -245,7 +234,7 @@ MACRO M_COPY from, to
         LDA from
         STA to
         LDA from + 1
-        STA to + 1        
+        STA to + 1
 ENDMACRO
 
 MACRO M_UPDATE_COORD coord, d
@@ -256,9 +245,9 @@ MACRO M_UPDATE_COORD coord, d
         LDA coord + 1
         ADC #>d
         STA coord + 1
-.skip_update        
+.skip_update
 ENDMACRO
-        
+
 .list_life_update_screen
 {
 
@@ -274,32 +263,32 @@ ENDMACRO
         LDA #<buffer1
         STA list
         LDA #>buffer1
-        STA list + 1        
-        JSR list_life_count_cells        
-        
+        STA list + 1
+        JSR list_life_count_cells
+
         LDA #&81
         LDX #&00
         LDY #&00
         JSR OSBYTE
         BCS continue
-        
+
         ;; &88 = Left, &89 = Right, &8A = Up, &8B = Down
-        
+
         CPX #&88
         BNE not_left
         M_UPDATE_COORD new_xstart, PAN_NEG
         JMP continue
-.not_left        
+.not_left
         CPX #&89
         BNE not_right
         M_UPDATE_COORD new_xstart, PAN_POS
         JMP continue
-.not_right        
+.not_right
         CPX #&8A
         BNE not_up
         M_UPDATE_COORD new_ystart, PAN_NEG
         JMP continue
-.not_up        
+.not_up
         CPX #&8B
         BNE not_down
         M_UPDATE_COORD new_ystart, PAN_POS
@@ -307,19 +296,19 @@ ENDMACRO
 
 .continue
 
-        
+
         LDA #&FF                ; send the VDU command to expect a new display
         JSR OSWRCH
-        
+
         LDX #&20
-        
+
 .loop
         TXA
         PHA
-        
+
         JSR clear_delta
 
-        ;; Erase the old strip        
+        ;; Erase the old strip
         M_COPY old_xstart, xstart
         M_COPY old_ystart, ystart
         M_COPY this, list
@@ -327,10 +316,10 @@ ENDMACRO
         M_COPY list, this
 
         ;; Draw the new strip
-        M_COPY new_xstart, xstart                
+        M_COPY new_xstart, xstart
         M_COPY new_ystart, ystart
         M_COPY new, list
-        JSR list_life_update_delta 
+        JSR list_life_update_delta
         M_COPY list, new
 
         JSR send_delta
@@ -338,7 +327,7 @@ ENDMACRO
         ;; Move the strip down 8 pixels
         M_UPDATE_COORD old_ystart, &FFF8
         M_UPDATE_COORD new_ystart, &FFF8
-        
+
         PLA
         TAX
         DEX
@@ -351,9 +340,9 @@ ENDMACRO
         ;; Now make new permemany
         M_COPY new_xstart, old_xstart
         M_COPY new_ystart, old_ystart
-        
+
         RTS
 }
 
 ENDIF
-        
+
