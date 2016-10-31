@@ -44,8 +44,6 @@ gen_count_size = 3               ; size, in bytes, of the generatiomn count
         PHA
         TYA
         PHA
-                
-        JSR display_count
         
         LDY #<mode4_base
         STY ptr
@@ -71,6 +69,8 @@ gen_count_size = 3               ; size, in bytes, of the generatiomn count
         ADC #>mode4_linelen
         STA ptr + 1
         BPL idle1
+
+        JSR display_count
         
         PLA
         TAY
@@ -81,6 +81,13 @@ gen_count_size = 3               ; size, in bytes, of the generatiomn count
 }
         
 .display_count
+
+IF FALSE
+        LDA gen_count + gen_count_size - 1 ;
+        AND #&0F
+        BNE skip_display_update
+ENDIF
+        
         LDA #30
         JSR oldoswrch
         LDX #gen_count_size - 1
@@ -92,6 +99,8 @@ gen_count_size = 3               ; size, in bytes, of the generatiomn count
         DEX
         BPL display_count_loop
 
+.skip_display_update
+        
         SED
         SEC
         LDX #gen_count_size - 1
