@@ -1,6 +1,8 @@
 _ATOM           = FALSE
 
 _ATOM_LIFE_ENGINE = FALSE
+
+_BREEDER        = FALSE
         
 rows_per_screen = &FE           ; Y resolution
 
@@ -13,19 +15,22 @@ wkspc2          = &3600         ; workspace 3 (temp copy of a screen row)
 sum             = &3700         ; pixel accumulator
 
 delta_base      = &3800         ; 8 row buffer for accumulating delta
+
+buffer1         = &9C00         ; 9C00-F7FF = 23K        
+
+buffer2         = &4000         ; 4000-9BFF = 23K
         
 gen_lo          = &1FFE         ; generation counter
 gen_hi          = &1FFF         ; the C% integer variable on the Beeb
-
-wrcvec          = &020E
-        
-OSWORD          = &FFF1
-OSBYTE          = &FFF4
-OSWRCH          = &FFEE
-OSRDCH          = &FFE0
         
 org               &2000         ; base address of the code on the Beeb
 
+include "constants.asm"
+        
+include "variables.asm"
+
+include "macros.asm"
+        
 .start
 
 JMP beeb_life        
@@ -42,6 +47,12 @@ include "list_life.asm"
 
 include "beeb_wrapper.asm"
 
+include "rle_reader.asm"
+
+org &6000
+        
+include "breeder.asm"
+        
 .end
 
 SAVE "",start, end

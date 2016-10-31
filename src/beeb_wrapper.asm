@@ -1,82 +1,4 @@
 ;; ************************************************************
-;; Variables
-;; ************************************************************
-
-MODE = 4
-
-X_START = &BFFF                 ; in the middle of the negative range
-Y_START = &4000                 ; in the middle of the positive range
-
-count = &74
-        
-old_xstart = &78
-old_ystart = &7A
-new_xstart = &7C
-new_ystart = &7E
-
-PAN_POS = &0002
-
-PAN_NEG = &10000 - PAN_POS
-        
-;; ************************************************************
-;; Macros
-;; ************************************************************
-
-MACRO COPY_ROW from, to
-{        
-        LDA #<(scrn_base + from * bytes_per_row)
-        STA scrn_tmp
-        LDA #>(scrn_base + from * bytes_per_row)
-        STA scrn_tmp + 1
-        LDA #<(scrn_base + to * bytes_per_row)
-        STA scrn
-        LDA #>(scrn_base + to * bytes_per_row)
-        STA scrn + 1
-        LDY #bytes_per_row - 1
-.copy_loop
-        LDA (scrn_tmp), Y
-        STA (scrn), Y
-        DEY
-        BPL copy_loop
-}
-ENDMACRO
-        
-MACRO COPY_COLUMN from, to
-{
-        LDA #<scrn_base
-        STA scrn
-        LDA #>scrn_base
-        STA scrn + 1
-        LDX #0
-.loop
-        LDY #(from DIV 8) 
-        LDA (scrn), Y
-        LDY #(to DIV 8) 
-        AND #(&80 >> (from MOD 8))
-        BEQ pixel_zero
-.pixel_one        
-        LDA (scrn), Y
-        ORA #(&80 >> (to MOD 8))
-        BNE store
-.pixel_zero        
-        LDA (scrn), Y
-        AND #(&80 >> (to MOD 8)) EOR &FF
-.store
-        STA (scrn), Y
-        CLC
-        LDA scrn
-        ADC #bytes_per_row
-        STA scrn
-        BCC nocarry
-        INC scrn + 1
-.nocarry        
-        INX
-        BNE loop
-}
-ENDMACRO
-
-
-;; ************************************************************
 ;; Beeb Life Main Entry Point
 ;; ************************************************************
 
@@ -224,12 +146,24 @@ ELSE
         ;; Initialize buffers
         ;; Initial pattern is in buffer 1
 
+IF _BREEDER
+        LDA #<breeder
+        STA this
+        LDA #>breeder
+        STA this + 1
+        LDA #<buffer1
+        STA new
+        LDA #>buffer1
+        STA new + 1        
+        JSR rle_reader
+ELSE        
         LDA #<buffer1
         STA this
         LDA #>buffer1
-        STA this + 1
+        STA this + 1        
         JSR list_life_load_buffer
-
+ENDIF
+        
         ;; Buffer 2 is empty
         LDA #0
         STA buffer2

@@ -13,18 +13,6 @@
 
 ; md5sum of the original Atom code is afda749173d62159e28003243b098c95
         
-pixels          = &80           ; block of 8 pixels (cells) being updates
-sum_idx         = &82           ; index into the pixel accumulator
-tmpY            = &83           ; temp storage for Y register
-tmpC            = &84           ; temp storage for carry flag
-numrows         = &85           ; row counter, decrements down to zer0
-row1            = &87           ; pointer to row1 in the workspace (the one being updated)
-sum_ptr         = &89           ; set but not UNUSED
-scrn_tmp        = &8B           ; pointer to the current row in screen memory
-row0            = &8D           ; pointer to row0 in the workspace (the row above)
-row2            = &8F           ; pointer to row0 in the workspace (the row beloe)
-scrn            = &91           ; pointer to the next row in screen memory
-        
 cells_per_byte  = &08           ; bits per cell, also bits per byte, do not change!
 bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
 

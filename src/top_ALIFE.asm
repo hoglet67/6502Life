@@ -21,6 +21,8 @@ rows_per_screen = &BE           ; Y resolytion on the Atom in CLEAR 4 is 192
 
 org               &2980         ; base address of the code on the Atom
 
+include "variables.asm"
+        
 .start
 
 include "atom_life.asm"
