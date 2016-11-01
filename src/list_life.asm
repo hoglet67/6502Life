@@ -127,6 +127,7 @@ NEXT
         LDA #0
         STA (new)
         STA (new), Y
+        M_INCREMENT_PTR new
         ;; return;
         RTS
 

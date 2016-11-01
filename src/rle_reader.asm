@@ -3,8 +3,8 @@
 ;; ************************************************************
 
 ;; params
-;; - this = pointer to raw RLE data
-;; - new = pointer to output buffer for list life format pattern
+;; - this = pointer to output buffer for list life format pattern
+;; - new = pointer to raw RLE data
 ;;
 ;; uses
 ;; - this  &50
@@ -13,7 +13,6 @@
 ;; - xx    &56
 ;; - yy    &58
 ;; - count &74
-        
 
 .rle_reader
 {
@@ -23,7 +22,7 @@
         JSR insert_y
 .loop        
         LDY #0
-        LDA (this), Y
+        LDA (new), Y
         BEQ done
         CMP #'!'
         BEQ done
@@ -48,15 +47,11 @@
         ;; probably an error, but continue anyway....
 
 .continue
-        M_INCREMENT this
+        M_INCREMENT new
         JMP loop
                 
 .done
-        LDA #0
-        STA (new),Y
-        INY
-        STA (new),Y
-        RTS
+        JMP return
         
 .digit
         AND #&0F
@@ -79,11 +74,11 @@
         BEQ continue        
         LDY #0
         LDA xx
-        STA (new),Y        
+        STA (this),Y        
         INY
         LDA xx + 1
-        STA (new),Y        
-        M_INCREMENT_PTR new
+        STA (this),Y        
+        M_INCREMENT_PTR this
         M_INCREMENT xx        
         M_DECREMENT count
         JMP cells_loop
@@ -113,17 +108,25 @@
         JSR init_xx
         JSR zero_count
         JMP continue
+
+.return
+        LDA #0
+        STA (this),Y
+        INY
+        STA (this),Y
+        M_INCREMENT_PTR this
+        RTS        
 }        
 
 .insert_y
 {        
         LDY #0
         LDA yy
-        STA (new),Y
+        STA (this),Y
         INY
         LDA yy + 1
-        STA (new),Y
-        M_INCREMENT_PTR new
+        STA (this),Y
+        M_INCREMENT_PTR this
         RTS
 }        
 

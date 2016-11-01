@@ -1,9 +1,11 @@
-org               &1900
+        CPU               1
+        ORG               &1900
 
+BUFFER          = &4000
+BUFFER_END      = &F800
+        
 include "constants.asm"
-        
 include "variables.asm"
-        
 include "macros.asm"
 
 .start
@@ -29,7 +31,7 @@ include "macros.asm"
 
 include "rle_reader.asm"
 
-org &2000
+        ORG &2000
         
 .breeder
         EQUS "404bo2bo341b$408bo340b$404bo3bo340b$405b4o340b$416b2o331b$402bo11bo4bo"

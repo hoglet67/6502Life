@@ -13,12 +13,11 @@ xstart          = &62           ; used by list_life_update_delta()
 ystart          = &64           ; used by list_life_update_delta()
 xend            = &66           ; used by list_life_update_delta()
 yend            = &68           ; used by list_life_update_delta()        
-
+stash           = &6A
+        
 ;; Beeb Wrapper
 
 count           = &74      
-old_xstart      = &78
-old_ystart      = &7A
 new_xstart      = &7C
 new_ystart      = &7E
         

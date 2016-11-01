@@ -47,45 +47,188 @@
         EQUB 23, 1, 0, 0, 0, 0, 0, 0, 0, 0
         NOP
 
-;; Clear screen
-        LDA #<SCRN_BASE
-        STA scrn
-        LDA #>SCRN_BASE
-        STA scrn + 1
-        LDX #&20
-        LDY #0
-        TYA
-.clear_loop
-        STA (scrn), Y
-        INY
-        BNE clear_loop
-        INC scrn + 1
-        DEX
-        BNE clear_loop
-
+        JSR clear_screen
+        
         PLA                     ; create initial pattern
         JSR draw_pattern
         
-IF _ATOM_LIFE_ENGINE
+IF not(_ATOM_LIFE_ENGINE)
 
+;; ************************************************************
+;; LIST_LIFE_ENGINE
+;; ************************************************************
+
+        CMP #TYPE_RLE
+        BEQ skip_load_buffer        
+
+        ;; If the initial pattern was not RLE, a bit of extra work is needed
+        ;; to convert the screen to a list
+        LDA #<BUFFER            ; convert other types to list structure
+        STA this
+        LDA #>BUFFER
+        STA this + 1
+        JSR list_life_load_buffer
+        JSR clear_screen        ; so we are in sync with the host
+.skip_load_buffer
+
+        ;; The "this" pointer is now pointing to free memory after the loaded pattern
+
+        ;; Update the "new" pointer to this free memory
+        M_COPY this, new
+        
+        ;; Reset the "this" pointer back to the start again
+        LDA #<BUFFER
+        STA this
+        LDA #>BUFFER
+        STA this + 1
+        
+        ;; Configure the initial viewpoint
+        LDA #<X_START
+        STA xstart
+        LDA #>X_START
+        STA xstart + 1
+        LDA #<Y_START
+        STA ystart
+        LDA #>Y_START
+        STA ystart + 1
+
+        LDA #0
+        STA count
+
+        ;; Whenever we hit generation_loop:
+        ;; "this" should point to the start of the list
+        ;; "new" should point to free buffer space
+        
+.generation_loop
+
+        ;; Just to be safe, add a terminator to the new pointer
+        LDY #0
+        TYA
+        STA (new), Y
+        INY
+        STA (new), Y
+
+        ;; Render the "this" buffer ("this" is unmodified)
+        JSR list_life_update_screen
+
+        ;; Save the "new" pointer
+        M_COPY new, stash
+
+        ;; Calculate the next generation from "this" to "new"
+        ;; (both "this" and "new" are updated)
+        JSR list_life
+
+        ;; Cycle the pointers
+        M_COPY stash, this
+
+        INC count
+
+        BRA generation_loop
+
+.list_life_update_screen
+{
+
+;; Every 8 generations scan the keyboard update the cell count
+
+        LDA count
+        AND #&07
+        BNE continue
+
+        ;; Set the list to be counted
+        M_COPY this, list
+        JSR list_life_count_cells
+
+        LDA #&81
+        LDX #&00
+        LDY #&00
+        JSR OSBYTE
+        BCS continue
+
+        ;; &88 = Left, &89 = Right, &8A = Up, &8B = Down
+
+        CPX #&88
+        BNE not_left
+        M_UPDATE_COORD xstart, PAN_NEG
+        JMP continue
+.not_left
+        CPX #&89
+        BNE not_right
+        M_UPDATE_COORD xstart, PAN_POS
+        JMP continue
+.not_right
+        CPX #&8A
+        BNE not_up
+        M_UPDATE_COORD ystart, PAN_NEG
+        JMP continue
+.not_up
+        CPX #&8B
+        BNE not_down
+        M_UPDATE_COORD ystart, PAN_POS
+.not_down
+
+.continue
+
+        ;; Set the list to be rendered
+        M_COPY this, list
+        
+        LDA #<DELTA_BASE
+        STA delta
+        LDA #>DELTA_BASE
+        STA delta + 1
+
+        LDA #<SCRN_BASE
+        STA scrn
+        LDA #>SCRN_BASE
+        STA scrn + 1        
+
+        LDA #&FF                ; send the VDU command to expect a new display
+        JSR OSWRCH
+        
+        LDX #&20
+
+.loop
+        TXA
+        PHA
+
+        ;; initialize the delta with the current screen
+        JSR copy_screen_to_delta
+
+        ;; EOR render the new strip into the delta
+        JSR list_life_update_delta
+
+        ;; delta is now the difference between the previous and current screens
+        JSR send_delta
+
+        ;; EOR the delta back into the local copy of the screen
+        JSR eor_delta_to_screen
+
+        ;; Move the strip down 8 pixels
+        M_UPDATE_COORD ystart, &FFF8
+
+        ;; Point to the next strip of screen
+        INC scrn + 1
+        
+        PLA
+        TAX
+        DEX
+        BNE loop
+
+        ;; Move the strip up 256 pixels
+        M_UPDATE_COORD ystart, &0100
+
+        RTS
+}
+
+ELSE        
+        
 ;; ************************************************************
 ;; ATOM LIFE ENGINE
 ;; ************************************************************
 
-        LDA #&FF                ; send the VDU command to expect a new display
-        JSR OSWRCH
+;; This code won't be around for much longer
 
-        LDA #<SCRN_BASE
-        STA delta
-        LDA #>SCRN_BASE
-        STA delta + 1
-        LDX #&20
-.send_loop
-        JSR send_delta
-        INC delta + 1
-        DEX
-        BNE send_loop
-
+        JSR send_screen_delta
+        
         LDA #<DELTA_BASE
         STA delta
         LDA #>DELTA_BASE
@@ -135,214 +278,4 @@ extra = 1
         ;; COPY_COLUMN 254 - extra, 0 + extra
         RTS
 
-ELSE
-
-;; ************************************************************
-;; LIST_LIFE_ENGINE
-;; ************************************************************
-
-        ;; Initialize buffers
-        ;; Initial pattern is in buffer 1
-
-        CMP #TYPE_RLE           ; RLE patterns already in list structure
-        BEQ skip_load_buffer        
-        LDA #<BUFFER1           ; convert other types to list structure
-        STA this
-        LDA #>BUFFER1
-        STA this + 1
-        JSR list_life_load_buffer
-.skip_load_buffer
-
-        ;; Buffer 2 is empty
-        LDA #0
-        STA BUFFER2
-        STA BUFFER2 + 1
-
-        ;; Delta buffer pointer points to fixed DELTA_BASE
-        LDA #<DELTA_BASE
-        STA delta
-        LDA #>DELTA_BASE
-        STA delta + 1
-
-        ;; Configure the initial viewpoint
-        LDA #<X_START
-        STA old_xstart
-        LDA #>X_START
-        STA old_xstart + 1
-        LDA #<Y_START
-        STA old_ystart
-        LDA #>Y_START
-        STA old_ystart + 1
-
-        LDA #0
-        STA count
-
-.generation_loop
-
-        ;; Erase buffer 2, draw buffer 1
-        LDA #<BUFFER2
-        STA this
-        LDA #>BUFFER2
-        STA this + 1
-        LDA #<BUFFER1
-        STA new
-        LDA #>BUFFER1
-        STA new + 1
-        JSR list_life_update_screen
-
-        ;; Generate buffer 1 -> buffer 2
-        LDA #<BUFFER1
-        STA this
-        LDA #>BUFFER1
-        STA this + 1
-        LDA #<BUFFER2
-        STA new
-        LDA #>BUFFER2
-        STA new + 1
-        JSR list_life
-
-        INC count
-
-        ;; Erase buffer 1, draw buffer 2
-        LDA #<BUFFER1
-        STA this
-        LDA #>BUFFER1
-        STA this + 1
-        LDA #<BUFFER2
-        STA new
-        LDA #>BUFFER2
-        STA new + 1
-        JSR list_life_update_screen
-
-        ;; Generate buffer 2 -> buffer 1
-        LDA #<BUFFER2
-        STA this
-        LDA #>BUFFER2
-        STA this + 1
-        LDA #<BUFFER1
-        STA new
-        LDA #>BUFFER1
-        STA new + 1
-        JSR list_life
-
-        INC count
-
-        JMP generation_loop
-
-
-MACRO M_COPY from, to
-        LDA from
-        STA to
-        LDA from + 1
-        STA to + 1
-ENDMACRO
-
-MACRO M_UPDATE_COORD coord, d
-        LDA coord
-        CLC
-        ADC #<d
-        STA coord
-        LDA coord + 1
-        ADC #>d
-        STA coord + 1
-.skip_update
-ENDMACRO
-
-.list_life_update_screen
-{
-
-;; Every 8 generations scan the keyboard update the cell count
-
-        M_COPY old_xstart, new_xstart
-        M_COPY old_ystart, new_ystart
-
-        LDA count
-        AND #&07
-        BNE continue
-
-        LDA #<BUFFER1
-        STA list
-        LDA #>BUFFER1
-        STA list + 1
-        JSR list_life_count_cells
-
-        LDA #&81
-        LDX #&00
-        LDY #&00
-        JSR OSBYTE
-        BCS continue
-
-        ;; &88 = Left, &89 = Right, &8A = Up, &8B = Down
-
-        CPX #&88
-        BNE not_left
-        M_UPDATE_COORD new_xstart, PAN_NEG
-        JMP continue
-.not_left
-        CPX #&89
-        BNE not_right
-        M_UPDATE_COORD new_xstart, PAN_POS
-        JMP continue
-.not_right
-        CPX #&8A
-        BNE not_up
-        M_UPDATE_COORD new_ystart, PAN_NEG
-        JMP continue
-.not_up
-        CPX #&8B
-        BNE not_down
-        M_UPDATE_COORD new_ystart, PAN_POS
-.not_down
-
-.continue
-
-
-        LDA #&FF                ; send the VDU command to expect a new display
-        JSR OSWRCH
-
-        LDX #&20
-
-.loop
-        TXA
-        PHA
-
-        JSR clear_delta
-
-        ;; Erase the old strip
-        M_COPY old_xstart, xstart
-        M_COPY old_ystart, ystart
-        M_COPY this, list
-        JSR list_life_update_delta
-        M_COPY list, this
-
-        ;; Draw the new strip
-        M_COPY new_xstart, xstart
-        M_COPY new_ystart, ystart
-        M_COPY new, list
-        JSR list_life_update_delta
-        M_COPY list, new
-
-        JSR send_delta
-
-        ;; Move the strip down 8 pixels
-        M_UPDATE_COORD old_ystart, &FFF8
-        M_UPDATE_COORD new_ystart, &FFF8
-
-        PLA
-        TAX
-        DEX
-        BNE loop
-
-        ;; Move the strip up 256 pixels
-        M_UPDATE_COORD old_ystart, &0100
-        M_UPDATE_COORD new_ystart, &0100
-
-        ;; Now make new permemany
-        M_COPY new_xstart, old_xstart
-        M_COPY new_ystart, old_ystart
-
-        RTS
-}
-
 ENDIF
-

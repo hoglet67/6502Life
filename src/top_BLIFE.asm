@@ -28,8 +28,9 @@ ELSE
 
 DELTA_BASE      = &0700         ; 8 row buffer for accumulating delta
 SCRN_BASE       = &2000         ; base address of screen memory
-BUFFER2         = &2000         ; 2000-8BFF = 27K
-BUFFER1         = &8C00         ; 8C00-F7FF = 27K
+
+BUFFER          = &4000
+BUFFER_END      = &F800
 
 ENDIF
 

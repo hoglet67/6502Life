@@ -2,6 +2,24 @@
 ;; Macros
 ;; ************************************************************
 
+MACRO M_COPY from, to
+        LDA from
+        STA to
+        LDA from + 1
+        STA to + 1
+ENDMACRO
+
+MACRO M_UPDATE_COORD coord, d
+        LDA coord
+        CLC
+        ADC #<d
+        STA coord
+        LDA coord + 1
+        ADC #>d
+        STA coord + 1
+.skip_update
+ENDMACRO
+
 MACRO M_INCREMENT zp
         INC zp
         BNE nocarry
@@ -22,12 +40,24 @@ MACRO M_INCREMENT_PTR zp
         INC zp
         BNE nocarry
         INC zp + 1
+        LDA zp + 1
+        CMP #(BUFFER_END DIV 256)
+        BNE nowrap
+        LDA #(BUFFER DIV 256)
+        STA zp + 1
+.nowrap        
 .nocarry
 ENDMACRO
 
 MACRO M_DECREMENT_PTR zp
         LDA zp
         BNE nocarry
+        LDA zp + 1
+        CMP #(BUFFER DIV 256)
+        BNE nowrap
+        LDA #(BUFFER_END DIV 256)
+        STA zp + 1
+.nowrap        
         DEC zp + 1
 .nocarry
         DEC zp
@@ -80,11 +110,7 @@ MACRO M_WRITE ptr, val
         INY
         LDA val + 1
         STA (ptr), Y
-        INC ptr
-        INC ptr
-        BNE nocarry
-        INC ptr + 1
-.nocarry
+        M_INCREMENT_PTR ptr
         PLY
 ENDMACRO
 

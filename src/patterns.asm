@@ -90,14 +90,14 @@
         LDY #>osfile_block
         JSR OSFILE
 
-        LDA #<BUFFER2
-        STA this
-        LDA #>BUFFER2
-        STA this + 1
-        LDA #<BUFFER1
+        LDA #<((BUFFER + BUFFER_END) DIV 2)
         STA new
-        LDA #>BUFFER1
+        LDA #>((BUFFER + BUFFER_END) DIV 2)
         STA new + 1
+        LDA #<BUFFER
+        STA this
+        LDA #>BUFFER
+        STA this + 1
         JSR rle_reader
 
         LDA #TYPE_RLE
@@ -105,7 +105,7 @@
 
 .osfile_block
         EQUW 0
-        EQUD BUFFER2
+        EQUD ((BUFFER + BUFFER_END) DIV 2)
         EQUB 0
         EQUD 0
         EQUD 0
