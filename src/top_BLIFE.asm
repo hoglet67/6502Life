@@ -48,10 +48,6 @@ include "list_life.asm"
 include "beeb_wrapper.asm"
 
 include "rle_reader.asm"
-
-org &6000
-        
-include "breeder.asm"
         
 .end
 
