@@ -1,3 +1,5 @@
+CPU 1                           ; allow 65C02 opcodes
+
 _ATOM           = FALSE
 
 _ATOM_LIFE_ENGINE = FALSE

@@ -52,6 +52,8 @@ NEXT
 ;; Args are (this) and (new)
 
 .list_life
+;;  keep Y as the constant 1 if efficient access of the high byte in a list
+        LDY #1
 
 ;; prev = next = this;
         LDA this
@@ -60,17 +62,15 @@ NEXT
         LDA this + 1
         STA prev + 1
         STA next + 1
+        
+        LDA #0
 
 ;; bitmap = 0;
-        LDA #0
         STA bitmap
         STA bitmap + 1
 
 ;; *new = 0;
-        LDY #0
-        TYA
-        STA (new), Y
-        INY
+        STA (new)
         STA (new), Y
 
 ;; for(;;) {
@@ -82,7 +82,6 @@ NEXT
 ;;       new++;
 
 {
-        LDY #1
         LDA (new), Y
         BPL skip_inc
         M_INCREMENT_PTR new
@@ -118,29 +117,23 @@ NEXT
         BNE else
 
         ;; if(*next == 0) {
-        LDY #0
-        LDA (next), Y
-        INY
+        LDA (next)
         ORA (next), Y
         BNE next_not_zero
 
         ;; *new = 0;
-        LDY #0
-        TYA
-        STA (new), Y
-        INY
+        LDA #0
+        STA (new)
         STA (new), Y
         ;; return;
         RTS
 
 .next_not_zero
         ;; y = *next++ + 1;
-        LDY #0
-        LDA (next), Y
+        LDA (next)
         CLC
         ADC #1
         STA yy
-        INY
         LDA (next), Y
         ADC #0
         STA yy + 1
@@ -153,11 +146,9 @@ NEXT
 ;;       if(*prev == y--)
 ;;          prev++;
 
-        LDY #0
-        LDA (prev), Y
+        LDA (prev)
         CMP yy
         BNE skip_inc_prev
-        INY
         LDA (prev), Y
         CMP yy + 1
         BNE skip_inc_prev
@@ -167,11 +158,9 @@ NEXT
 
 ;;       if(*this == y)
 ;;          this++;
-        LDY #0
-        LDA (this), Y
+        LDA (this)
         CMP yy
         BNE skip_inc_this
-        INY
         LDA (this), Y
         CMP yy + 1
         BNE skip_inc_this
@@ -180,12 +169,10 @@ NEXT
 
 ;;       if(*next == y-1)
 ;;          next++;
-        LDY #0
-        LDA (next), Y
+        LDA (next)
         CLC
         ADC #1
         TAX
-        INY
         LDA (next), Y
         ADC #0
         CMP yy + 1
@@ -201,10 +188,8 @@ NEXT
 ;;    /* write new row co-ordinate */
 ;;    *new = y;
 
-        LDY #0
         LDA yy
-        STA (new), Y
-        INY
+        STA (new)
         LDA yy + 1
         STA (new), Y
 
@@ -215,10 +200,8 @@ NEXT
 ;;       /* skip to the leftmost cell */
 ;;       x = *prev;
 
-        LDY #0
-        LDA (prev), Y
+        LDA (prev)
         STA xx
-        INY
         LDA (prev), Y
         STA xx + 1
 
@@ -284,12 +267,10 @@ NEXT
         BEQ else
 .is_live
         M_INCREMENT_PTR new
-        LDY #0
         LDA xx
         SEC
         SBC #1
-        STA (new), Y
-        INY
+        STA (new)
         LDA xx + 1
         SBC #0
         STA (new), Y

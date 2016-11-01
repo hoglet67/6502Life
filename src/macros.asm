@@ -38,10 +38,8 @@ ENDMACRO
 ;;          x = *this;
 
 MACRO M_ASSIGN_IF_GREATER val, ptr
-        LDY #0
         LDA val
-        CMP (ptr), Y
-        INY
+        CMP (ptr)
         LDA val + 1
         SBC (ptr), Y
         BVC label
@@ -50,8 +48,7 @@ MACRO M_ASSIGN_IF_GREATER val, ptr
         BMI skip_assign_val
         LDA (ptr), Y
         STA val + 1
-        DEY
-        LDA (ptr), Y
+        LDA (ptr)
         STA val
 .skip_assign_val
 ENDMACRO
@@ -62,11 +59,9 @@ ENDMACRO
 ;;          }
 
 MACRO M_UPDATE_BITMAP_IF_EQUAL_TO_X ptr, bmaddr, bmmask
-        LDY #0
-        LDA (ptr), Y
+        LDA (ptr)
         CMP xx
         BNE skip_inc
-        INY
         LDA (ptr), Y
         CMP xx + 1
         BNE skip_inc
@@ -78,8 +73,7 @@ MACRO M_UPDATE_BITMAP_IF_EQUAL_TO_X ptr, bmaddr, bmmask
 ENDMACRO
 
 MACRO M_WRITE ptr, val
-        TYA
-        PHA
+        PHY
         LDY #0
         LDA val
         STA (ptr), Y
@@ -91,8 +85,7 @@ MACRO M_WRITE ptr, val
         BNE nocarry
         INC ptr + 1
 .nocarry
-        PLA
-        TAY
+        PLY
 ENDMACRO
 
 MACRO COPY_ROW from, to
