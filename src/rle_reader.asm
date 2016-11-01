@@ -17,11 +17,11 @@
 
 .rle_reader
 {
+        LDY #1
         JSR init_yy
         JSR init_xx
         JSR zero_count
         JSR insert_y
-        LDY #1
 .loop        
         LDA (new)
         BEQ done
