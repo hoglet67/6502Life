@@ -13,6 +13,7 @@
 ;; - xx    &56
 ;; - yy    &58
 ;; - count &74
+        
 
 .rle_reader
 {
@@ -20,9 +21,9 @@
         JSR init_xx
         JSR zero_count
         JSR insert_y
+        LDY #1
 .loop        
-        LDY #0
-        LDA (new), Y
+        LDA (new)
         BEQ done
         CMP #'!'
         BEQ done
@@ -48,10 +49,14 @@
 
 .continue
         M_INCREMENT new
-        JMP loop
+        BRA loop
                 
 .done
-        JMP return
+        LDA #0
+        STA (this)
+        STA (this),Y
+        M_INCREMENT_PTR this
+        RTS        
         
 .digit
         AND #&0F
@@ -72,16 +77,14 @@
         LDA count
         ORA count + 1
         BEQ continue        
-        LDY #0
         LDA xx
-        STA (this),Y        
-        INY
+        STA (this)
         LDA xx + 1
         STA (this),Y        
         M_INCREMENT_PTR this
         M_INCREMENT xx        
         M_DECREMENT count
-        JMP cells_loop
+        BRA cells_loop
         
 .insert_blanks
         JSR default_count
@@ -108,22 +111,12 @@
         JSR init_xx
         JSR zero_count
         JMP continue
-
-.return
-        LDA #0
-        STA (this),Y
-        INY
-        STA (this),Y
-        M_INCREMENT_PTR this
-        RTS        
 }        
 
 .insert_y
 {        
-        LDY #0
         LDA yy
-        STA (this),Y
-        INY
+        STA (this)
         LDA yy + 1
         STA (this),Y
         M_INCREMENT_PTR this
@@ -148,10 +141,9 @@
 }
         
 .zero_count
-{        
-        LDA #0
-        STA count
-        STA count + 1
+{
+        STZ count
+        STZ count + 1
         RTS
 }
 
