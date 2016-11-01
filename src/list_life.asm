@@ -26,6 +26,8 @@ LIVE = 1
 ;;    }
 ;; }
 
+ALIGN 256
+
 .state
 FOR bm, %000000000, %111111111
     ; in BeebASM false = 0 and true = -1, hence the 9 at the start
@@ -139,7 +141,7 @@ NEXT
         STA yy + 1
         M_INCREMENT_PTR next
 
-        JMP endif
+        BRA endif
 
 .else
 

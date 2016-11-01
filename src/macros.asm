@@ -46,10 +46,10 @@ MACRO M_ASSIGN_IF_GREATER val, ptr
         EOR #&80
 .label
         BMI skip_assign_val
-        LDA (ptr), Y
-        STA val + 1
         LDA (ptr)
         STA val
+        LDA (ptr), Y
+        STA val + 1
 .skip_assign_val
 ENDMACRO
 
