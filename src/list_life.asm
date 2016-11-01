@@ -630,11 +630,11 @@ NEXT
         SBC xstart + 1
         BCC while_level2
 
-        LDA xend
-        CMP xx
-        LDA xend + 1
-        SBC xx + 1
-        BCC while_level2
+        LDA xx
+        CMP xend
+        LDA xx + 1
+        SBC xend + 1
+        BCS while_level2
 
 ;;              X_reg = temp + (xx - xstart) >> 3;
 ;;              *(delta_base + X_reg) ^= mask[(xx - xstart) & 7];
