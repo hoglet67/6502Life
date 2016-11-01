@@ -125,17 +125,17 @@
 
 .init_xx
 {        
-        LDA #<X_START
+        LDA #<(X_START + &40)
         STA xx
-        LDA #>X_START
+        LDA #>(X_START + &40)
         STA xx + 1
         RTS
 }
 .init_yy
 {        
-        LDA #<Y_START
+        LDA #<(Y_START - &40)
         STA yy
-        LDA #>Y_START
+        LDA #>(Y_START - &40)
         STA yy + 1
         RTS
 }
