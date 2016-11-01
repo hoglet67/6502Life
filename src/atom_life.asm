@@ -13,15 +13,12 @@
 
 ; md5sum of the original Atom code is afda749173d62159e28003243b098c95
         
-cells_per_byte  = &08           ; bits per cell, also bits per byte, do not change!
-bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
-
 
 .update_row
         LDA scrn                ; save screen row to 8B/8C and set 91/92 to next screen row
         STA scrn_tmp
         CLC
-        ADC #bytes_per_row
+        ADC #BYTES_PER_ROW
         STA scrn
         LDA scrn + 1
         STA scrn_tmp + 1
@@ -30,9 +27,9 @@ bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
 .no_scrn_carry
         JSR insert_row          ; copy screen row 2 into workspace row 2 into and accumulate pixels
 
-        LDY #bytes_per_row * cells_per_byte - 1
+        LDY #BYTES_PER_ROW * CELLS_PER_BYTE - 1
         STY sum_idx
-        LDY #bytes_per_row - 1
+        LDY #BYTES_PER_ROW - 1
 
 .update_loop:
         STY tmpY
@@ -50,7 +47,7 @@ bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
 
         SEC                     ; move to next byte of 8 pixels
         LDA sum_idx
-        SBC #cells_per_byte
+        SBC #CELLS_PER_BYTE
         STA sum_idx
         LDY tmpY
         DEY
@@ -58,7 +55,7 @@ bytes_per_row   = &20           ; X resolution on the atom in CLEAR 4 is 256
         BMI delete_row
 
 .work_to_do
-        LDX #cells_per_byte - 1 ; compute neighbour counts for 8 cells
+        LDX #CELLS_PER_BYTE - 1 ; compute neighbour counts for 8 cells
         LDY sum_idx
 .cell_loop
         INY
@@ -106,21 +103,21 @@ ENDIF
         BPL update_loop         ; test if row is done, loop back if not
 
 .delete_row
-        LDX #bytes_per_row * cells_per_byte - 1
-        LDY #bytes_per_row - 1
+        LDX #BYTES_PER_ROW * CELLS_PER_BYTE - 1
+        LDY #BYTES_PER_ROW - 1
 .delete_loop
         LDA (row0), Y           ; 8D initially points to row 0
         BNE decrement_counts
         TXA
         SEC
-        SBC #cells_per_byte     ; this block of code almost identical to
+        SBC #CELLS_PER_BYTE     ; this block of code almost identical to
         TAX                     ; subroutine at 2AAE, except it subtracts
         DEY                     ; from the pixel accumulator
         BPL delete_loop
         BMI rotate_buffers
 .decrement_counts
         STY tmpY
-        LDY #cells_per_byte - 1
+        LDY #CELLS_PER_BYTE - 1
 .delete_loop2
         ROR A
         BCC skip_decrement
@@ -153,7 +150,7 @@ ENDIF
 IF not(_ATOM)
         LDA delta               ; point delta to the next line
         CLC
-        ADC #bytes_per_row      ; we assume delta buffer is page aligned
+        ADC #BYTES_PER_ROW      ; we assume delta buffer is page aligned
         STA delta               ; so when it wraps to zero, it is full (8 rows)
         BNE skip_send           ; full? send across to the Host
         JSR send_delta          ; delta is now page aligned again
@@ -193,7 +190,7 @@ ENDIF
 ;; Main entry point
 ;; Continuously loop updating display with new generations
 .next_generation
-        LDY #(bytes_per_row * cells_per_byte MOD 256)
+        LDY #(BYTES_PER_ROW * CELLS_PER_BYTE MOD 256)
         LDA #&00
 .clear_sum_loop
         DEY
@@ -208,14 +205,14 @@ ENDIF
         LDA #>wkspc0
         STA row2 + 1
         JSR insert_row   ; copy screen row 0 into workspace row 0 and accumulate pixels
-        LDA #bytes_per_row
+        LDA #BYTES_PER_ROW
         STA scrn
         LDA #<wkspc1            ; 8F/90=&3421 (workspace row 1)
         STA row2
         LDA #>wkspc1
         STA row2 + 1
         JSR insert_row          ; copy screen row 1 into workspace row 1 into and accumulate pixels
-        LDA #rows_per_screen
+        LDA #ROWS_PER_SCREEN
         STA numrows
         LDA #<wkspc1            ; 87/88=&3421 (workspace row 1)
         STA row1
@@ -242,22 +239,22 @@ ENDIF
 
 .insert_row
 {
-        LDX #bytes_per_row * cells_per_byte - 1
-        LDY #bytes_per_row - 1
+        LDX #BYTES_PER_ROW * CELLS_PER_BYTE - 1
+        LDY #BYTES_PER_ROW - 1
 .copy_loop
         LDA (scrn), Y
         STA (row2), Y
         BNE increment_counts
         TXA
         SEC
-        SBC #cells_per_byte
+        SBC #CELLS_PER_BYTE
         TAX
         DEY
         BPL copy_loop
         RTS
 .increment_counts
         STY tmpY
-        LDY #cells_per_byte - 1
+        LDY #CELLS_PER_BYTE - 1
 .copy_loop2
         ROR A
         BCC skip_increment

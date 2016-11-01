@@ -45,9 +45,9 @@
         STA pat_width
         JSR inc_src
 
-        LDA #<(scrn_base + 128 * bytes_per_row + bytes_per_row / 2)
+        LDA #<(scrn_base + 128 * BYTES_PER_ROW + BYTES_PER_ROW / 2)
         STA dst
-        LDA #>(scrn_base + 128 * bytes_per_row + bytes_per_row / 2)
+        LDA #>(scrn_base + 128 * BYTES_PER_ROW + BYTES_PER_ROW / 2)
         STA dst + 1
 
 .pattern_loop1
@@ -61,7 +61,7 @@
         BNE pattern_loop2
         CLC
         LDA dst
-        ADC #bytes_per_row
+        ADC #BYTES_PER_ROW
         STA dst
         LDA dst + 1
         ADC #0
@@ -153,7 +153,7 @@
         INC dst + 1
         DEX
         BNE random_loop
-        LDY #bytes_per_row - 1
+        LDY #BYTES_PER_ROW - 1
         LDA #0
 .clear_loop
         STA scrn_base, Y         ; blank the top row

@@ -22,3 +22,8 @@ PATTERN_BASE    = 'A'
         
 TYPE_PATTERN    = 1
 TYPE_RLE        = 2
+
+CELLS_PER_BYTE  = &08           ; bits per cell, also bits per byte, do not change!
+BYTES_PER_ROW   = &20           ; X resolution on the atom in CLEAR 4 is 256
+
+        

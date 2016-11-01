@@ -17,10 +17,11 @@ step            = &032A         ; if zero, then just calculate one generation th
 pia2            = &B002         ; 8255 on the Atom, for detecting the REPT key
 pia1            = &B001         ; 8255 on the Atom, for detecting the SHIFT and CTRL keys
 
-rows_per_screen = &BE           ; Y resolytion on the Atom in CLEAR 4 is 192
+ROWS_PER_SCREEN = &BE           ; Y resolytion on the Atom in CLEAR 4 is 192
 
 org               &2980         ; base address of the code on the Atom
 
+include "constants.asm"
 include "variables.asm"
         
 .start

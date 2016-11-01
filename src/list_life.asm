@@ -695,7 +695,8 @@ NEXT
 
         M_INCREMENT_PTR list
 
-        ORA yy
+        LDA yy
+        ORA yy + 1
         BNE next_xx
         RTS
 
