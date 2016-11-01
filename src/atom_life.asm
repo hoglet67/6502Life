@@ -59,12 +59,12 @@
         LDY sum_idx
 .cell_loop
         INY
-        LDA sum, Y              ; three rows have already been added together
+        LDA SUM, Y              ; three rows have already been added together
         CLC
         DEY
-        ADC sum, Y
+        ADC SUM, Y
         DEY
-        ADC sum, Y              ; A is now a neighbour count including self
+        ADC SUM, Y              ; A is now a neighbour count including self
         STY sum_idx
         ROL tmpC                ; carry = previously stashed cell
         ROR pixels              ; carry = current cell from screen memory byte read earlier
@@ -121,7 +121,7 @@ ENDIF
 .delete_loop2
         ROR A
         BCC skip_decrement
-        DEC sum, X              ; subtract the row from the pixel accumulator
+        DEC SUM, X              ; subtract the row from the pixel accumulator
 .skip_decrement
         DEX
         DEY
@@ -162,17 +162,17 @@ ENDIF
         BEQ gen_complete
         JMP update_row          ; loop back for more rows
 .gen_complete
-        INC gen_lo              ; increment generation count (LSB of variable C)
+        INC GEN_LO              ; increment generation count (LSB of variable C)
         BNE gen_no_carry
-        INC gen_hi              ; increment generation count (LSB of variable D - BUG!!! should be 033F)
+        INC GEN_HI              ; increment generation count (LSB of variable D - BUG!!! should be 033F)
 .gen_no_carry
 IF _ATOM
-        LDA pia2                ; Test for REPT key (display generations)
+        LDA PIA2                ; Test for REPT key (display generations)
         AND #&40
         BEQ return              ; yes, exit to BASIC to render generation count
-        LDA step
+        LDA STEP
         BEQ return
-        LDA pia1                ; Test for SHIFT or CTRL key (exit to editor)
+        LDA PIA1                ; Test for SHIFT or CTRL key (exit to editor)
         AND #&C0
         CMP #&C0
         BEQ next_generation     ; no, then lets do the next generation
@@ -194,41 +194,41 @@ ENDIF
         LDA #&00
 .clear_sum_loop
         DEY
-        STA sum, Y              ; clear pixel accumulator
+        STA SUM, Y              ; clear pixel accumulator
         BNE clear_sum_loop
-        LDA #<scrn_base         ; Point 90/91 to start of display memory
+        LDA #<SCRN_BASE         ; Point 90/91 to start of display memory
         STA scrn
-        LDA #>scrn_base
+        LDA #>SCRN_BASE
         STA scrn + 1
-        LDA #<wkspc0            ; 8F/90=&3400 (workspace row 0)
+        LDA #<WKSPC0            ; 8F/90=&3400 (workspace row 0)
         STA row2
-        LDA #>wkspc0
+        LDA #>WKSPC0
         STA row2 + 1
         JSR insert_row   ; copy screen row 0 into workspace row 0 and accumulate pixels
         LDA #BYTES_PER_ROW
         STA scrn
-        LDA #<wkspc1            ; 8F/90=&3421 (workspace row 1)
+        LDA #<WKSPC1            ; 8F/90=&3421 (workspace row 1)
         STA row2
-        LDA #>wkspc1
+        LDA #>WKSPC1
         STA row2 + 1
         JSR insert_row          ; copy screen row 1 into workspace row 1 into and accumulate pixels
         LDA #ROWS_PER_SCREEN
         STA numrows
-        LDA #<wkspc1            ; 87/88=&3421 (workspace row 1)
+        LDA #<WKSPC1            ; 87/88=&3421 (workspace row 1)
         STA row1
-        LDA #>wkspc1
+        LDA #>WKSPC1
         STA row1 + 1
-        LDA #<sum               ; 89/8A=&3463 (pixel accumulator)
+        LDA #<SUM               ; 89/8A=&3463 (pixel accumulator)
         STA sum_ptr             ; THIS IS UNUSED
-        LDA #>sum
+        LDA #>SUM
         STA sum_ptr + 1         ; THIS IS UNUSED
-        LDA #<wkspc0            ; 8D/8E=&3400 (workspace row 0)
+        LDA #<WKSPC0            ; 8D/8E=&3400 (workspace row 0)
         STA row0
-        LDA #>wkspc0
+        LDA #>WKSPC0
         STA row0 + 1
-        LDA #<wkspc2            ; 8F/90=&3442 (workspace row 2)
+        LDA #<WKSPC2            ; 8F/90=&3442 (workspace row 2)
         STA row2
-        LDA #>wkspc2
+        LDA #>WKSPC2
         STA row2 + 1
         JMP update_row          ; update the screen rows
 
@@ -258,7 +258,7 @@ ENDIF
 .copy_loop2
         ROR A
         BCC skip_increment
-        INC sum, X
+        INC SUM, X
 .skip_increment
         DEX
         DEY

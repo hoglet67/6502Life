@@ -45,9 +45,9 @@
         STA pat_width
         JSR inc_src
 
-        LDA #<(scrn_base + 128 * BYTES_PER_ROW + BYTES_PER_ROW / 2)
+        LDA #<(SCRN_BASE + 128 * BYTES_PER_ROW + BYTES_PER_ROW / 2)
         STA dst
-        LDA #>(scrn_base + 128 * BYTES_PER_ROW + BYTES_PER_ROW / 2)
+        LDA #>(SCRN_BASE + 128 * BYTES_PER_ROW + BYTES_PER_ROW / 2)
         STA dst + 1
 
 .pattern_loop1
@@ -90,13 +90,13 @@
         LDY #>osfile_block
         JSR OSFILE
 
-        LDA #<buffer2
+        LDA #<BUFFER2
         STA this
-        LDA #>buffer2
+        LDA #>BUFFER2
         STA this + 1
-        LDA #<buffer1
+        LDA #<BUFFER1
         STA new
-        LDA #>buffer1
+        LDA #>BUFFER1
         STA new + 1
         JSR rle_reader
 
@@ -105,7 +105,7 @@
 
 .osfile_block
         EQUW 0
-        EQUD buffer2
+        EQUD BUFFER2
         EQUB 0
         EQUD 0
         EQUD 0
@@ -130,9 +130,9 @@
         DEX
         BPL seed_loop
         
-        LDA #<scrn_base
+        LDA #<SCRN_BASE
         STA dst
-        LDA #>scrn_base
+        LDA #>SCRN_BASE
         STA dst + 1
         LDX #&20
         LDY #0
@@ -156,8 +156,8 @@
         LDY #BYTES_PER_ROW - 1
         LDA #0
 .clear_loop
-        STA scrn_base, Y         ; blank the top row
-        STA scrn_base + &1FE0, Y ; blank the bottom row
+        STA SCRN_BASE, Y         ; blank the top row
+        STA SCRN_BASE + &1FE0, Y ; blank the bottom row
         DEY
         BPL clear_loop        
         RTS

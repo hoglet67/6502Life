@@ -390,9 +390,9 @@ NEXT
 .list_life_load_buffer
 {
 
-        LDA #<scrn_base
+        LDA #<SCRN_BASE
         STA scrn
-        LDA #>scrn_base
+        LDA #>SCRN_BASE
         STA scrn + 1
 
         ;; y is positive and decreasing as you go down the screen
@@ -654,9 +654,9 @@ NEXT
         AND #&07
         TAY
 
-        LDA delta_base, X
+        LDA DELTA_BASE, X
         EOR pixel_mask, Y
-        STA delta_base, X
+        STA DELTA_BASE, X
 
         JMP while_level2
 

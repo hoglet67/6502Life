@@ -48,9 +48,9 @@
         NOP
 
 ;; Clear screen
-        LDA #<scrn_base
+        LDA #<SCRN_BASE
         STA scrn
-        LDA #>scrn_base
+        LDA #>SCRN_BASE
         STA scrn + 1
         LDX #&20
         LDY #0
@@ -75,9 +75,9 @@ IF _ATOM_LIFE_ENGINE
         LDA #&FF                ; send the VDU command to expect a new display
         JSR OSWRCH
 
-        LDA #<scrn_base
+        LDA #<SCRN_BASE
         STA delta
-        LDA #>scrn_base
+        LDA #>SCRN_BASE
         STA delta + 1
         LDX #&20
 .send_loop
@@ -86,9 +86,9 @@ IF _ATOM_LIFE_ENGINE
         DEX
         BNE send_loop
 
-        LDA #<delta_base
+        LDA #<DELTA_BASE
         STA delta
-        LDA #>delta_base
+        LDA #>DELTA_BASE
         STA delta + 1
 
         JSR clear_delta
@@ -146,22 +146,22 @@ ELSE
 
         CMP #TYPE_RLE           ; RLE patterns already in list structure
         BEQ skip_load_buffer        
-        LDA #<buffer1           ; convert other types to list structure
+        LDA #<BUFFER1           ; convert other types to list structure
         STA this
-        LDA #>buffer1
+        LDA #>BUFFER1
         STA this + 1
         JSR list_life_load_buffer
 .skip_load_buffer
 
         ;; Buffer 2 is empty
         LDA #0
-        STA buffer2
-        STA buffer2 + 1
+        STA BUFFER2
+        STA BUFFER2 + 1
 
-        ;; Delta buffer pointer points to fixed delta_base
-        LDA #<delta_base
+        ;; Delta buffer pointer points to fixed DELTA_BASE
+        LDA #<DELTA_BASE
         STA delta
-        LDA #>delta_base
+        LDA #>DELTA_BASE
         STA delta + 1
 
         ;; Configure the initial viewpoint
@@ -180,48 +180,48 @@ ELSE
 .generation_loop
 
         ;; Erase buffer 2, draw buffer 1
-        LDA #<buffer2
+        LDA #<BUFFER2
         STA this
-        LDA #>buffer2
+        LDA #>BUFFER2
         STA this + 1
-        LDA #<buffer1
+        LDA #<BUFFER1
         STA new
-        LDA #>buffer1
+        LDA #>BUFFER1
         STA new + 1
         JSR list_life_update_screen
 
         ;; Generate buffer 1 -> buffer 2
-        LDA #<buffer1
+        LDA #<BUFFER1
         STA this
-        LDA #>buffer1
+        LDA #>BUFFER1
         STA this + 1
-        LDA #<buffer2
+        LDA #<BUFFER2
         STA new
-        LDA #>buffer2
+        LDA #>BUFFER2
         STA new + 1
         JSR list_life
 
         INC count
 
         ;; Erase buffer 1, draw buffer 2
-        LDA #<buffer1
+        LDA #<BUFFER1
         STA this
-        LDA #>buffer1
+        LDA #>BUFFER1
         STA this + 1
-        LDA #<buffer2
+        LDA #<BUFFER2
         STA new
-        LDA #>buffer2
+        LDA #>BUFFER2
         STA new + 1
         JSR list_life_update_screen
 
         ;; Generate buffer 2 -> buffer 1
-        LDA #<buffer2
+        LDA #<BUFFER2
         STA this
-        LDA #>buffer2
+        LDA #>BUFFER2
         STA this + 1
-        LDA #<buffer1
+        LDA #<BUFFER1
         STA new
-        LDA #>buffer1
+        LDA #>BUFFER1
         STA new + 1
         JSR list_life
 
@@ -260,9 +260,9 @@ ENDMACRO
         AND #&07
         BNE continue
 
-        LDA #<buffer1
+        LDA #<BUFFER1
         STA list
-        LDA #>buffer1
+        LDA #>BUFFER1
         STA list + 1
         JSR list_life_count_cells
 
