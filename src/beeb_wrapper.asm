@@ -150,7 +150,7 @@ IF not(_ATOM_LIFE_ENGINE)
         ;; &88 = Left, &89 = Right, &8A = Up, &8B = Down
 
         CPX #&1B
-        BNE continue
+        BNE not_escape
         JMP warm_boot
 .not_escape        
         CPX #&0D
