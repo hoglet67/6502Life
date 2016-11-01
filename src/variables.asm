@@ -14,6 +14,9 @@ ystart          = &64           ; used by list_life_update_delta()
 xend            = &66           ; used by list_life_update_delta()
 yend            = &68           ; used by list_life_update_delta()        
 stash           = &6A
+pan_x           = &6C
+pan_y           = &6E
+        
         
 ;; Beeb Wrapper
 

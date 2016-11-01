@@ -15,7 +15,7 @@ OSBYTE          = &FFF4
 X_START         = &BFFF         ; in the middle of the negative range
 Y_START         = &4000         ; in the middle of the positive range
 
-PAN_POS         = &0008
+PAN_POS         = &0001
 PAN_NEG         = &10000 - PAN_POS
 
 PATTERN_BASE    = 'A'

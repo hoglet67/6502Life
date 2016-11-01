@@ -81,9 +81,16 @@
 
 .type_rle
         LDA src
-        STA osfile_block
+        STA osfile_block        ; write the file name pointer
         LDA src + 1
         STA osfile_block + 1
+        LDA #<((BUFFER + BUFFER_END) DIV 2)
+        STA osfile_block + 2
+        LDA #>((BUFFER + BUFFER_END) DIV 2)
+        STA osfile_block + 3
+        STZ osfile_block + 4
+        STZ osfile_block + 5
+        STZ osfile_block + 6    ; write the load flag
         
         LDA #&FF
         LDX #<osfile_block
@@ -105,8 +112,7 @@
 
 .osfile_block
         EQUW 0
-        EQUD ((BUFFER + BUFFER_END) DIV 2)
-        EQUB 0
+        EQUD 0
         EQUD 0
         EQUD 0
         EQUD 0

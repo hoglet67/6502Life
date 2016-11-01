@@ -20,6 +20,17 @@ MACRO M_UPDATE_COORD coord, d
 .skip_update
 ENDMACRO
 
+MACRO M_UPDATE_COORD_ZP coord, zp
+        LDA coord
+        CLC
+        ADC zp
+        STA coord
+        LDA coord + 1
+        ADC zp + 1
+        STA coord + 1
+.skip_update
+ENDMACRO
+        
 MACRO M_INCREMENT zp
         INC zp
         BNE nocarry

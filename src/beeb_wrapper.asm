@@ -7,14 +7,25 @@
         ;; Install the fast VDU driver for delta update
         JSR install_vdu_driver
 
+.warm_boot
+
+        LDX #&FF
+        TXS
+
         LDA #&FE                ; send the VDU command to reset the generation count
         JSR OSWRCH
-        
+
         ;; Disable cursor editing, so cursors return ascii codes &88-&8B
         LDA #&04
         LDX #&01
         JSR OSBYTE
 
+        ;; Treat escape key as a normal ascii key
+        LDA #&E5
+        LDX #&01
+        LDY #&00
+        JSR OSBYTE
+        
         JSR print_string
 
         EQUB 22, MODE
@@ -48,10 +59,10 @@
         NOP
 
         JSR clear_screen
-        
+
         PLA                     ; create initial pattern
         JSR draw_pattern
-        
+
 IF not(_ATOM_LIFE_ENGINE)
 
 ;; ************************************************************
@@ -59,7 +70,7 @@ IF not(_ATOM_LIFE_ENGINE)
 ;; ************************************************************
 
         CMP #TYPE_RLE
-        BEQ skip_load_buffer        
+        BEQ skip_load_buffer
 
         ;; If the initial pattern was not RLE, a bit of extra work is needed
         ;; to convert the screen to a list
@@ -75,30 +86,22 @@ IF not(_ATOM_LIFE_ENGINE)
 
         ;; Update the "new" pointer to this free memory
         M_COPY this, new
-        
+
         ;; Reset the "this" pointer back to the start again
         LDA #<BUFFER
         STA this
         LDA #>BUFFER
         STA this + 1
-        
-        ;; Configure the initial viewpoint
-        LDA #<X_START
-        STA xstart
-        LDA #>X_START
-        STA xstart + 1
-        LDA #<Y_START
-        STA ystart
-        LDA #>Y_START
-        STA ystart + 1
 
-        LDA #0
-        STA count
+        ;; Configure the initial viewpoint
+        JSR reset_viewpoint
+
+        STZ count
 
         ;; Whenever we hit generation_loop:
         ;; "this" should point to the start of the list
         ;; "new" should point to free buffer space
-        
+
 .generation_loop
 
         ;; Just to be safe, add a terminator to the new pointer
@@ -146,31 +149,52 @@ IF not(_ATOM_LIFE_ENGINE)
 
         ;; &88 = Left, &89 = Right, &8A = Up, &8B = Down
 
+        CPX #&1B
+        BNE continue
+        JMP warm_boot
+.not_escape        
+        CPX #&0D
+        BNE not_return
+        JSR reset_pan
+        BRA continue
+.not_return
+        CPX #&87
+        BNE not_copy
+        JSR reset_viewpoint
+        BRA continue
+.not_copy
         CPX #&88
         BNE not_left
-        M_UPDATE_COORD xstart, PAN_NEG
-        JMP continue
+        M_UPDATE_COORD pan_x, PAN_NEG
+        BRA continue
 .not_left
         CPX #&89
         BNE not_right
-        M_UPDATE_COORD xstart, PAN_POS
-        JMP continue
+        M_UPDATE_COORD pan_x, PAN_POS
+        BRA continue
 .not_right
         CPX #&8A
         BNE not_up
-        M_UPDATE_COORD ystart, PAN_NEG
-        JMP continue
+        M_UPDATE_COORD pan_y, PAN_NEG
+        BRA continue
 .not_up
         CPX #&8B
         BNE not_down
-        M_UPDATE_COORD ystart, PAN_POS
+        M_UPDATE_COORD pan_y, PAN_POS
 .not_down
-
+        
 .continue
 
+        LDA count
+        AND #&01
+        BNE skip_pan
+        M_UPDATE_COORD_ZP xstart, pan_x
+        M_UPDATE_COORD_ZP ystart, pan_y
+.skip_pan
+        
         ;; Set the list to be rendered
         M_COPY this, list
-        
+
         LDA #<DELTA_BASE
         STA delta
         LDA #>DELTA_BASE
@@ -179,11 +203,11 @@ IF not(_ATOM_LIFE_ENGINE)
         LDA #<SCRN_BASE
         STA scrn
         LDA #>SCRN_BASE
-        STA scrn + 1        
+        STA scrn + 1
 
         LDA #&FF                ; send the VDU command to expect a new display
         JSR OSWRCH
-        
+
         LDX #&20
 
 .loop
@@ -207,7 +231,7 @@ IF not(_ATOM_LIFE_ENGINE)
 
         ;; Point to the next strip of screen
         INC scrn + 1
-        
+
         PLA
         TAX
         DEX
@@ -219,8 +243,30 @@ IF not(_ATOM_LIFE_ENGINE)
         RTS
 }
 
-ELSE        
-        
+.reset_viewpoint
+{
+        LDA #<X_START
+        STA xstart
+        LDA #>X_START
+        STA xstart + 1
+        LDA #<Y_START
+        STA ystart
+        LDA #>Y_START
+        STA ystart + 1
+        ;; fall through to
+}
+
+.reset_pan
+{
+        STZ pan_x
+        STZ pan_x + 1
+        STZ pan_y
+        STZ pan_y + 1
+        RTS
+}
+
+ELSE
+
 ;; ************************************************************
 ;; ATOM LIFE ENGINE
 ;; ************************************************************
@@ -228,7 +274,7 @@ ELSE
 ;; This code won't be around for much longer
 
         JSR send_screen_delta
-        
+
         LDA #<DELTA_BASE
         STA delta
         LDA #>DELTA_BASE
@@ -257,7 +303,7 @@ ELSE
 
         JSR mirror_edges
 
-        JMP generation_loop
+        BRA generation_loop
 
 
 ;; For some reason an extra pixel of padding is needed on left/right
