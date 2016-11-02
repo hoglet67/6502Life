@@ -29,7 +29,7 @@
         JSR print_string
 
         EQUB 22, MODE
-        EQUS "Pattern selection", 10, 10, 13
+        EQUS "Conway Life for the 6502 Co Processor", 10, 10, 13
         NOP
 
         JSR list_patterns
@@ -44,8 +44,7 @@
         JSR OSWRCH
 
         JSR print_string
-        EQUS " for pattern, ", 10, 13
-        EQUS "anything else for random: "
+        EQUS " for initial pattern:"
         NOP
 
         JSR OSRDCH
