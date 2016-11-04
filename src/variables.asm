@@ -17,6 +17,25 @@ stash           = &6A
 pan_x           = &6C
 pan_y           = &6E
         
+
+;; Additional locations used by list8 life
+foreprev        = &50
+forethis        = &51
+forenext        = &52
+middprev        = &53
+middthis        = &54
+middnext        = &55
+rearprev        = &56
+rearthis        = &57
+rearnext        = &58
+locnt_r         = &59
+hicnt_m         = &5A
+locnt_m         = &5B
+hicnt_f         = &5C
+t               = &5D
+mask            = &5E
+outcome         = &5F
+        
         
 ;; Beeb Wrapper
 

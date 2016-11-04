@@ -328,9 +328,10 @@ NEXT
         SED
         LDX #0
         LDY #1
-        M_DECREMENT_PTR list
+        BRA skip_increment
 .loop
         M_INCREMENT_PTR list
+.skip_increment        
         LDA (list), Y           ; the sign bit indicates X vs Y coordinates
         BPL y_or_termiator
         LDA cell_count

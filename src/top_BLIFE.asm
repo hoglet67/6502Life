@@ -11,6 +11,8 @@ _ATOM           = FALSE
 
 _ATOM_LIFE_ENGINE = FALSE
 
+_LIST8_LIFE_ENGINE = FALSE
+        
 IF _ATOM_LIFE_ENGINE
 
 ROWS_PER_SCREEN = &FE           ; Y resolution
@@ -53,7 +55,10 @@ include "patterns.asm"
 
 IF _ATOM_LIFE_ENGINE
 include "atom_life.asm"
-ELSE
+ELSIF _LIST8_LIFE_ENGINE
+include "list8_life.asm"
+include "rle_reader.asm"
+ELSE        
 include "list_life.asm"
 include "rle_reader.asm"
 ENDIF

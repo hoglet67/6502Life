@@ -60,21 +60,32 @@ MACRO M_INCREMENT_PTR zp
 .nocarry
 ENDMACRO
 
-MACRO M_DECREMENT_PTR zp
+MACRO M_INCREMENT_BY_N n, zp
         LDA zp
-        BNE nocarry
+        CLC
+        ADC #n
+        STA zp
+        BCC nocarry
+        INC zp + 1
         LDA zp + 1
-        CMP #(BUFFER DIV 256)
+        CMP #(BUFFER_END DIV 256)
         BNE nowrap
-        LDA #(BUFFER_END DIV 256)
+        LDA #(BUFFER MOD 256)
+        STA zp
+        LDA #(BUFFER DIV 256)
         STA zp + 1
 .nowrap        
-        DEC zp + 1
 .nocarry
-        DEC zp
-        DEC zp
+ENDMACRO
+        
+MACRO M_INCREMENT_BY_2 zp
+        M_INCREMENT_BY_N 2, zp
 ENDMACRO
 
+MACRO M_INCREMENT_BY_3 zp
+        M_INCREMENT_BY_N 3, zp
+ENDMACRO
+        
 ;;       if(x > *this)
 ;;          x = *this;
 
@@ -113,6 +124,39 @@ MACRO M_UPDATE_BITMAP_IF_EQUAL_TO_X ptr, bmaddr, bmmask
 .skip_inc
 ENDMACRO
 
+;;          if(*prev == x) {
+;;             foreprev = *++prev;
+;;             prev++;
+;;          }
+MACRO M_UPDATE_CHUNK_IF_EQUAL_TO_X ptr, chunk
+        LDA (ptr)
+        CMP xx
+        BNE skip_inc
+        LDA (ptr), Y
+        CMP xx + 1
+        BNE skip_inc
+        INY
+        LDA (ptr), Y
+        STA chunk
+        DEY
+        M_INCREMENT_BY_3 ptr
+.skip_inc
+ENDMACRO
+
+;;          locnt_r = lo[rearprev];
+;;          locnt_r += lo[rearthis];
+;;          locnt_r += lo[rearnext];
+MACRO M_ACCUMULATE_COLUMN cnt, table, prev, this, next
+        CLC
+        LDX prev
+        LDA table, X
+        LDX this
+        ADC table, X
+        LDX next
+        ADC table, X
+        STA cnt
+ENDMACRO        
+        
 MACRO M_WRITE ptr, val
         PHY
         LDY #0
