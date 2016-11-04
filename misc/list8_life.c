@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <limits.h>
 
+#include "util.h"
+
 #define MAX_SIZE 1000000
 
 #define MAX_GEN 50000
 
 #define ORIGIN 0x4000
+
+#define MAX_LINE 10000
 
 // #define DEBUG_KERNEL
 
@@ -195,6 +199,94 @@ static int calculate_stats(int *ptr, int *size, int *pop) {
    }
 }
 
+void list_rle_reader(char *pattern, int *ptr) {
+   int c;
+   int count = 0;
+   int y = ORIGIN;
+   int x = 0;
+   char line[MAX_LINE];
+   int i;
+   int j;
+   int len;
+   int bitmap;
+
+   // Skip lines starting with #
+   while (*pattern == '#') {
+      pattern = skipline(pattern);
+   }
+      // Skip next line with x, y etc
+   if (*pattern == 'x') {
+      pattern = skipline(pattern);
+   }
+
+   // Start with y
+   *ptr++ = y;
+   while (1) {
+      c = *pattern++;
+      if (c == 9 || c == 10 || c == 13 || c == 32) {
+         continue;
+      }
+      if (c >= '0' && c <= '9') {
+         count = count * 10 + (c - '0');
+         continue;
+      }
+      if (c == 'b') {
+         if (count == 0) {
+            count = 1;
+         }
+         while (count--) {
+            line[x++] = 0;
+         }
+         count = 0;
+         continue;
+      }
+      if (c == 'o') {
+         if (count == 0) {
+            count = 1;
+         }
+         while (count--) {
+            line[x++] = 1;
+         }
+         count = 0;
+         continue;
+      }
+      if ((c == '$')  || (c == '!')) {
+         // Pad line to a multiple of 8
+         while (x % 8) {
+            line[x++] = 0;
+         }
+         // Compress the line into blocks
+         len = x;
+         x = 0;
+         for (i = 0; i < len; i += 8) {
+            bitmap = 0;
+            for (j = i; j < i + 8; j++) {
+               bitmap = (bitmap << 1) | line[j];
+            }
+            if (bitmap) {
+               *ptr++ = -ORIGIN + x;
+               *ptr++ = bitmap;
+            }
+            x++;
+         }
+         if (c == '!') {
+            *ptr++ = 0;
+            break;
+         } else {
+            if (count == 0) {
+               count = 1;
+            }
+            y -= count;
+            *ptr++ = y;
+            x = 0;
+            count = 0;
+            continue;
+         }
+      }
+      printf("Illegal character %c in rle\n", c);
+   }
+}
+
 void list8_life_init() {
    int y;
    int a;
@@ -370,11 +462,12 @@ void list8_life(int *this, int *new)
 	}
 }
 
-int main() {
+int main(int argc, char **argv) {
 
    int i;
    int pop;
    int size;
+   char *rle_pattern;
 
    list8_life_init();
    // dump_tables();
@@ -412,23 +505,32 @@ int main() {
    int *ptr2 = &buffer1[0];
 
    if (pattern[0] == 0) {
-      printf("No pattern defined, exiting\n");
-      return;
-   }
-   
-   // Copy the pattern into the buffer 1
-   int coord = 0;
-   do {
-      coord = *ptr1++;
-      if (coord < 0) {
-         *ptr2++ = coord - ORIGIN;    // x-coord
-         *ptr2++ = *ptr1++;           // bitmap
-      } else if (coord > 0) {
-         *ptr2++ = coord + ORIGIN;    // y-coord
-      } else {
-         *ptr2++ = coord;             // terminator
+      if (argc < 2) {
+         printf("No pattern defined, exiting\n");
+         return;
       }
-   } while (coord != 0);
+      if (rle_pattern = readfile(argv[1])) {
+         list_rle_reader(rle_pattern, &buffer1[0]);
+         free(rle_pattern);
+      } else {
+         printf("%s not found, exiting\n", argv[1]);
+         return;
+      }                 
+   } else {   
+      // Copy the pattern into the buffer 1
+      int coord = 0;
+      do {
+         coord = *ptr1++;
+         if (coord < 0) {
+            *ptr2++ = coord - ORIGIN;    // x-coord
+            *ptr2++ = *ptr1++;           // bitmap
+         } else if (coord > 0) {
+            *ptr2++ = coord + ORIGIN;    // y-coord
+         } else {
+            *ptr2++ = coord;             // terminator
+         }
+      } while (coord != 0);
+   }
 
    int gen = 0;
 
@@ -437,7 +539,7 @@ int main() {
 
    do {
       calculate_stats(ptr1, &size, &pop);
-      // dump_list(gen, ptr1);
+      //dump_list(gen, ptr1);
       if ((gen % 100) == 0) {
          printf("gen %6d size %6d pop %6d efficiency %4.3f\n", gen, size, pop, (double) pop / (double) size);
       }

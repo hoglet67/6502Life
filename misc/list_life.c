@@ -1,4 +1,17 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "util.h"
+
+#define MAX_SIZE 1000000
+
+#define MAX_GEN 50000
+
+#define ORIGIN 0x4000;
+
+int buffer1[MAX_SIZE];
+int buffer2[MAX_SIZE];
+
 
 /*!
  * \file life.c
@@ -27,8 +40,81 @@
  * \param new Where to put the replacement universe.
  * \note \c new must have three times the space used by \c this.
  */
-void
-life(int *this, int *new)
+
+static int calculate_stats(int *ptr, int *size, int *pop) {
+   *size = 0;
+   *pop = 0;
+   while (*ptr) {
+      (*size)++;
+      if (*ptr++ < 0) {
+         (*pop)++;
+      }
+   }
+}
+
+void list_rle_reader(char *pattern, int *ptr) {
+   int c;
+   int count = 0;
+   int y = ORIGIN;
+   int x = -ORIGIN;
+
+   // Skip lines starting with #
+   while (*pattern == '#') {
+      pattern = skipline(pattern);
+   }
+      // Skip next line with x, y etc
+   if (*pattern == 'x') {
+      pattern = skipline(pattern);
+   }
+
+   // Start with y
+   *ptr++ = y;
+   while (1) {
+      c = *pattern++;
+      if (c == 9 || c == 10 || c == 13 || c == 32) {
+         continue;
+      }
+      if (c >= '0' && c <= '9') {
+         count = count * 10 + (c - '0');
+         continue;
+      }
+      if (c == 'b') {
+         if (count == 0) {
+            count = 1;
+         }
+         x += count;
+         count = 0;
+         continue;
+      }
+      if (c == 'o') {
+         if (count == 0) {
+            count = 1;
+         }
+         while (count--) {
+            *ptr++ = x++;
+         }
+         count = 0;
+         continue;
+      }
+      if (c == '$') {
+         if (count == 0) {
+            count = 1;
+         }
+         y -= count;
+         *ptr++ = y;
+         x = -ORIGIN;
+         count = 0;
+         continue;
+      }
+      if (c == '!') {
+         *ptr++ = 0;
+         break;
+      }
+      printf("Illegal character %c in rle\n", c);
+   }
+}
+
+void list_life(int *this, int *new)
 {
 	unsigned bitmap;
 	int *next, *prev;
@@ -54,7 +140,7 @@ life(int *this, int *new)
 					state[bitmap] = DEAD;
 			}
 		}
-	}
+}
 
 	prev = next = this;
 	bitmap = 0;
@@ -117,38 +203,20 @@ life(int *this, int *new)
 		}
 	}
 }
-
-int dump_stats(int generation, int *list) {
-   int count = 0;
-   int *ptr = list;
-   printf("generation %5d ", generation);
-   while (*ptr) {
-      if (*ptr++ < 0) {
-         count++;
-      }
-   }
-   printf("count = %5d\n", count);
-//   ptr = list;
-//   while (*ptr) {
-//      printf("%d\n", *ptr++);
-//   }
-}
-
-int buffer1[10000];
-int buffer2[10000];
-
-int main() {
+int main(int argc, char **argv) {
 
    int i;
+   int pop;
+   int size;
+   char *rle_pattern;
 
+#if defined(PATTERN_RPENTOMINO)
    // r-pentomino
    // .**
    // **.
    // .*.
-#if 0
    int pattern[] = { 12, -11, -10, 11, -12, -11, 10, -11, 0 };
-#endif
-
+#elif defined(PATTERN_BUNNIES)
    // bunnies 9
    // *.......
    // **.....*
@@ -165,36 +233,55 @@ int main() {
                    7, -8,
                    6, -8,
                    0};
-
+#else
+   int pattern[] = {0};
+#endif
+   
+   int *tmp;
    int *ptr1 = &pattern[0];
    int *ptr2 = &buffer1[0];
    
-   // Copy the pattern into the buffer 1
-   int coord = 0;
-   int offset = 0x4000;
-   do {
-      coord = *ptr1++;
-      if (coord < 0) {
-         *ptr2++ = coord - offset;
-      } else if (coord > 0) {
-         *ptr2++ = coord + offset;
-      } else {
-         *ptr2++ = coord;
+   if (pattern[0] == 0) {
+      if (argc < 2) {
+         printf("No pattern defined, exiting\n");
+         return;
       }
-   } while (coord != 0);
+      if (rle_pattern = readfile(argv[1])) {
+         list_rle_reader(rle_pattern, &buffer1[0]);
+         free(rle_pattern);
+      } else {
+         printf("%s not found, exiting\n", argv[1]);
+         return;
+      }                 
+   } else {
+      // Copy the test pattern into the buffer 1
+      int coord = 0;
+      do {
+         coord = *ptr1++;
+         if (coord < 0) {
+            *ptr2++ = coord - ORIGIN;
+         } else if (coord > 0) {
+            *ptr2++ = coord + ORIGIN;
+         } else {
+            *ptr2++ = coord;
+         }
+      } while (coord != 0);
+   }
 
    int gen = 0;
 
    ptr1 = &buffer1[0];
    ptr2 = &buffer2[0];
 
-   while (1) {
-      dump_stats(gen, ptr1);
-      life(ptr1, ptr2);
+   do {
+      list_life(ptr1, ptr2);
+      calculate_stats(ptr2, &size, &pop);
+      if ((gen % 100) == 0) {
+         printf("gen %6d size %6d pop %6d efficiency %4.3f\n", gen, size, pop, (double) pop / (double) size);
+      }
       gen++;
-
-      dump_stats(gen, ptr2);
-      life(ptr2, ptr1);
-      gen++;
-   }
+      tmp = ptr1;
+      ptr1 = ptr2;
+      ptr2 = tmp;
+   } while ((gen <= MAX_GEN) && (pop > 0));
 }
