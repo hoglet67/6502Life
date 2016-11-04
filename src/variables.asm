@@ -19,23 +19,24 @@ pan_y           = &6E
         
 
 ;; Additional locations used by list8 life
-foreprev        = &50
-forethis        = &51
-forenext        = &52
-middprev        = &53
-middthis        = &54
-middnext        = &55
-rearprev        = &56
-rearthis        = &57
-rearnext        = &58
-locnt_r         = &59
-hicnt_m         = &5A
-locnt_m         = &5B
-hicnt_f         = &5C
-t               = &5D
-mask            = &5E
-outcome         = &5F
-        
+foreprev        = &40
+forethis        = &41
+forenext        = &42
+middprev        = &43
+middthis        = &44
+middnext        = &45
+rearprev        = &46
+rearthis        = &47
+rearnext        = &48
+hicnt_f         = &49
+locnt_f         = &4A
+hicnt_m         = &4B
+locnt_m         = &4C
+hicnt_r         = &4D
+locnt_r         = &4E
+t               = &4F
+mask            = &50
+outcome         = &51        
         
 ;; Beeb Wrapper
 

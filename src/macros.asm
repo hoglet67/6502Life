@@ -124,10 +124,6 @@ MACRO M_UPDATE_BITMAP_IF_EQUAL_TO_X ptr, bmaddr, bmmask
 .skip_inc
 ENDMACRO
 
-;;          if(*prev == x) {
-;;             foreprev = *++prev;
-;;             prev++;
-;;          }
 MACRO M_UPDATE_CHUNK_IF_EQUAL_TO_X ptr, chunk
         LDA (ptr)
         CMP xx
@@ -139,23 +135,18 @@ MACRO M_UPDATE_CHUNK_IF_EQUAL_TO_X ptr, chunk
         LDA (ptr), Y
         STA chunk
         DEY
+        TAX
+        CLC
+        LDA lo, X
+        ADC locnt_f
+        STA locnt_f
+        CLC
+        LDA hi, X
+        ADC hicnt_f
+        STA hicnt_f
         M_INCREMENT_BY_3 ptr
 .skip_inc
 ENDMACRO
-
-;;          locnt_r = lo[rearprev];
-;;          locnt_r += lo[rearthis];
-;;          locnt_r += lo[rearnext];
-MACRO M_ACCUMULATE_COLUMN cnt, table, prev, this, next
-        CLC
-        LDX prev
-        LDA table, X
-        LDX this
-        ADC table, X
-        LDX next
-        ADC table, X
-        STA cnt
-ENDMACRO        
         
 MACRO M_WRITE ptr, val
         PHY

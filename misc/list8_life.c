@@ -331,13 +331,15 @@ void list8_life(int *this, int *new)
    unsigned char rearprev, middprev, foreprev;
    unsigned char rearthis, middthis, forethis;
    unsigned char rearnext, middnext, forenext;
-   unsigned char locnt_r, hicnt_m, locnt_m, hicnt_f, outcome, mask, newbmp;
+   unsigned char hicnt_r, locnt_r, hicnt_m, locnt_m, hicnt_f, locnt_f, outcome, mask, newbmp;
 
 	prev = next = this;
 
    rearprev = middprev = foreprev = 0;
    rearthis = middthis = forethis = 0;
    rearnext = middnext = forenext = 0;
+
+   hicnt_r = locnt_r = hicnt_m = locnt_m = hicnt_f = locnt_f = 0;
 
 	*new = 0;
 
@@ -381,18 +383,28 @@ void list8_life(int *this, int *new)
             foreprev = 0;
             forethis = 0;
             forenext = 0;
+            locnt_f = 0;
+            hicnt_f = 0;
 				if(*prev == x) {
                foreprev = *++prev;
+               locnt_f += lo[foreprev];
+               hicnt_f += hi[foreprev];
 					prev++;
 				}
 				if(*this == x) {
                forethis = *++this;
+               locnt_f += lo[forethis];
+               hicnt_f += hi[forethis];
 					this++;
 				}
 				if(*next == x) {
                forenext = *++next;
+               hicnt_f += hi[forenext];
+               locnt_f += lo[forenext];
 					next++;
 				}
+
+
             /* life88 kernel */
 
 #ifdef DEBUG_KERNEL
@@ -416,21 +428,6 @@ void list8_life(int *this, int *new)
             print_binary(forenext);
             printf("\n");
 #endif
-
-            locnt_r = lo[rearprev];
-            hicnt_m = hi[middprev];
-            locnt_m = lo[middprev];
-            hicnt_f = hi[foreprev];
-
-            locnt_r += lo[rearthis];
-            hicnt_m += hi[middthis];
-            locnt_m += lo[middthis];
-            hicnt_f += hi[forethis];
-
-            locnt_r += lo[rearnext];
-            hicnt_m += hi[middnext];
-            locnt_m += lo[middnext];
-            hicnt_f += hi[forenext];
 
             outcome =
                (ltsum[(hicnt_m & 0xfc) | (locnt_r & 0x03)] << 4) |
@@ -473,6 +470,9 @@ void list8_life(int *this, int *new)
             rearprev = middprev; middprev = foreprev;
             rearthis = middthis; middthis = forethis;
             rearnext = middnext; middnext = forenext;
+            locnt_r = locnt_m; locnt_m = locnt_f;
+            hicnt_r = hicnt_m; hicnt_m = hicnt_f;
+
 				x += 1;
 			}
 		}

@@ -33,6 +33,14 @@
         STZ middnext
         STZ forenext
 
+;; hicnt_r = locnt_r = hicnt_m = locnt_m = hicnt_f = locnt_f = 0
+        STZ hicnt_r
+        STZ locnt_r
+        STZ hicnt_m
+        STZ locnt_m
+        STZ hicnt_f
+        STZ locnt_f
+
 ;; *new = 0;
         LDA #0
         STA (new)
@@ -196,9 +204,13 @@
 ;;          foreprev = 0;
 ;;          forethis = 0;
 ;;          forenext = 0;
+;;          locnt_f = 0;
+;;          hicnt_f = 0;
          STZ foreprev
          STZ forethis
          STZ forenext
+         STZ locnt_f
+         STZ hicnt_f
 
 ;;          if(*prev == x) {
 ;;             foreprev = *++prev;
@@ -220,31 +232,6 @@
 ;;          }
 
         M_UPDATE_CHUNK_IF_EQUAL_TO_X next, forenext
-
-;;          locnt_r = lo[rearprev];
-;;          locnt_r += lo[rearthis];
-;;          locnt_r += lo[rearnext];
-
-        M_ACCUMULATE_COLUMN locnt_r, lo, rearprev, rearthis, rearnext
-
-;;          hicnt_m = hi[middprev];
-;;          hicnt_m += hi[middthis];
-;;          hicnt_m += hi[middnext];
-
-        M_ACCUMULATE_COLUMN hicnt_m, hi, middprev, middthis, middnext
-
-;;          locnt_m = lo[middprev];
-;;          locnt_m += lo[middthis];
-;;          locnt_m += lo[middnext];
-
-        M_ACCUMULATE_COLUMN locnt_m, lo, middprev, middthis, middnext
-
-;;          hicnt_f = hi[foreprev];
-;;          hicnt_f += hi[forethis];
-;;          hicnt_f += hi[forenext];
-
-        M_ACCUMULATE_COLUMN hicnt_f, hi, foreprev, forethis, forenext
-
 
 ;;          outcome =
 ;;             (ltsum[(hicnt_m & 0xfc) | (locnt_r & 0x03)] << 4) |
@@ -376,6 +363,8 @@
 ;;          rearprev = middprev; middprev = foreprev;
 ;;          rearthis = middthis; middthis = forethis;
 ;;          rearnext = middnext; middnext = forenext;
+;;          locnt_r = locnt_m; locnt_m = locnt_f;
+;;          hicnt_r = hicnt_m; hicnt_m = hicnt_f;
 
         LDA middprev
         STA rearprev
@@ -389,7 +378,15 @@
         STA rearnext
         LDA forenext
         STA middnext
-
+        LDA locnt_m
+        STA locnt_r
+        LDA locnt_f
+        STA locnt_m
+        LDA hicnt_m
+        STA hicnt_r
+        LDA hicnt_f
+        STA hicnt_m
+        
 ;;				x += 1;
 
         M_INCREMENT xx

@@ -55,7 +55,7 @@ include "patterns.asm"
 
 IF _ATOM_LIFE_ENGINE
 include "atom_life.asm"
-ELSIF _LIST8_LIFE_ENGINE
+ELIF _LIST8_LIFE_ENGINE
 include "list8_life.asm"
 include "rle_reader.asm"
 ELSE        
