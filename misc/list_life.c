@@ -45,7 +45,7 @@ static int calculate_stats(int *ptr, int *size, int *pop) {
    *size = 0;
    *pop = 0;
    while (*ptr) {
-      (*size)++;
+      (*size) += 2; // coordinate is 2 bytes
       if (*ptr++ < 0) {
          (*pop)++;
       }
@@ -274,11 +274,11 @@ int main(int argc, char **argv) {
    ptr2 = &buffer2[0];
 
    do {
-      list_life(ptr1, ptr2);
-      calculate_stats(ptr2, &size, &pop);
+      calculate_stats(ptr1, &size, &pop);
       if ((gen % 100) == 0) {
-         printf("gen %6d size %6d pop %6d efficiency %4.3f\n", gen, size, pop, (double) pop / (double) size);
+         printf("gen %6d size %6d pop %6d efficiency (bytes / cell) %4.3f\n", gen, size, pop, (double) size / (double) pop);
       }
+      list_life(ptr1, ptr2);
       gen++;
       tmp = ptr1;
       ptr1 = ptr2;

@@ -12,6 +12,15 @@
 
 #define MAX_LINE 10000
 
+
+#ifdef WIDTH16
+#define WIDTH 16
+#else
+#define WIDTH 8
+#endif
+
+
+
 // #define DEBUG_KERNEL
 
 
@@ -188,13 +197,21 @@ int dump_list(int generation, int *list) {
    printf("\n");
 }
 
-static int calculate_stats(int *ptr, int *size, int *pop) {
+static int calculate_stats(int *ptr, int *size, int *pop, int *coords) {
+   int bitmap;
    *size = 0;
    *pop = 0;
+   *coords = 0;
    while (*ptr) {
-      (*size)++;
+      (*coords)++; 
+      (*size) += 2; // coordinate is 2 bytes
       if (*ptr++ < 0) {
-         (*pop) += bitcnt[*ptr++];
+         bitmap = *ptr++;
+         while (bitmap) {
+            (*pop) += bitcnt[bitmap & 0xff];
+            bitmap >>= 8;
+            (*size) += WIDTH >> 3; // bitmap is 1 or 2 bytes
+         }
       }
    }
 }
@@ -251,16 +268,16 @@ void list_rle_reader(char *pattern, int *ptr) {
          continue;
       }
       if ((c == '$')  || (c == '!')) {
-         // Pad line to a multiple of 8
-         while (x % 8) {
+         // Pad line to a multiple of WIDTH (8 or 16)
+         while (x % WIDTH) {
             line[x++] = 0;
          }
          // Compress the line into blocks
          len = x;
          x = 0;
-         for (i = 0; i < len; i += 8) {
+         for (i = 0; i < len; i += WIDTH) {
             bitmap = 0;
-            for (j = i; j < i + 8; j++) {
+            for (j = i; j < i + WIDTH; j++) {
                bitmap = (bitmap << 1) | line[j];
             }
             if (bitmap) {
@@ -465,6 +482,7 @@ void list8_life(int *this, int *new)
 int main(int argc, char **argv) {
 
    int i;
+   int coords;
    int pop;
    int size;
    char *rle_pattern;
@@ -538,10 +556,10 @@ int main(int argc, char **argv) {
    ptr2 = &buffer2[0];
 
    do {
-      calculate_stats(ptr1, &size, &pop);
+      calculate_stats(ptr1, &size, &pop, &coords);
       //dump_list(gen, ptr1);
       if ((gen % 100) == 0) {
-         printf("gen %6d size %6d pop %6d efficiency %4.3f\n", gen, size, pop, (double) pop / (double) size);
+         printf("gen %6d size %6d pop %6d coords %6d efficiency (bytes / cell) %4.3f\n", gen, size, pop, coords, (double) size / (double) pop);
       }
       list8_life(ptr1, ptr2);
       gen++;
