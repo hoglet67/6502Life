@@ -38,16 +38,17 @@ MACRO M_UPDATE_CHUNK_IF_EQUAL_TO_X ptr, chunk
         INY
         LDA (ptr), Y
         STA chunk
-        DEY
+        BEQ skip_add
         TAX
         CLC
         LDA lo, X
         ADC locnt_f
         STA locnt_f
-        CLC
         LDA hi, X
         ADC hicnt_f
         STA hicnt_f
+.skip_add        
+        DEY        
         M_INCREMENT_BY_3 ptr
 .skip_inc
 ENDMACRO
