@@ -161,3 +161,26 @@
 .return
         RTS
 }
+
+.offset_pattern
+{
+        LSR pat_width + 1       ; divide the pattern size in half
+        ROR pat_width
+        LSR pat_depth + 1
+        ROR pat_depth
+        LDA #<X_ORIGIN          ; on exit pat_width contains the X coord to load the pattern at
+        SEC
+        SBC pat_width
+        STA pat_width
+        LDA #>X_ORIGIN
+        SBC pat_width + 1
+        STA pat_width + 1
+        LDA #<Y_ORIGIN          ; on exit pat_depyj contains the Y coord to load the pattern at
+        CLC
+        ADC pat_depth
+        STA pat_depth
+        LDA #>Y_ORIGIN
+        ADC pat_depth + 1
+        STA pat_depth + 1        
+        RTS
+}

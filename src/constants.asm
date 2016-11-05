@@ -14,8 +14,13 @@ OSBYTE          = &FFF4
 
 X_ORIGIN        = &BFFF         ; in the middle of the negative range
 Y_ORIGIN        = &4000         ; in the middle of the positive range
-        
-X_START         = X_ORIGIN-&80  ; offset by half the screen width
+
+IF _LIST8_LIFE_ENGINE        
+X_START         = X_ORIGIN-&10  ; offset by half the screen width in bytes
+ELSE
+X_START         = X_ORIGIN-&80  ; offset by half the screen width in pixels
+ENDIF
+
 Y_START         = Y_ORIGIN+&80  ; offset by half the screen width
 
 PAN_POS         = &0001

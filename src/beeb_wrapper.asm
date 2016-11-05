@@ -30,6 +30,13 @@
 
         EQUB 22, MODE
         EQUS "Conway Life for the 6502 Co Processor", 10, 10, 13
+IF _ATOM_LIFE_ENGINE
+        EQUS "Using the Atom Life Engine", 10, 10, 13
+ELIF _LIST8_LIFE_ENGINE
+        EQUS "Using the List8 Life Engine", 10, 10, 13
+ELSE
+        EQUS "Using the List Life Engine", 10, 10, 13
+ENDIF        
         NOP
 
         JSR list_patterns

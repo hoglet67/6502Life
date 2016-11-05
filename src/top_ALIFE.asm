@@ -1,4 +1,6 @@
 _ATOM           = TRUE
+
+_LIST8_LIFE_ENGINE = FALSE
         
 SCRN_BASE       = &8000         ; base address of screen memory
 
