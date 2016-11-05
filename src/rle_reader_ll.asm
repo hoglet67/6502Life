@@ -1,19 +1,20 @@
 ;; ************************************************************
 ;; rle_reader()
 ;; ************************************************************
-
+;; 
+;; This version outputs in list_life format 
+;; 
 ;; params
-;; - this = pointer to output buffer for list life format pattern
-;; - new = pointer to raw RLE data
+;; - src = pointer to raw RLE data
+;; - this = pointer to output buffer
 ;;
 ;; uses
-;; - this  &50
-;; - new   &52
-;; - temp  &54
-;; - xx    &56
-;; - yy    &58
-;; - count &74
-        
+;; - src
+;; - this
+;; - temp
+;; - xx
+;; - yy
+;; - count
 
 .rle_reader
 {
@@ -22,8 +23,8 @@
         JSR init_xx
         JSR zero_count
         JSR insert_y
-.loop        
-        LDA (new)
+.loop
+        LDA (src)
         BEQ done
         CMP #'!'
         BEQ done
@@ -32,7 +33,7 @@
         CMP #10                 ; skip over <NL>
         BEQ continue
         CMP #13                 ; skip over <CR>
-        BEQ continue        
+        BEQ continue
         CMP #'0'                ; RLE count
         BCC not_digit
         CMP #'9'+1
@@ -44,20 +45,20 @@
         BEQ insert_cells
         CMP #'$'                ; end of line
         BEQ insert_eols
-         
+
         ;; probably an error, but continue anyway....
 
 .continue
-        M_INCREMENT new
+        M_INCREMENT src
         BRA loop
-                
+
 .done
         LDA #0
         STA (this)
         STA (this),Y
         M_INCREMENT_PTR this
-        RTS        
-        
+        RTS
+
 .digit
         AND #&0F
         TAX
@@ -70,22 +71,22 @@
         ADC #0
         STA count + 1
         JMP continue
-        
+
 .insert_cells
         JSR default_count
-.cells_loop        
+.cells_loop
         LDA count
         ORA count + 1
-        BEQ continue        
+        BEQ continue
         LDA xx
         STA (this)
         LDA xx + 1
-        STA (this),Y        
+        STA (this),Y
         M_INCREMENT_PTR this
-        M_INCREMENT xx        
+        M_INCREMENT xx
         M_DECREMENT count
         BRA cells_loop
-        
+
 .insert_blanks
         JSR default_count
         LDA xx
@@ -97,7 +98,7 @@
         STA xx + 1
         JSR zero_count
         JMP continue
-        
+
 .insert_eols
         JSR default_count
         LDA yy
@@ -111,20 +112,20 @@
         JSR init_xx
         JSR zero_count
         JMP continue
-}        
+}
 
 .insert_y
-{        
+{
         LDA yy
         STA (this)
         LDA yy + 1
         STA (this),Y
         M_INCREMENT_PTR this
         RTS
-}        
+}
 
 .init_xx
-{        
+{
         LDA #<(X_START + &40)
         STA xx
         LDA #>(X_START + &40)
@@ -132,14 +133,14 @@
         RTS
 }
 .init_yy
-{        
+{
         LDA #<(Y_START - &40)
         STA yy
         LDA #>(Y_START - &40)
         STA yy + 1
         RTS
 }
-        
+
 .zero_count
 {
         STZ count
@@ -148,7 +149,7 @@
 }
 
 .default_count
-{        
+{
         LDA count               ; test if count still zero
         ORA count + 1
         BNE return
@@ -157,7 +158,7 @@
 .return
         RTS
 }
-        
+
 .count_times_10
 {
 
@@ -165,7 +166,7 @@
         ROL count + 1
 
         LDA count               ; tmp = count
-        STA temp                                
+        STA temp
         LDA count + 1
         STA temp + 1
 
@@ -173,7 +174,7 @@
         ROL count + 1
         ASL count
         ROL count + 1
-        
+
         LDA count               ; count += tmp
         CLC
         ADC temp

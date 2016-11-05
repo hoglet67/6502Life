@@ -87,9 +87,9 @@
         STA osfile_block        ; write the file name pointer
         LDA src + 1
         STA osfile_block + 1
-        LDA #<((BUFFER + BUFFER_END) DIV 2)
+        LDA #<RLE_SRC
         STA osfile_block + 2
-        LDA #>((BUFFER + BUFFER_END) DIV 2)
+        LDA #>RLE_SRC
         STA osfile_block + 3
         STZ osfile_block + 4
         STZ osfile_block + 5
@@ -100,13 +100,13 @@
         LDY #>osfile_block
         JSR OSFILE
 
-        LDA #<((BUFFER + BUFFER_END) DIV 2)
-        STA new
-        LDA #>((BUFFER + BUFFER_END) DIV 2)
-        STA new + 1
-        LDA #<BUFFER
+        LDA #<RLE_SRC
+        STA src
+        LDA #>RLE_SRC
+        STA src + 1
+        LDA #<RLE_DST
         STA this
-        LDA #>BUFFER
+        LDA #>RLE_DST
         STA this + 1
         JSR rle_reader
 

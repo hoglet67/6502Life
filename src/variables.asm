@@ -1,3 +1,5 @@
+;; TODO - tidy up these allocations
+        
 ;; List Life Engine
 
 this            = &80           ; used by both
@@ -38,12 +40,11 @@ t               = &4F
 mask            = &50
 outcome         = &51        
         
-;; Beeb Wrapper
+;; Utils
 
-count           = &74      
-new_xstart      = &7C
-new_ystart      = &7E
-        
+tmp             = &70
+delta           = &72           ; pointer to 8-line block storing difference between this and next
+
 ;; Patterns
 
 src             = &74
@@ -51,11 +52,20 @@ dst             = &76
 pat_width       = &78
 pat_depth       = &7A
 
-;; Utils
-
-tmp             = &70
-delta           = &72           ; pointer to 8-line block storing difference between this and next
+;; RLE Reader uses
+;; - src   = &74
+;; - this  = &80
+;; - temp  = &84
+;; - xx    = &86
+;; - yy    = &88
+;; - count = &7A
         
+;; Beeb Wrapper
+
+count           = &7A      
+new_xstart      = &7C
+new_ystart      = &7E
+                
 ;; Atom Life Engine
 
 pixels          = &80           ; block of 8 pixels (cells) being updates

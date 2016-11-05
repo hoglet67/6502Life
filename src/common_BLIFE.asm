@@ -20,8 +20,8 @@ GEN_LO          = &3F00         ; generation counter
 GEN_HI          = &3F01         ; the C% integer variable on the Beeb
 SCRN_BASE       = &4000         ; base address of screen memory
 
-BUFFER          = &6000
-BUFFER_END      = &F800
+RLE_SRC         = &6000
+RLE_DST         = SCRN_BASE
         
 ELSE
 
@@ -31,6 +31,9 @@ SCRN_BASE       = &2000         ; base address of screen memory
 BUFFER          = &4000
 BUFFER_END      = &F800
 
+RLE_SRC         = (BUFFER + BUFFER_END) DIV 2
+RLE_DST         = BUFFER
+        
 ENDIF
 
 ORG               &0800         ; base address of the code on the Beeb

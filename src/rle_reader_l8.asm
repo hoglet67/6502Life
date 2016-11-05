@@ -1,18 +1,20 @@
 ;; ************************************************************
 ;; rle_reader()
 ;; ************************************************************
-
+;; 
+;; This version outputs in list8_life format 
+;; 
 ;; params
-;; - this = pointer to output buffer for list life format pattern
-;; - new = pointer to raw RLE data
+;; - src = pointer to raw RLE data
+;; - this = pointer to output buffer
 ;;
 ;; uses
-;; - this  &50
-;; - new   &52
-;; - temp  &54
-;; - xx    &56
-;; - yy    &58
-;; - count &74
+;; - src
+;; - this
+;; - temp
+;; - xx
+;; - yy
+;; - count
         
 
 .rle_reader
@@ -23,7 +25,7 @@
         JSR zero_count
         JSR insert_y
 .loop        
-        LDA (new)
+        LDA (src)
         BEQ done
         CMP #'!'
         BEQ done
@@ -48,7 +50,7 @@
         ;; probably an error, but continue anyway....
 
 .continue
-        M_INCREMENT new
+        M_INCREMENT src
         BRA loop
                 
 .done
