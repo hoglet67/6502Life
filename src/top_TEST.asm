@@ -30,6 +30,7 @@ include "macros_ll.asm"
         CLI
         RTS
 
+include "rle_utils.asm"
 include "rle_reader_ll.asm"
 
         ORG &2000

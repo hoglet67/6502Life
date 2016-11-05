@@ -49,8 +49,8 @@ delta           = &72           ; pointer to 8-line block storing difference bet
 
 src             = &74
 dst             = &76
-pat_width       = &78
-pat_depth       = &7A
+pat_width       = &78           ; aliases with new_xstart
+pat_depth       = &7A           ; aliases with new_ystart
 
 ;; RLE Reader uses
 ;; - src   = &74
@@ -62,9 +62,9 @@ pat_depth       = &7A
         
 ;; Beeb Wrapper
 
-count           = &7A      
-new_xstart      = &7C
-new_ystart      = &7E
+new_xstart      = &78           ; aliases with pat_width
+new_ystart      = &7A           ; aliases with pat_depth
+count           = &7E      
                 
 ;; Atom Life Engine
 

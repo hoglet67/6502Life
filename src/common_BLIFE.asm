@@ -25,7 +25,7 @@ RLE_DST         = SCRN_BASE
         
 ELSE
 
-DELTA_BASE      = &0700         ; 8 row buffer for accumulating delta
+DELTA_BASE      = &0400         ; 8 row buffer for accumulating delta
 SCRN_BASE       = &2000         ; base address of screen memory
 
 BUFFER          = &4000
@@ -36,7 +36,7 @@ RLE_DST         = BUFFER
         
 ENDIF
 
-ORG               &0800         ; base address of the code on the Beeb
+ORG               &0500         ; base address of the code on the Beeb
 GUARD             &1E7F
 
 include "constants.asm"
@@ -50,6 +50,8 @@ include "macros_common.asm"
 JMP beeb_life
 
 include "utils.asm"
+        
+include "rle_utils.asm"
 
 include "patterns.asm"
 

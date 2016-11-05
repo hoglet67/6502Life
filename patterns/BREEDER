@@ -1,3 +1,9 @@
+#N Breeder 1
+#O Bill Gosper
+#C The first pattern to be found that exhibits quadratic growth. Found
+#C  in the early 1970s.
+#C www.conwaylife.com/wiki/index.php?title=Breeder_1
+x = 749, y = 338, rule = b3/s23
 404bo2bo341b$408bo340b$404bo3bo340b$405b4o340b$416b2o331b$402bo11bo4bo
 329b$400bobo17bo328b$342bobo46bo8bobo11bo5bo328b$342bobo44bo3bo21b6o5b
 6o317b$331bo10bob2o48bo30bo5bo317b$329bo3bo10b2o43bo4bo36bo317b$334bo

@@ -1,3 +1,8 @@
+#N Halfmax
+#O Jason Summers
+#C A half spacefiller found in 2005.
+#C www.conwaylife.com/wiki/index.php?title=Halfmax
+x = 65, y = 80, rule = b3/s23
 5bobo49bobo5b$4bo2bo49bo2bo4b$3b2o55b2o3b$2bo59bo2b$b4o55b4ob$o4bo53bo
 4bo$o2bo24b3o3b3o24bo2bo$o2bo24bo2bobo2bo24bo2bo$bo26bo7bo26bob$2b4obo
 20bo7bo20bob4o2b$3bo3bo21bobobobo21bo3bo3b$4bo24bobobobo24bo4b$4bobo

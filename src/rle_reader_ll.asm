@@ -18,6 +18,8 @@
 
 .rle_reader
 {
+        JSR parse_rle_header
+        JSR offset_pattern
         LDY #1
         JSR init_yy
         JSR init_xx
@@ -126,17 +128,18 @@
 
 .init_xx
 {
-        LDA #<(X_START + &40)
+        LDA pat_width           ; pat_width holds the x coord to load at
         STA xx
-        LDA #>(X_START + &40)
+        LDA pat_width + 1
         STA xx + 1
         RTS
 }
+
 .init_yy
 {
-        LDA #<(Y_START - &40)
+        LDA pat_depth           ; pat_depth holds the y coord to load at
         STA yy
-        LDA #>(Y_START - &40)
+        LDA pat_depth + 1
         STA yy + 1
         RTS
 }
@@ -156,31 +159,5 @@
         LDA #1                  ; if so, default to 1
         STA count
 .return
-        RTS
-}
-
-.count_times_10
-{
-
-        ASL count               ; count *= 2
-        ROL count + 1
-
-        LDA count               ; tmp = count
-        STA temp
-        LDA count + 1
-        STA temp + 1
-
-        ASL count               ; count *= 4
-        ROL count + 1
-        ASL count
-        ROL count + 1
-
-        LDA count               ; count += tmp
-        CLC
-        ADC temp
-        STA count
-        LDA count + 1
-        ADC temp + 1
-        STA count + 1
         RTS
 }

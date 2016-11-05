@@ -1,3 +1,8 @@
+#N Flying wing
+#O knightlife
+#C http://conwaylife.com/wiki/Flying_wing
+#C http://conwaylife.com/patterns/flyingwing.rle
+x = 159, y = 90, rule = B3/S23
 13b3o11b3o99b3o11b3o$12bo3bo9bo3bo97bo3bo9bo3bo$11b2o4bo7bo4b2o95b2o4b
 o7bo4b2o$10bobob2ob2o5b2ob2obobo93bobob2ob2o5b2ob2obobo$9b2obo4bob2ob
 2obo4bob2o35b3o15b3o35b2obo4bob2ob2obo4bob2o$8bo4bo3bo2bobo2bo3bo4bo4b

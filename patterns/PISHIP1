@@ -1,3 +1,7 @@
+#N Pi ship 1
+#C A growing spaceship discovered in the early 1970s.
+#C http://www.conwaylife.com/wiki/index.php?title=Pi_ship_1
+x = 99, y = 29, rule = B3/S23
 7bo83bo$6b3o81b3o$4b2ob3o20b3o9b3o9b3o9b3o20b3ob2o$5bo2bob2o4bo4bo7bo
 3bo7bo3bo7bo3bo7bo3bo7bo4bo4b2obo2bo$2b2obo4bobob2ob2ob3o5b2o3b2o5b2o
 3b2o5b2o3b2o5b2o3b2o5b3ob2ob2obobo4bob2o$2b2obobo2bobo7b4o3b2obobob2o
