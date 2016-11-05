@@ -1,15 +1,11 @@
 ;; ************************************************************
-;; Variables
-;; ************************************************************
-
-;; ************************************************************
 ;; list_life()
 ;; ************************************************************
 
 ;; Args are (this) and (new)
 
 .list_life
-;;  keep Y as the constant 1 if efficient access of the high byte in a list
+;;  keep Y as the constant 1 for efficient access of the high byte of a short
         LDY #1
 
 ;; prev = next = this;

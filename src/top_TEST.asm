@@ -6,7 +6,8 @@ BUFFER_END      = &F800
         
 include "constants.asm"
 include "variables.asm"
-include "macros.asm"
+include "macros_common.asm"
+include "macros_ll.asm"
 
 .start
         SEI
@@ -29,7 +30,7 @@ include "macros.asm"
         CLI
         RTS
 
-include "rle_reader.asm"
+include "rle_reader_ll.asm"
 
         ORG &2000
         

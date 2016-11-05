@@ -287,9 +287,9 @@ ELSE
         LDA #&FF                ; fill workspace buffers with 0xFF
         LDY #&00                ; so work-skipping optimization will be pessimistic
 .init_ws_loop
-        STA wkspc0, Y           ; a better solution would be to add correct
-        STA wkspc1, Y           ; wrapping to work-skipping optimization in
-        STA wkspc2, Y           ; atom_life engine
+        STA WKSPC0, Y           ; a better solution would be to add correct
+        STA WKSPC1, Y           ; wrapping to work-skipping optimization in
+        STA WKSPC2, Y           ; atom_life engine
         INY
         BNE init_ws_loop
 
