@@ -19,15 +19,8 @@
 ;; rearprev = middprev = foreprev = 0;
 ;; rearthis = middthis = forethis = 0;
 ;; rearnext = middnext = forenext = 0;
-        STZ rearprev
-        STZ middprev
-        STZ foreprev
-        STZ rearthis
-        STZ middthis
         STZ forethis
-        STZ rearnext
-        STZ middnext
-        STZ forenext
+        STZ middthis
 
 ;; hicnt_r = locnt_r = hicnt_m = locnt_m = hicnt_f = locnt_f = 0
         STZ hicnt_r
@@ -202,9 +195,7 @@
 ;;          forenext = 0;
 ;;          locnt_f = 0;
 ;;          hicnt_f = 0;
-         STZ foreprev
          STZ forethis
-         STZ forenext
          STZ locnt_f
          STZ hicnt_f
 
@@ -213,7 +204,7 @@
 ;;             prev++;
 ;;          }
 
-        M_UPDATE_CHUNK_IF_EQUAL_TO_X prev, foreprev
+        M_UPDATE_CHUNK_IF_EQUAL_TO_X prev, 0
 
 ;;          if(*this == x) {
 ;;             forethis = *++this;
@@ -227,7 +218,7 @@
 ;;             next++;
 ;;          }
 
-        M_UPDATE_CHUNK_IF_EQUAL_TO_X next, forenext
+        M_UPDATE_CHUNK_IF_EQUAL_TO_X next, 0
 
 ;;          outcome =
 ;;             (ltsum[(hicnt_m & 0xfc) | (locnt_r & 0x03)] << 4) |
@@ -389,17 +380,13 @@
 ;;          else if(middprev==0 && middthis==0 && middnext==0
 ;;                 && foreprev==0 && forethis==0 && forenext==0) break;
 .else
-        LDA middprev
+        LDA locnt_m
         BNE endif
-        LDA middthis
+        LDA hicnt_m
         BNE endif
-        LDA middnext
+        LDA locnt_f
         BNE endif
-        LDA foreprev
-        BNE endif
-        LDA forethis
-        BNE endif
-        LDA forenext
+        LDA hicnt_f
         BNE endif
 
         JMP level2
@@ -413,18 +400,8 @@
 ;;          locnt_r = locnt_m; locnt_m = locnt_f;
 ;;          hicnt_r = hicnt_m; hicnt_m = hicnt_f;
 
-        LDA middprev
-        STA rearprev
-        LDA foreprev
-        STA middprev
-        LDA middthis
-        STA rearthis
         LDA forethis
         STA middthis
-        LDA middnext
-        STA rearnext
-        LDA forenext
-        STA middnext
         LDA locnt_m
         STA locnt_r
         LDA locnt_f

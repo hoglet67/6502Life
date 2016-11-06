@@ -21,15 +21,8 @@ pan_y           = &6E
         
 
 ;; Additional locations used by list8 life
-foreprev        = &40
 forethis        = &41
-forenext        = &42
-middprev        = &43
 middthis        = &44
-middnext        = &45
-rearprev        = &46
-rearthis        = &47
-rearnext        = &48
 hicnt_f         = &49
 locnt_f         = &4A
 hicnt_m         = &4B

@@ -37,7 +37,9 @@ MACRO M_UPDATE_CHUNK_IF_EQUAL_TO_X ptr, chunk
         BNE skip_inc
         INY
         LDA (ptr), Y
+IF (chunk <> 0)        
         STA chunk
+ENDIF
         BEQ skip_add
         TAX
         CLC
