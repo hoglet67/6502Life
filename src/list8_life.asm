@@ -241,6 +241,9 @@
 ;;             (rtmsk[(hicnt_f & 0xc0) | (locnt_m & 0x3f)]     );
 ;;          newbmp = (middthis & mask) | outcome;
 
+        LDA middthis
+        BEQ oldbmp_zero
+        
         LDA hicnt_m
         AND #&FC
         STA t
@@ -292,11 +295,59 @@
         STA outcome
         LDA ltmsk, X
         ORA rtmsk, Y
-        LDY #1                  ;; restore the Y constant value of 1
         ORA mask
         AND middthis
+        LDY #1                  ;; restore the Y constant value of 1
         ORA outcome
+        BRA newbmp_ready
 
+.oldbmp_zero
+        
+        LDA hicnt_m
+        AND #&FC
+        STA t
+        LDA locnt_r
+        AND #&03
+        ORA t
+        TAX
+        LDA locnt_m
+        AND #&C0
+        STA t
+        LDA hicnt_m
+        AND #&3F
+        ORA t
+        TAY
+
+        LDA ltsum, X
+        ORA rtsum, Y
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        STA outcome
+        
+        LDA locnt_m
+        AND #&FC
+        STA t
+        LDA hicnt_m
+        AND #&03
+        ORA t
+        TAX
+        LDA hicnt_f
+        AND #&C0
+        STA t
+        LDA locnt_m
+        AND #&3F
+        ORA t
+        TAY
+
+        LDA ltsum, X
+        ORA rtsum, Y
+        LDY #1                  ;; restore the Y constant value of 1        
+        ORA outcome
+        
+.newbmp_ready
+        
         ;; A now holds the new chunk
 
 ;;          if(newbmp) {
