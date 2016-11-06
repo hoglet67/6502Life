@@ -3,10 +3,18 @@
 ;; ************************************************************
 
 .beeb_life
-        
+
         ;; Install the fast VDU driver for delta update
         JSR install_vdu_driver
 
+        ;; Configure the default UI update
+        LDA #(DEFAULT_SHOW)
+        STA ui_show
+        LDA #(DEFAULT_RATE)
+        STA ui_rate
+        LDA #(DEFAULT_MODE)
+        STA ui_mode
+        
 .warm_boot
 
         LDX #&FF
@@ -25,7 +33,7 @@
         LDX #&01
         LDY #&00
         JSR OSBYTE
-        
+
         JSR print_string
 
         EQUB 22, MODE
@@ -36,7 +44,7 @@ ELIF _LIST8_LIFE_ENGINE
         EQUS "Using the List8 Life Engine", 10, 10, 13
 ELSE
         EQUS "Using the List Life Engine", 10, 10, 13
-ENDIF        
+ENDIF
         NOP
 
         JSR list_patterns
@@ -102,7 +110,15 @@ IF not(_ATOM_LIFE_ENGINE)
         ;; Configure the initial viewpoint
         JSR reset_viewpoint
 
-        STZ count
+        ;; Clear the generation count
+        LDX #(gen_count - count_base)
+        JSR clear_count
+        
+        JSR refresh_panel
+        
+;;;  Initialize interaction counters
+        STZ key_count
+        STZ ui_count
 
         ;; Whenever we hit generation_loop:
         ;; "this" should point to the start of the list
@@ -110,15 +126,45 @@ IF not(_ATOM_LIFE_ENGINE)
 
 .generation_loop
 
+        ;; Determine if a UI update is due
+        BIT ui_mode
+        BMI force_update        ; force an update in single step mode
+        INC ui_count
+        LDA ui_count
+        LDX ui_rate
+        CMP ui_rate_table, X
+        BCC skip_update
+.force_update
+        ;; Render the "this" buffer ("this" is unmodified)
+        JSR list_life_update_screen
+        STZ ui_count
+.skip_update
+
+        ;; Determine if we are in single step mode
+        BIT ui_mode
+        BPL not_single_step
+        JSR OSRDCH
+        TAX
+        BRA handle_key_press
+
+        ;; Determine if a keyboard scan is due
+.not_single_step
+        INC key_count
+        LDA key_count
+        AND #&0F
+        BNE no_keyscan
+        JSR scan_keyboard
+.handle_key_press
+        JSR process_key_press
+.no_keyscan
+
+.new_generation
         ;; Just to be safe, add a terminator to the new pointer
         LDY #0
         TYA
         STA (new), Y
         INY
         STA (new), Y
-
-        ;; Render the "this" buffer ("this" is unmodified)
-        JSR list_life_update_screen
 
         ;; Save the "new" pointer
         M_COPY new, stash
@@ -130,74 +176,174 @@ IF not(_ATOM_LIFE_ENGINE)
         ;; Cycle the pointers
         M_COPY stash, this
 
-        INC count
+        ;; Increment the generation counter
+        LDX #gen_count - count_base
+        LDA #1
+        JSR add_to_count
+
+        ;; Update the viewpoint position
+        M_UPDATE_COORD_ZP xstart, pan_x
+        M_UPDATE_COORD_ZP ystart, pan_y
 
         BRA generation_loop
 
-.list_life_update_screen
+
+.ui_rate_table
+        EQUB 1, 2, 3, 4, 5, 10, 20, 50, 100, 200
+.ui_rate_table_end
+
+.scan_keyboard
 {
-
-;; Every 8 generations scan the keyboard update the cell count
-
-        LDA count
-        AND #&07
-        BNE continue
-
-        ;; Set the list to be counted
-        M_COPY this, list
-        JSR list_life_count_cells
-
         LDA #&81
         LDX #&00
         LDY #&00
         JSR OSBYTE
-        BCS continue
+        BCC return
+        LDX #0
+.return
+        RTS
+}
 
+.process_key_press
+{
         ;; &88 = Left, &89 = Right, &8A = Up, &8B = Down
-
         CPX #&1B
         BNE not_escape
         JMP warm_boot
-.not_escape        
+.not_escape
         CPX #&0D
         BNE not_return
         JSR reset_pan
-        BRA continue
+        BRA refresh
 .not_return
         CPX #&87
         BNE not_copy
         JSR reset_viewpoint
-        BRA continue
+        BRA refresh
 .not_copy
         CPX #&88
         BNE not_left
         M_UPDATE_COORD pan_x, PAN_NEG
-        BRA continue
+        BRA refresh
 .not_left
         CPX #&89
         BNE not_right
         M_UPDATE_COORD pan_x, PAN_POS
-        BRA continue
+        BRA refresh
 .not_right
         CPX #&8A
         BNE not_up
         M_UPDATE_COORD pan_y, PAN_NEG
-        BRA continue
+        BRA refresh
 .not_up
         CPX #&8B
         BNE not_down
         M_UPDATE_COORD pan_y, PAN_POS
+        BRA refresh
 .not_down
-        
-.continue
+        CPX #'R'
+        BNE not_R
+        LDA ui_rate
+        CLC
+        ADC #1
+        CMP #ui_rate_table_end - ui_rate_table
+        BCC store_rate
+        LDA #0
+.store_rate        
+        STA ui_rate
+        BRA refresh
+.not_R
+        CPX #'S'
+        BNE not_S
+        INC ui_show
+        BRA refresh
+.not_S
+        CPX #&09
+        BNE not_tab
+        LDA ui_mode
+        EOR #MODE_SINGLE_STEP
+        STA ui_mode
 
-        LDA count
-        AND #&01
-        BNE skip_pan
-        M_UPDATE_COORD_ZP xstart, pan_x
-        M_UPDATE_COORD_ZP ystart, pan_y
-.skip_pan
+.refresh
+        JMP refresh_panel
+ 
+.not_tab
+        RTS
+}
+
+.refresh_panel
+{
+        JSR print_string
+        EQUB 30        
+        EQUS "Gen:", 10, 13
+        EQUS "        ", 10, 10, 13
+        EQUS "Cells:", 10, 13
+        EQUS "        ", 10, 10, 13
+        EQUS "X-Ref:", 10, 13
+        EQUS "        ", 10, 10, 13
+        EQUS "Y-Ref:", 10, 13
+        EQUS "        ", 10, 10, 13
         
+        EQUS "Rate:", 10, 13
+        NOP
+        LDX ui_rate
+        LDA ui_rate_table, X
+        STA tmp
+        STZ tmp + 1
+        LDX #tmp
+        JSR print_as_unsigned
+        
+        JSR print_string
+        EQUS 10, 10, 13, "X-Pan:", 10, 13
+        NOP
+
+        LDX #pan_x
+        JSR print_as_signed
+        
+        JSR print_string
+        EQUS " ", 10, 10, 13, "Y-Pan:", 10, 13
+        NOP
+        LDX #pan_y
+        JSR print_as_signed
+
+        BIT ui_mode
+        BMI single_step
+        JSR print_string
+        EQUS " ", 10, 10, 13, "Running"
+        NOP
+        RTS
+.single_step        
+        JSR print_string
+        EQUS " ", 10, 10, 13, "Stopped"
+        NOP
+        RTS
+        
+}
+        
+.list_life_update_screen
+{
+        LDA ui_show
+        BIT ui_mode
+        BPL not_single
+        LDA #SHOW_GEN + SHOW_CELLS + SHOW_REF
+.not_single
+        PHA
+        AND #SHOW_GEN
+        BEQ skip_show_gen
+        JSR show_gen
+.skip_show_gen
+        PLA
+        PHA
+        AND #SHOW_CELLS
+        BEQ skip_show_cells
+        JSR show_cells
+.skip_show_cells
+        PLA
+        AND #SHOW_REF
+        BEQ skip_show_ref
+        JSR show_ref
+.skip_show_ref
+
         ;; Set the list to be rendered
         M_COPY this, list
 
@@ -245,8 +391,70 @@ IF not(_ATOM_LIFE_ENGINE)
 
         ;; Move the strip up 256 pixels
         M_UPDATE_COORD ystart, &0100
-
+        
         RTS
+}
+
+.show_gen
+{
+        LDX #1
+        JSR goto_row
+        LDX #(gen_count - count_base)
+        JSR print_count
+        RTS
+}
+
+.show_cells
+{
+        LDX #4
+        JSR goto_row
+        M_COPY this, list
+        JSR list_life_count_cells
+        LDX #(cell_count - count_base)
+        JSR print_count
+        RTS
+}
+
+.show_ref
+{
+        LDX #7
+        JSR goto_row
+        LDX #xstart
+        JSR print_coord
+        LDX #10
+        JSR goto_row
+        LDX #ystart
+        JSR print_coord
+        RTS
+}
+
+.print_coord
+{
+        ;; -Y is 0000 to 3FFF (00) ->10  C000 to FFFF
+        ;; +Y is 4000 to 7FFF (01) ->00  0000 to 3FFF
+        ;; -X is 8000 to BFFF (10) ->10  C000 to FFFF
+        ;; +X is C000 to FFFF (11) ->00  0000 to 3FFF
+        ;; Copy bit 14 (coord sign bit) to bit 15 and clear bit 14
+        
+        LDA 0, X
+        STA tmp
+        LDA 1, X
+        AND #&7F
+        CLC
+        ADC #&C0
+        STA tmp + 1
+        LDX #tmp
+        JMP print_as_signed
+}
+
+.goto_row
+{
+        LDA #31
+        JSR OSWRCH
+        LDA #0
+        JSR OSWRCH
+        TXA
+        JMP OSWRCH
 }
 
 .reset_viewpoint

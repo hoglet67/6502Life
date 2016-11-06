@@ -431,10 +431,8 @@
 ;;
 .list_life_count_cells
 {
-        LDA #0
-        STA cell_count
-        STA cell_count + 1
-        STA cell_count + 2
+        LDX #cell_count - count_base
+        JSR clear_count
         LDY #1
 .loop
         LDA (list), Y           ; the sign bit indicates X vs Y coordinates
@@ -443,21 +441,9 @@
         LDA (list), Y           ; read the bitmap
         DEY
         TAX
-        SED
         LDA bitcnt, X
-        CLC
-        ADC cell_count
-        STA cell_count
-        BCC inc_by_3
-        LDA cell_count + 1
-        ADC #0
-        STA cell_count + 1
-        BCC inc_by_3
-        LDA cell_count + 2
-        ADC #0
-        STA cell_count + 2
-.inc_by_3
-        CLD
+        LDX #cell_count - count_base
+        JSR add_to_count
         M_INCREMENT_BY_3 list
         BRA loop
 .y_or_termiator
@@ -467,36 +453,8 @@
         M_INCREMENT_BY_2 list
         BRA loop
 .exit
-        LDA #30
-        JSR OSWRCH
-        LDA #10
-        JSR OSWRCH
-        JSR OSWRCH
-
-        LDX #2
-.ll_print_loop        
-        LDA cell_count, X
-        JSR ll_print_bcd
-        DEX
-        BPL ll_print_loop
         RTS
-        
-.ll_print_bcd        
-        PHA
-        LSR A
-        LSR A
-        LSR A
-        LSR A
-        JSR ll_print_bcd_digit
-        PLA
-.ll_print_bcd_digit
-        AND #&0F
-        ORA #&30
-        JMP OSWRCH
-
-.cell_count
-        EQUB 0,0,0
-}        
+}
 ;; ************************************************************
 ;; list_life_load_buffer()
 ;; ************************************************************

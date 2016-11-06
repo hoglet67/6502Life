@@ -36,29 +36,26 @@ outcome         = &51
 ;; Utils
 
 tmp             = &70
-delta           = &72           ; pointer to 8-line block storing difference between this and next
+delta           = &72           ; pointer to 8-line block storing
+                                ; difference between this and next
 
 ;; Patterns
 
-src             = &74
-dst             = &76
-pat_width       = &78           ; aliases with new_xstart
-pat_depth       = &7A           ; aliases with new_ystart
-
-;; RLE Reader uses
-;; - src   = &74
-;; - this  = &80
-;; - temp  = &84
-;; - xx    = &86
-;; - yy    = &88
-;; - count = &7A
+src             = &40
+dst             = &42
+pat_width       = &44           ; aliases with new_xstart
+pat_depth       = &46           ; aliases with new_ystart
+count           = &48
         
 ;; Beeb Wrapper
 
-new_xstart      = &78           ; aliases with pat_width
-new_ystart      = &7A           ; aliases with pat_depth
-count           = &7E      
-                
+ui_show         = &78        
+ui_rate         = &79
+ui_mode         = &7A
+ui_count        = &7E
+key_count       = &7F
+
+        
 ;; Atom Life Engine
 
 pixels          = &80           ; block of 8 pixels (cells) being updates
@@ -76,3 +73,4 @@ row2            = &8F           ; pointer to row0 in the workspace (the row belo
 
 scrn            = &91           ; pointer to the next row in screen memory
 
+        

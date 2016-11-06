@@ -1,41 +1,16 @@
 ptr            = &80
-escflag        = &FF
-mode4_base     = &5800 + 6 * 8   ; offset by 8 characters to make space for gen count
+mode4_base     = &5800 + 8 * 8   ; offset by 8 characters to make space for gen count
 mode4_linelen  = 320
 
-gen_count_size = 3               ; size, in bytes, of the generatiomn count
         
 .vdu_driver_start
 
-        ;; Hijack &FE and &FF - this will break plot commands!
+        ;; Hijack &&FF - this will break plot commands!
         
-        CMP #&FE
-        BEQ clear_gen_count
-
         CMP #&FF
         BEQ update_display
 
         JMP (oldwrcvec)
-
-.clear_gen_count
-{
-        PHA
-        TXA
-        PHA
-        
-        LDA #&00
-        LDX #gen_count_size - 2
-.loop
-        STA gen_count, X
-        DEX
-        BPL loop
-
-        PLA
-        TAX
-        PLA
-        RTS
-}        
-        
         
 .update_display
 {
@@ -70,8 +45,6 @@ gen_count_size = 3               ; size, in bytes, of the generatiomn count
         STA ptr + 1
         BPL idle1
 
-        JSR display_count
-        
         PLA
         TAY
         PLA
@@ -79,65 +52,10 @@ gen_count_size = 3               ; size, in bytes, of the generatiomn count
         PLA
         RTS
 }
-        
-.display_count
 
-IF FALSE
-        LDA gen_count + gen_count_size - 1 ;
-        AND #&0F
-        BNE skip_display_update
-ENDIF
-        
-        LDA #30
-        JSR oldoswrch
-        LDX #gen_count_size - 1
-        LDY #0
-.display_count_loop
-        LDA gen_count, Y
-        JSR print_bcd
-        INY
-        DEX
-        BPL display_count_loop
-
-.skip_display_update
-        
-        SED
-        SEC
-        LDX #gen_count_size - 1
-.inc_count_loop        
-        LDA gen_count, X
-        ADC #&00
-        STA gen_count, X
-        DEX
-        BPL inc_count_loop
-        CLD
-        
-        RTS
-
-.print_bcd
-        PHA
-        LSR A
-        LSR A
-        LSR A
-        LSR A
-        JSR print_bcd_digit
-        PLA
-.print_bcd_digit
-        AND #&0F
-        ORA #&30
-
-.oldoswrch
-        JMP (oldwrcvec)
-        
 .oldwrcvec
         EQUW &E0A4
 
-        
-.gen_count
-FOR i, 0, gen_count_size - 1        
-        EQUB 0
-NEXT
-        
 .vdu_driver_end
                 
 .install_vdu_driver

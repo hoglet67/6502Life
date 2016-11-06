@@ -321,66 +321,20 @@ NEXT
 ;;
 .list_life_count_cells
 {
-        LDA #0
-        STA cell_count
-        STA cell_count + 1
-        STA cell_count + 2
-        SED
-        LDX #0
+        LDX #cell_count - count_base
+        JSR clear_count
         LDY #1
-        BRA skip_increment
 .loop
         M_INCREMENT_PTR list
-.skip_increment        
         LDA (list), Y           ; the sign bit indicates X vs Y coordinates
         BPL y_or_termiator
-        LDA cell_count
-        CLC
-        ADC #1
-        STA cell_count
-        BCC loop
-        LDA cell_count + 1
-        ADC #0
-        STA cell_count + 1
-        BCC loop
-        LDA cell_count + 2
-        ADC #0
-        STA cell_count + 2
-        JMP loop        
+        LDA #1
+        JSR add_to_count
+        BRA loop
 .y_or_termiator
-        ORA (list, X)
+        ORA (list)
         BNE loop
-        CLD
-        
-        LDA #30
-        JSR OSWRCH
-        LDA #10
-        JSR OSWRCH
-        JSR OSWRCH
-
-        LDX #2
-.ll_print_loop        
-        LDA cell_count, X
-        JSR ll_print_bcd
-        DEX
-        BPL ll_print_loop
         RTS
-        
-.ll_print_bcd        
-        PHA
-        LSR A
-        LSR A
-        LSR A
-        LSR A
-        JSR ll_print_bcd_digit
-        PLA
-.ll_print_bcd_digit
-        AND #&0F
-        ORA #&30
-        JMP OSWRCH
-
-.cell_count
-        EQUB 0,0,0
 }        
 ;; ************************************************************
 ;; list_life_load_buffer()

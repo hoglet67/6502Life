@@ -146,3 +146,123 @@ FOR x, 0, 31
      EQUB y * &20 + x
   NEXT
 NEXT
+
+        
+.count_base
+
+.gen_count
+        EQUB 0, 0, 0, 0
+
+.cell_count
+        EQUB 0, 0, 0, 0
+
+.bcd_count
+        EQUB 0, 0, 0, 0
+        
+.clear_count
+{
+FOR i, 0, COUNT_PRECISION - 1
+        STZ count_base + i, X
+NEXT        
+        RTS
+}
+        
+.add_to_count
+{
+        SED
+        CLC
+        ADC count_base, X
+        STA count_base, X
+FOR i, 1, COUNT_PRECISION - 1
+        BCC done
+        LDA count_base + i, X
+        ADC #0
+        STA count_base + i, X
+NEXT
+.done        
+        CLD
+        RTS
+}
+
+.print_as_signed
+        BIT 1, X
+        BPL print_as_unsigned
+        LDA #'-'
+        JSR OSWRCH
+        LDA #0
+        SEC
+        SBC 0, X
+        STA tmp
+        LDA #0
+        SBC 1, X
+        STA tmp + 1
+        BRA print_tmp
+
+.print_as_unsigned        
+        LDA 0, X
+        STA tmp
+        LDA 1, X
+        STA tmp + 1
+        ;; fall through to print_tmp
+        
+.print_tmp
+{
+        JSR bin_to_bcd
+        LDX #bcd_count - count_base + 2
+        LDY #2
+        BRA print_count_inner
+}
+        
+.print_count
+        LDY #COUNT_PRECISION - 1
+FOR i, 1, COUNT_PRECISION - 1
+        INX
+NEXT
+.print_count_inner
+{
+.loop        
+        LDA count_base, X
+        JSR print_bcd
+        DEX
+        DEY
+        BPL loop
+        RTS
+.print_bcd        
+        PHA
+        LSR A
+        LSR A
+        LSR A
+        LSR A
+        JSR print_bcd_digit
+        PLA
+.print_bcd_digit
+        AND #&0F
+        ORA #&30
+        JMP OSWRCH
+}        
+        
+.bin_to_bcd
+{
+        SED                 ; Switch to decimal mode
+        STZ bcd_count + 0
+        STZ bcd_count + 1
+        STZ bcd_count + 2
+        LDX #16             ; The number of source bits
+.CNVBIT
+        ASL tmp + 0         ; Shift out one bit
+        ROL tmp + 1
+        LDA bcd_count + 0   ; And add into result
+        ADC bcd_count + 0
+        STA bcd_count + 0
+        LDA bcd_count + 1   ; propagating any carry
+        ADC bcd_count + 1
+        STA bcd_count + 1
+        LDA bcd_count + 2   ; ... thru whole result
+        ADC bcd_count + 2
+        STA bcd_count + 2
+        DEX                 ; And repeat for next bit
+        BNE CNVBIT
+        CLD                 ; Back to binary
+        RTS
+}
+        
