@@ -6,7 +6,7 @@
 
 #define MAX_SIZE 1000000
 
-#define MAX_GEN 50000
+#define MAX_GEN 17400
 
 #define ORIGIN 0x4000
 
@@ -323,10 +323,11 @@ void list8_life_init() {
    }
 }
 
-void list8_life(int *this, int *new)
+int list8_life(int *this, int *new)
 {
 	int *next, *prev;
 	int x, y;
+   int ops = 0;
 
    unsigned char rearprev, middprev, foreprev;
    unsigned char rearthis, middthis, forethis;
@@ -351,7 +352,7 @@ void list8_life(int *this, int *new)
 			/* start a new group of rows */
 			if(*next == 0) {
 				*new = 0;
-				return;
+				return ops;
 			}
 			y = *next++ + 1;
 		} else {
@@ -428,6 +429,7 @@ void list8_life(int *this, int *new)
             print_binary(forenext);
             printf("\n");
 #endif
+            ops++;
 
             outcome =
                (ltsum[(hicnt_m & 0xfc) | (locnt_r & 0x03)] << 4) |
@@ -486,7 +488,8 @@ int main(int argc, char **argv) {
    int pop;
    int size;
    char *rle_pattern;
-
+   int cells = 0;
+   int ops = 0;
    list8_life_init();
    // dump_tables();
 
@@ -557,15 +560,19 @@ int main(int argc, char **argv) {
 
    do {
       calculate_stats(ptr1, &size, &pop, &coords);
+      cells += pop;
       //dump_list(gen, ptr1);
       if ((gen % 100) == 0) {
          printf("gen %6d size %6d pop %6d coords %6d efficiency (bytes / cell) %4.3f\n", gen, size, pop, coords, (double) size / (double) pop);
       }
-      list8_life(ptr1, ptr2);
+      ops += list8_life(ptr1, ptr2);
       gen++;
       tmp = ptr1;
       ptr1 = ptr2;
       ptr2 = tmp;
 
    } while ((gen <= MAX_GEN) && (pop > 0));
+   printf("Final ops = %8d\n", ops);
+   printf("Final cells = %8d\n", cells);
+   printf("Avergage cells/gen = %8.3f\n", (double) cells / (double) gen);
 }

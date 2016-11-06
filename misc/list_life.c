@@ -5,7 +5,7 @@
 
 #define MAX_SIZE 1000000
 
-#define MAX_GEN 50000
+#define MAX_GEN 17400
 
 #define ORIGIN 0x4000;
 
@@ -114,11 +114,12 @@ void list_rle_reader(char *pattern, int *ptr) {
    }
 }
 
-void list_life(int *this, int *new)
+int list_life(int *this, int *new)
 {
 	unsigned bitmap;
 	int *next, *prev;
 	int x, y;
+   int ops = 0;
 	static enum {
 		DEAD, LIVE
 	} state[1 << 9];
@@ -153,7 +154,7 @@ void list_life(int *this, int *new)
 			/* start a new group of rows */
 			if(*next == 0) {
 				*new = 0;
-				return;
+				return ops;
 			}
 			y = *next++ + 1;
 		} else {
@@ -192,6 +193,7 @@ void list_life(int *this, int *new)
 					next++;
 				}
 				/* what does this bitmap indicate? */
+            ops++;
 				if(state[bitmap] == LIVE)
 					*++new = x - 1;
 				else if(bitmap == 000)
@@ -203,12 +205,15 @@ void list_life(int *this, int *new)
 		}
 	}
 }
+
 int main(int argc, char **argv) {
 
    int i;
    int pop;
    int size;
    char *rle_pattern;
+   int ops = 0;
+   int cells = 0;
 
 #if defined(PATTERN_RPENTOMINO)
    // r-pentomino
@@ -275,13 +280,17 @@ int main(int argc, char **argv) {
 
    do {
       calculate_stats(ptr1, &size, &pop);
+      cells += pop;
       if ((gen % 100) == 0) {
-         printf("gen %6d size %6d pop %6d efficiency (bytes / cell) %4.3f\n", gen, size, pop, (double) size / (double) pop);
+         printf("gen %6d size %6d pop %6d efficiency (bytes / cell) %4.3f ops %8d\n", gen, size, pop, (double) size / (double) pop, ops);
       }
-      list_life(ptr1, ptr2);
+      ops += list_life(ptr1, ptr2);
       gen++;
       tmp = ptr1;
       ptr1 = ptr2;
       ptr2 = tmp;
    } while ((gen <= MAX_GEN) && (pop > 0));
+   printf("Final ops = %8d\n", ops);
+   printf("Final cells = %8d\n", cells);
+   printf("Avergage cells/gen = %8.3f\n", (double) cells / (double) gen);
 }
