@@ -291,6 +291,7 @@
         EQUW patternR
         EQUW patternS
         EQUW patternT
+        EQUW patternU
 .pattern_table_terminator
         EQUW 0
 
@@ -554,6 +555,16 @@
 .patternR
 {
 .start
+        EQUB TYPE_RLE
+        EQUB name - start
+        EQUS "R.STARGTE", 13
+.name
+        EQUS "Stargate", 0
+}
+
+.patternS
+{
+.start
         EQUB TYPE_RANDOM
         EQUB name - start
         EQUB 1
@@ -561,7 +572,7 @@
         EQUS "Random (Density 1)", 0
 }
 
-.patternS
+.patternT
 {
 .start
         EQUB TYPE_RANDOM
@@ -571,7 +582,7 @@
         EQUS "Random (Density 2)", 0
 }
 
-.patternT
+.patternU
 {
 .start
         EQUB TYPE_RANDOM
