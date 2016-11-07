@@ -5,7 +5,8 @@
 MODE            = 4
 
 WRCVEC          = &020E
-        
+EVNTV           = &0220        
+
 OSFILE          = &FFDD        
 OSRDCH          = &FFE0
 OSWRCH          = &FFEE

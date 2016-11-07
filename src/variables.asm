@@ -53,7 +53,7 @@ ui_show         = &78
 ui_rate         = &79
 ui_mode         = &7A
 ui_count        = &7E
-key_count       = &7F
+key_pressed     = &7F
 
         
 ;; Atom Life Engine

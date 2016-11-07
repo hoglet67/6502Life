@@ -23,6 +23,12 @@
         LDA #&FE                ; send the VDU command to reset the generation count
         JSR OSWRCH
 
+        ;; Install Event Handler
+        LDA #<event_handler
+        STA EVNTV
+        LDA #>event_handler
+        STA EVNTV + 1
+
         ;; Disable cursor editing, so cursors return ascii codes &88-&8B
         LDA #&04
         LDX #&01
@@ -34,6 +40,11 @@
         LDY #&00
         JSR OSBYTE
 
+        ;; Enable character entering buffer event
+        LDA #&0E
+        LDX #&02
+        JSR OSBYTE
+        
         JSR print_string
 
         EQUB 22, MODE
@@ -117,8 +128,8 @@ IF not(_ATOM_LIFE_ENGINE)
         JSR refresh_panel
         
 ;;;  Initialize interaction counters
-        STZ key_count
         STZ ui_count
+        STZ key_pressed
 
         ;; Whenever we hit generation_loop:
         ;; "this" should point to the start of the list
@@ -140,23 +151,17 @@ IF not(_ATOM_LIFE_ENGINE)
         STZ ui_count
 .skip_update
 
-        ;; Determine if we are in single step mode
-        BIT ui_mode
-        BPL not_single_step
-        JSR OSRDCH
-        TAX
-        BRA handle_key_press
-
         ;; Determine if a keyboard scan is due
-.not_single_step
-        INC key_count
-        LDA key_count
-        AND #&0F
-        BNE no_keyscan
-        JSR scan_keyboard
-.handle_key_press
+        BIT ui_mode             ; Are we in single step mode?
+        BMI read_keyboard       ; yes, then always wait for a key press
+        LDA key_pressed         ; Has a key press event been received?
+        BEQ skip_read_keyboard  ; no, then nothing further to do
+.read_keyboard
+        JSR OSRDCH              ; wait for key pressed
+        TAX
         JSR process_key_press
-.no_keyscan
+        STZ key_pressed         ; clear the key pressed flag
+.skip_read_keyboard
 
 .new_generation
         ;; Just to be safe, add a terminator to the new pointer
@@ -186,23 +191,10 @@ IF not(_ATOM_LIFE_ENGINE)
         M_UPDATE_COORD_ZP ystart, pan_y
 
         BRA generation_loop
-
-
+        
 .ui_rate_table
         EQUB 1, 2, 3, 4, 5, 10, 20, 50, 100, 200
 .ui_rate_table_end
-
-.scan_keyboard
-{
-        LDA #&81
-        LDX #&00
-        LDY #&00
-        JSR OSBYTE
-        BCC return
-        LDX #0
-.return
-        RTS
-}
 
 .process_key_press
 {
@@ -539,3 +531,14 @@ extra = 1
         RTS
 
 ENDIF
+        
+.event_handler
+{
+        PHP
+        CMP #&02                ; test for char entering input buffer
+        BNE return
+        STY key_pressed
+.return
+        PLP
+        RTS
+}
