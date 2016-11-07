@@ -37,7 +37,7 @@ RLE_DST         = BUFFER
 ENDIF
 
 ORG               &0500         ; base address of the code on the Beeb
-GUARD             &1E7F
+GUARD             &1EFF
 
 include "constants.asm"
 
@@ -77,7 +77,7 @@ ENDIF
 
 include "beeb_wrapper.asm"
 
-ORG               &1E80
+ORG               &1F00
 GUARD             &1FFF
 
 include "vdu_driver.asm"

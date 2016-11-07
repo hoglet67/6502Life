@@ -15,9 +15,8 @@ xstart          = &62           ; used by list_life_update_delta()
 ystart          = &64           ; used by list_life_update_delta()
 xend            = &66           ; used by list_life_update_delta()
 yend            = &68           ; used by list_life_update_delta()        
-stash           = &6A
-pan_x           = &6C
-pan_y           = &6E
+pan_x           = &6A
+pan_y           = &6C
         
 
 ;; Additional locations used by list8 life
@@ -49,13 +48,18 @@ count           = &48
         
 ;; Beeb Wrapper
 
-ui_show         = &78        
-ui_rate         = &79
-ui_mode         = &7A
-ui_count        = &7B
-key_pressed     = &7C
-step_pressed    = &7D
-pan_count       = &7E
+ui_show         = &74
+ui_rate         = &75
+ui_mode         = &76
+ui_count        = &77
+ui_zoom         = &78        
+key_pressed     = &79
+step_pressed    = &7A
+pan_count       = &7B
+stash           = &7C
+old_ystart      = &7E  
+
+        
         
 ;; Atom Life Engine
 

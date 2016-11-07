@@ -471,24 +471,24 @@ NEXT
 ;;     }
 ;; }
 
-
-.list_life_update_delta
+MACRO M_LIST_LIFE_UPDATE_DELTA zoom
 {
 
 ;; xend = xstart + 256;
 
+        CLC
         LDA xstart
+        ADC #<(256 DIV (2^zoom))
         STA xend
         LDA xstart + 1
-        CLC
-        ADC #1
+        ADC #>(256 DIV (2^zoom))
         STA xend + 1
 
 ;; yend = ystart - 8;
 
         LDA ystart
         SEC
-        SBC #8
+        SBC #(8 DIV (2^zoom))
         STA yend
         LDA ystart + 1
         SBC #0
@@ -540,19 +540,19 @@ NEXT
         LDA yend + 1
         SBC yy + 1
 
-        BCS else2
+        BCC not_else2
+        RTS
 
+.not_else2        
 ;;         temp = 32 * (ystart - yy);
 
-        ;; 8 bits is sufficient here, as the Y strip is 8 pixels high
+        ;; 8 bits is sufficient here, as the Y strip is 8 pixels high        
         LDA ystart
         SEC
         SBC yy
+FOR i,1,5 + zoom
         ASL A
-        ASL A
-        ASL A
-        ASL A
-        ASL A
+NEXT        
         STA temp
 
 ;;         while(1) {
@@ -599,21 +599,25 @@ NEXT
         SBC xstart
         TAY
 
+IF zoom < 3
+    FOR i, 1, 3-zoom
         LSR A
-        LSR A
-        LSR A
+    NEXT
+ENDIF
         CLC
         ADC temp
         TAX
 
         TYA
-        AND #&07
+        AND #(7 >> zoom)
         TAY
 
-        LDA DELTA_BASE, X
+FOR i, 0, 2^zoom - 1        
+        LDA DELTA_BASE + 32 * i, X
         EOR pixel_mask, Y
-        STA DELTA_BASE, X
-
+        STA DELTA_BASE + 32 * i, X
+NEXT
+        
         JMP while_level2
 
 ;;     } else {
@@ -621,14 +625,43 @@ NEXT
 ;;     }
 ;; }
 
-
-.else2
-        RTS
-
 }
 
 .pixel_mask
-        EQUB &80, &40, &20, &10, &08, &04, &02, &01
+IF zoom = 3
+        EQUB &FF
+ELIF zoom = 2
+        EQUB &F0, &0F
+ELIF zoom = 1
+        EQUB &C0, &30, &0C, &03
+ELSE
+        EQUB &80, &40, &20, &10, &08, &04, &02, &01        
+ENDIF
+        
+ENDMACRO
+        
+.list_life_update_delta
+        ASL A
+        TAX
+        JMP (zoom_table, X)
+
+.zoom_table
+        EQUW list_life_update_delta_1x
+        EQUW list_life_update_delta_2x
+        EQUW list_life_update_delta_4x
+        EQUW list_life_update_delta_8x
+                
+.list_life_update_delta_1x
+M_LIST_LIFE_UPDATE_DELTA 0
+
+.list_life_update_delta_2x
+M_LIST_LIFE_UPDATE_DELTA 1
+
+.list_life_update_delta_4x
+M_LIST_LIFE_UPDATE_DELTA 2
+
+.list_life_update_delta_8x
+M_LIST_LIFE_UPDATE_DELTA 3
 
 ;; ************************************************************
 ;; list_life_update_screen_vdu()

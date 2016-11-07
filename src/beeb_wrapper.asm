@@ -8,12 +8,14 @@
         JSR install_vdu_driver
 
         ;; Configure the default UI update
-        LDA #(DEFAULT_SHOW)
+        LDA #DEFAULT_SHOW
         STA ui_show
-        LDA #(DEFAULT_RATE)
+        LDA #DEFAULT_RATE
         STA ui_rate
-        LDA #(DEFAULT_MODE)
+        LDA #DEFAULT_MODE
         STA ui_mode
+        LDA #DEFAULT_ZOOM
+        STA ui_zoom
         
 .warm_boot
 
@@ -259,6 +261,11 @@ ENDMACRO
         STA step_pressed
         RTS
 .not_step    
+        CPX #'Z'
+        BNE not_zoom
+        JSR increment_zoom
+        JMP refresh
+.not_zoom        
         CPX #&87                ; copy
         BNE not_reset_pan
         JSR reset_pan
@@ -319,6 +326,51 @@ ENDMACRO
         RTS
 }
 
+.increment_zoom
+{
+        LDX ui_zoom
+        LDA xstart              ; Use the old zoom correction to find the centre of the viewport
+        CLC
+        ADC zoom_correction, X
+        STA xstart
+        LDA xstart + 1
+        ADC #0
+        STA xstart + 1
+        LDA ystart
+        SEC
+        SBC zoom_correction, X
+        STA ystart
+        LDA ystart + 1
+        SBC #0
+        STA ystart + 1
+        
+        INX                     ; move to the next zoom
+        TXA
+        AND #ZOOM_MASK
+        TAX
+        STX ui_zoom
+
+        LDA xstart              ; Use the new zoom correction to find the top left of the viewport
+        SEC
+        SBC zoom_correction, X
+        STA xstart
+        LDA xstart + 1
+        SBC #0
+        STA xstart + 1
+        LDA ystart
+        CLC
+        ADC zoom_correction, X
+        STA ystart
+        LDA ystart + 1
+        ADC #0
+        STA ystart + 1
+        RTS
+
+.zoom_correction
+        EQUB &80, &40, &20, &10
+}
+
+        
 .refresh_panel
 {
         JSR print_string
@@ -331,8 +383,14 @@ ENDMACRO
         EQUS "        ", 10, 10, 13
         EQUS "Y-Ref:", 10, 13
         EQUS "        ", 10, 10, 13
+        EQUS "Zoom:",  10, 13
+        NOP
+        LDX ui_zoom
+        LDA ui_zoom_table, X
+        JSR OSWRCH
         
-        EQUS "Rate:", 10, 13
+        JSR print_string
+        EQUS "x",10,10,13, "Rate:", 10, 13
         NOP
         LDX ui_rate
         LDA ui_rate_table, X
@@ -365,7 +423,8 @@ ENDMACRO
         EQUS " ", 10, 10, 13, "Stopped"
         NOP
         RTS
-        
+.ui_zoom_table
+        EQUS "1248"
 }
         
 .list_life_update_screen
@@ -408,6 +467,8 @@ ENDMACRO
         LDA #&FF                ; send the VDU command to expect a new display
         JSR OSWRCH
 
+        M_COPY ystart, old_ystart
+
         LDX #&20
 
 .loop
@@ -418,6 +479,7 @@ ENDMACRO
         JSR copy_screen_to_delta
 
         ;; EOR render the new strip into the delta
+        LDA ui_zoom
         JSR list_life_update_delta
 
         ;; delta is now the difference between the previous and current screens
@@ -426,8 +488,8 @@ ENDMACRO
         ;; EOR the delta back into the local copy of the screen
         JSR eor_delta_to_screen
 
-        ;; Move the strip down 8 pixels
-        M_UPDATE_COORD ystart, &FFF8
+        ;; Move the strip down N pixels
+        M_COPY yend, ystart
 
         ;; Point to the next strip of screen
         INC scrn + 1
@@ -437,8 +499,8 @@ ENDMACRO
         DEX
         BNE loop
 
-        ;; Move the strip up 256 pixels
-        M_UPDATE_COORD ystart, &0100
+        ;; Move the strip back to original starting point
+        M_COPY old_ystart, ystart
         
         RTS
 }
