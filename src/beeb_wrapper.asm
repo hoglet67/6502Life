@@ -20,9 +20,6 @@
         LDX #&FF
         TXS
 
-        LDA #&FE                ; send the VDU command to reset the generation count
-        JSR OSWRCH
-
         ;; Install Event Handler
         LDA #<event_handler
         STA EVNTV
