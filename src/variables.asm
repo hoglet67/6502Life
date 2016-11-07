@@ -52,9 +52,10 @@ count           = &48
 ui_show         = &78        
 ui_rate         = &79
 ui_mode         = &7A
-ui_count        = &7E
-key_pressed     = &7F
-
+ui_count        = &7B
+key_pressed     = &7C
+step_pressed    = &7D
+pan_count       = &7E
         
 ;; Atom Life Engine
 

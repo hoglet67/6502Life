@@ -129,6 +129,7 @@ IF not(_ATOM_LIFE_ENGINE)
         
 ;;;  Initialize interaction counters
         STZ ui_count
+        STZ pan_count
         STZ key_pressed
 
         ;; Whenever we hit generation_loop:
@@ -152,8 +153,6 @@ IF not(_ATOM_LIFE_ENGINE)
 .skip_update
 
         ;; Determine if a keyboard scan is due
-        BIT ui_mode             ; Are we in single step mode?
-        BMI read_keyboard       ; yes, then always wait for a key press
         LDA key_pressed         ; Has a key press event been received?
         BEQ skip_read_keyboard  ; no, then nothing further to do
 .read_keyboard
@@ -162,6 +161,12 @@ IF not(_ATOM_LIFE_ENGINE)
         JSR process_key_press
         STZ key_pressed         ; clear the key pressed flag
 .skip_read_keyboard
+
+        ;; Determine if we need to calculate a new generation
+        BIT step_pressed
+        BMI new_generation
+        BIT ui_mode
+        BMI skip_new_generation
 
 .new_generation
         ;; Just to be safe, add a terminator to the new pointer
@@ -186,11 +191,59 @@ IF not(_ATOM_LIFE_ENGINE)
         LDA #1
         JSR add_to_count
 
-        ;; Update the viewpoint position
-        M_UPDATE_COORD_ZP xstart, pan_x
-        M_UPDATE_COORD_ZP ystart, pan_y
+        STZ step_pressed
 
-        BRA generation_loop
+.skip_new_generation
+
+
+MACRO M_UPDATE_VIEWPOINT_COORD pan, coord
+        LDA pan
+        ORA pan + 1             ; if pan is 0, there is no work to be done
+        BEQ skip_pan
+        LDX #pan
+        LDY #coord
+        JSR update_pan          ; use a subroutine to save code
+.skip_pan        
+ENDMACRO
+
+        ;; Update the viewpoint position
+        INC pan_count
+        M_UPDATE_VIEWPOINT_COORD pan_x, xstart
+        M_UPDATE_VIEWPOINT_COORD pan_y, ystart
+
+        JMP generation_loop
+
+.update_pan
+{
+        ;; Smooth panning
+        ;;
+        ;; This idea is to add "pan" per two frames
+        ;;
+        ;; The value to add in even frames is pan/2
+        ;; The value to add in odd frames is pan/2 if pan is even, and pan/2 + 1 if pan is odd
+        
+        LDA 1, X
+        ASL A                   ; carry = sign bit
+        LDA 1, X                ; divide pan by two, taking account of sign
+        ROR A
+        STA tmp + 1
+        LDA 0, X
+        ROR A                   ; carry is the old LSB (now with 0.5)
+        STA tmp
+        LDA pan_count           ; add an extra one in odd frames, where the "0.5" bit is 1
+        AND #1
+        BNE odd_frame
+        CLC                     ; never add one in even frames
+.odd_frame        
+        LDA 0, Y
+        ADC tmp
+        STA 0, Y
+        LDA 1, Y
+        ADC tmp + 1
+        STA 1, Y
+        RTS
+}
+
         
 .ui_rate_table
         EQUB 1, 2, 3, 4, 5, 10, 20, 50, 100, 200
@@ -203,38 +256,44 @@ IF not(_ATOM_LIFE_ENGINE)
         BNE not_escape
         JMP warm_boot
 .not_escape
-        CPX #&0D
-        BNE not_return
+        CPX #&0D                ; return
+        BNE not_step
+        LDA ui_mode
+        STA step_pressed
+        RTS
+.not_step    
+        CPX #&87                ; copy
+        BNE not_reset_pan
         JSR reset_pan
         BRA refresh
-.not_return
-        CPX #&87
-        BNE not_copy
+.not_reset_pan
+        CPX #&09                ; tab
+        BNE not_reset_viewpoint
         JSR reset_viewpoint
         BRA refresh
-.not_copy
-        CPX #&88
+.not_reset_viewpoint
+        CPX #&88                ; left cursor
         BNE not_left
         M_UPDATE_COORD pan_x, PAN_NEG
         BRA refresh
 .not_left
-        CPX #&89
+        CPX #&89                ; right cursor
         BNE not_right
         M_UPDATE_COORD pan_x, PAN_POS
         BRA refresh
 .not_right
-        CPX #&8A
+        CPX #&8A                ; up cursor
         BNE not_up
         M_UPDATE_COORD pan_y, PAN_NEG
         BRA refresh
 .not_up
-        CPX #&8B
+        CPX #&8B                ; down cursor
         BNE not_down
         M_UPDATE_COORD pan_y, PAN_POS
         BRA refresh
 .not_down
-        CPX #'R'
-        BNE not_R
+        CPX #'R'                ; R
+        BNE not_rate
         LDA ui_rate
         CLC
         ADC #1
@@ -244,14 +303,14 @@ IF not(_ATOM_LIFE_ENGINE)
 .store_rate        
         STA ui_rate
         BRA refresh
-.not_R
-        CPX #'S'
-        BNE not_S
+.not_rate
+        CPX #'S'                ; S
+        BNE not_show
         INC ui_show
         BRA refresh
-.not_S
-        CPX #&09
-        BNE not_tab
+.not_show
+        CPX #&20                ; Space
+        BNE not_toggle_step
         LDA ui_mode
         EOR #MODE_SINGLE_STEP
         STA ui_mode
@@ -259,7 +318,7 @@ IF not(_ATOM_LIFE_ENGINE)
 .refresh
         JMP refresh_panel
  
-.not_tab
+.not_toggle_step
         RTS
 }
 
