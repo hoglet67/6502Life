@@ -28,12 +28,19 @@ ELSE
 DELTA_BASE      = &0400         ; 8 row buffer for accumulating delta
 SCRN_BASE       = &2000         ; base address of screen memory
 
+IF _MATCHBOX
+BUFFER          = BUFFER1
+BUFFER_END      = BUFFER2
+        
+RLE_SRC         = BUFFER2
+RLE_DST         = BUFFER1
+ELSE
 BUFFER          = &4000
 BUFFER_END      = &F800
 
 RLE_SRC         = (BUFFER + BUFFER_END) DIV 2
 RLE_DST         = BUFFER
-        
+ENDIF
 ENDIF
 
 ORG               &0500         ; base address of the code on the Beeb
@@ -49,6 +56,10 @@ include "macros_common.asm"
 
 JMP beeb_life
 
+IF _MATCHBOX
+include "banksel.asm"
+ENDIF        
+        
 include "utils.asm"
         
 include "rle_utils.asm"

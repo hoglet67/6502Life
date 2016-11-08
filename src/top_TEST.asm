@@ -2,6 +2,8 @@
         ORG               &1900
 
 _LIST8_LIFE_ENGINE = FALSE
+
+_MATCHBOX          = FALSE        
                 
 BUFFER          = &4000
 BUFFER_END      = &F800

@@ -86,7 +86,7 @@ NEXT
 {
         LDA (new), Y
         BPL skip_inc
-        M_INCREMENT_PTR new
+        M_INCREMENT_PTR_BS new
 .skip_inc
 }
 
@@ -127,9 +127,13 @@ NEXT
         LDA #0
         STA (new)
         STA (new), Y
-        M_INCREMENT_PTR new
+        M_INCREMENT_PTR_BS new
         ;; return;
+IF _MATCHBOX
+        JMP reset_banksel_buffers
+ELSE        
         RTS
+ENDIF
 
 .next_not_zero
         ;; y = *next++ + 1;
@@ -140,7 +144,7 @@ NEXT
         LDA (next), Y
         ADC #0
         STA yy + 1
-        M_INCREMENT_PTR next
+        M_INCREMENT_PTR_BS next
 
         BRA endif
 
@@ -182,7 +186,7 @@ NEXT
         BNE skip_inc_next
         CPX yy
         BNE skip_inc_next
-        M_INCREMENT_PTR next
+        M_INCREMENT_PTR_BS next
 .skip_inc_next
 
 .endif
@@ -269,7 +273,7 @@ NEXT
         LDA state + &100, X
         BEQ else
 .is_live
-        M_INCREMENT_PTR new
+        M_INCREMENT_PTR_BS new
         LDA xx
         SEC
         SBC #1
@@ -327,7 +331,7 @@ NEXT
         JSR clear_count
         LDY #1
 .loop
-        M_INCREMENT_PTR list
+        M_INCREMENT_PTR_BS list
         LDA (list), Y           ; the sign bit indicates X vs Y coordinates
         BPL y_or_termiator
         LDA #1
@@ -336,7 +340,11 @@ NEXT
 .y_or_termiator
         ORA (list)
         BNE loop
+IF _MATCHBOX
+        JMP reset_banksel_buffers
+ELSE        
         RTS
+ENDIF
 }
 
 ;; ************************************************************
@@ -360,9 +368,9 @@ NEXT
         STA (new), Y            ; copy the coord
         LDA (this)
         STA (new)
-        M_INCREMENT_PTR new
+        M_INCREMENT_PTR_BS new
 .skip_copy_x        
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR_BS this
         BRA loop
 
 .is_y_or_terminator
@@ -376,7 +384,7 @@ NEXT
         BNE copy                ; no, copy the y coord and continue processing x coords
 
 .skip_row
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR_BS this
         LDA (this), Y           ; is it an X or a Y coordinate?
         BMI skip_row
         BPL is_y_or_terminator
@@ -385,8 +393,12 @@ NEXT
         LDA #0
         STA (new)
         STA (new), Y
-        M_INCREMENT_PTR new        
+        M_INCREMENT_PTR_BS new        
+IF _MATCHBOX
+        JMP reset_banksel_buffers
+ELSE        
         RTS
+ENDIF
 }        
         
 ;; ************************************************************
@@ -454,7 +466,11 @@ NEXT
        ;; write the terminating zero
        M_WRITE this, yy
 
-       RTS
+IF _MATCHBOX
+        JMP reset_banksel_buffers
+ELSE        
+        RTS
+ENDIF
 
 .row_not_blank
 
@@ -578,7 +594,7 @@ MACRO M_LIST_LIFE_UPDATE_DELTA zoom
 
         LDY #1
 .skip_over_x
-        M_INCREMENT_PTR list
+        M_INCREMENT_PTR_BS list
         LDA (list), Y
         BMI skip_over_x
 
@@ -614,7 +630,7 @@ NEXT
 
 ;;            xx = *++list;
 
-        M_INCREMENT_PTR list
+        M_INCREMENT_PTR_BS list
 
         LDY #0
         LDA (list), Y

@@ -58,7 +58,7 @@
         LDA #0
         STA (this)
         STA (this),Y
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR_BS this
         RTS
 
 .digit
@@ -84,7 +84,7 @@
         STA (this)
         LDA xx + 1
         STA (this),Y
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR_BS this
         M_INCREMENT xx
         M_DECREMENT count
         BRA cells_loop
@@ -122,7 +122,7 @@
         STA (this)
         LDA yy + 1
         STA (this),Y
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR_BS this
         RTS
 }
 

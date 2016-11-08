@@ -22,6 +22,10 @@
         LDX #&FF
         TXS
 
+IF _MATCHBOX
+        ;; Initialize Bank Selection buffers
+        JSR init_banksel_buffers
+ENDIF
         ;; Install Event Handler
         LDA #<event_handler
         STA EVNTV
@@ -106,6 +110,17 @@ IF not(_ATOM_LIFE_ENGINE)
         JSR clear_screen        ; so we are in sync with the host
 .skip_load_buffer
 
+IF _MATCHBOX
+        JSR init_banksel_buffers
+        LDA #<BUFFER1
+        STA this
+        LDA #>BUFFER1
+        STA this + 1
+        LDA #<BUFFER2
+        STA new
+        LDA #>BUFFER2
+        STA new + 1
+ELSE        
         ;; The "this" pointer is now pointing to free memory after the loaded pattern
 
         ;; Update the "new" pointer to this free memory
@@ -116,6 +131,7 @@ IF not(_ATOM_LIFE_ENGINE)
         STA this
         LDA #>BUFFER
         STA this + 1
+ENDIF
 
         ;; Configure the initial viewpoint
         JSR reset_viewpoint
@@ -180,20 +196,58 @@ IF not(_ATOM_LIFE_ENGINE)
         INY
         STA (new), Y
 
+IF _MATCHBOX
+        ;; When using the bank selection:
+        ;; - this always points to BUFFER1 at 0x4000
+        ;; - new always points to BUFFER2 at 0x8000
+        
+        ;; Calculate the next generation from "this" to "new"
+        ;; (both "this" and "new" are updated)
+        JSR list_life
+
+        ;; We implement double buffering by swapping pages underneath
+        JSR swap_banksel_buffers
+        LDA #<BUFFER1
+        STA this
+        LDA #>BUFFER1
+        STA this + 1
+        LDA #<BUFFER2
+        STA new
+        LDA #>BUFFER2
+        STA new + 1
+        ;; So now "this" points to the new generation
+ELSE
         ;; Save the "new" pointer
         M_COPY new, stash
 
         ;; Calculate the next generation from "this" to "new"
         ;; (both "this" and "new" are updated)
         JSR list_life
-
+        
         ;; Cycle the pointers
         M_COPY stash, this
-
-IF NOT(_LIST8_LIFE_ENGINE) 
+ENDIF
+        
+IF NOT(_LIST8_LIFE_ENGINE)
         LDA pan_count           ; prune edge cells every 256 generations
         BNE skip_prune
-
+IF _MATCHBOX
+        ;; Prune any cells that are with 256 of the edge
+        ;; (both "this" and "new" are updated)
+        JSR list_life_prune_cells
+        
+        ;; We implement double buffering by swapping pages underneath
+        JSR swap_banksel_buffers
+        LDA #<BUFFER1
+        STA this
+        LDA #>BUFFER1
+        STA this + 1
+        LDA #<BUFFER2
+        STA new
+        LDA #>BUFFER2
+        STA new + 1
+        ;; So now "this" points to the pruned generation
+ELSE
         ;; Save the "new" pointer
         M_COPY new, stash
 
@@ -203,7 +257,7 @@ IF NOT(_LIST8_LIFE_ENGINE)
 
         ;; Cycle the pointers
         M_COPY stash, this
-        
+ENDIF
 .skip_prune
 ENDIF
         
@@ -523,6 +577,10 @@ ENDMACRO
 
         ;; Move the strip back to original starting point
         M_COPY old_ystart, ystart
+
+IF _MATCHBOX
+        JSR reset_banksel_buffers
+ENDIF
         
         RTS
 }

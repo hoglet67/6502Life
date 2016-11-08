@@ -1,5 +1,7 @@
-_ATOM_LIFE_ENGINE = TRUE
+_ATOM_LIFE_ENGINE  = TRUE
 
 _LIST8_LIFE_ENGINE = FALSE
-        
+
+_MATCHBOX          = FALSE
+
 include "common_BLIFE.asm"
