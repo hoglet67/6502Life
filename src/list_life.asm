@@ -296,13 +296,15 @@ NEXT
 ;;          /* move right */
 ;;          bitmap >>= 3;
 
-        LSR bitmap + 1
+        LDA bitmap + 1
+        LSR A
         ROR bitmap
-        LSR bitmap + 1
+        LSR A
         ROR bitmap
-        LSR bitmap + 1
+        LSR A
         ROR bitmap
-
+        STA bitmap + 1
+        
 ;;          x += 1;
 
         M_INCREMENT xx
