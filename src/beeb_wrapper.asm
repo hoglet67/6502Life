@@ -135,6 +135,11 @@ IF not(_ATOM_LIFE_ENGINE)
         ;; "this" should point to the start of the list
         ;; "new" should point to free buffer space
 
+        ;; Fix a slightly annoying "off-by-one" issue when running with
+        ;; rate=100. You would expect the gen count to be xxx00 but
+        ;; without this is will be xxx99.
+        DEC ui_count
+        
 .generation_loop
 
         ;; Determine if a UI update is due
