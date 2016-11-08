@@ -277,7 +277,7 @@ NEXT
         LDA xx + 1
         SBC #0
         STA (new), Y
-        JMP endif
+        BRA endif
 
 .else
 
