@@ -337,7 +337,58 @@ NEXT
         ORA (list)
         BNE loop
         RTS
+}
+
+;; ************************************************************
+;; prune the universe
+;; ************************************************************
+
+;; (this) points to the source list
+;; (new) points to the destination list
+        
+.list_life_prune_cells
+{
+        LDY #1
+.loop
+        LDA (this), Y           ; is it an X or a Y coordinate?
+        BPL is_y_or_terminator
+        CMP #&80                ; at the left edge?
+        BEQ skip_copy_x
+        CMP #&FF                ; at the right edge?
+        BEQ skip_copy_x
+.copy        
+        STA (new), Y            ; copy the coord
+        LDA (this)
+        STA (new)
+        M_INCREMENT_PTR new
+.skip_copy_x        
+        M_INCREMENT_PTR this
+        BRA loop
+
+.is_y_or_terminator
+        TAX                     ; test for the terminating 0000
+        ORA (this)
+        BEQ terminator
+        TXA
+        CMP #&7F                ; at the top edge?
+        BEQ skip_row            ; yes, skip the whole row
+        CMP #&00                ; at the bottom edge?
+        BNE copy                ; no, copy the y coord and continue processing x coords
+
+.skip_row
+        M_INCREMENT_PTR this
+        LDA (this), Y           ; is it an X or a Y coordinate?
+        BMI skip_row
+        BPL is_y_or_terminator
+                
+.terminator
+        LDA #0
+        STA (new)
+        STA (new), Y
+        M_INCREMENT_PTR new        
+        RTS
 }        
+        
 ;; ************************************************************
 ;; list_life_load_buffer()
 ;; ************************************************************

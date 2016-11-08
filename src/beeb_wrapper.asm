@@ -185,6 +185,23 @@ IF not(_ATOM_LIFE_ENGINE)
         ;; Cycle the pointers
         M_COPY stash, this
 
+IF NOT(_LIST8_LIFE_ENGINE) 
+        LDA pan_count           ; prune edge cells every 256 generations
+        BNE skip_prune
+
+        ;; Save the "new" pointer
+        M_COPY new, stash
+
+        ;; Prune any cells that are with 256 of the edge
+        ;; (both "this" and "new" are updated)
+        JSR list_life_prune_cells
+
+        ;; Cycle the pointers
+        M_COPY stash, this
+        
+.skip_prune
+ENDIF
+        
         ;; Increment the generation counter
         LDX #gen_count - count_base
         LDA #1
