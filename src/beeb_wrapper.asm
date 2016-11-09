@@ -428,13 +428,6 @@ ENDMACRO
         STX ui_zoom
 .zoom_return        
         RTS
-
-.zoom_correction_lo
-        EQUB &00, &00, &00, &80, &40, &20, &10
-
-.zoom_correction_hi
-        EQUB &04, &02, &01, &00, &00, &00, &00
-
         
 .refresh_panel
 {
@@ -545,22 +538,8 @@ ENDMACRO
         M_COPY ystart, old_ystart
 
         ;; Offset to the top/left
-        LDX ui_zoom
-        LDA xstart
-        SEC
-        SBC zoom_correction_lo, X
-        STA xstart
-        LDA xstart + 1
-        SBC zoom_correction_hi, X
-        STA xstart + 1
-        LDA ystart
-        CLC
-        ADC zoom_correction_lo, X
-        STA ystart
-        LDA ystart + 1
-        ADC zoom_correction_hi, X
-        STA ystart + 1        
-        
+        JSR list_life_offset_top_left
+
         LDX #&20
 
 .loop
