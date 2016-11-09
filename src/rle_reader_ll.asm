@@ -5,12 +5,11 @@
 ;; This version outputs in list_life format 
 ;; 
 ;; params
-;; - src = pointer to raw RLE data
+;; - handle = open file handle for raw RLE data
+;; - byte = last byte of data read from file
 ;; - this = pointer to output buffer
 ;;
-;; uses
-;; - src
-;; - this
+;; also uses
 ;; - temp
 ;; - xx
 ;; - yy
@@ -26,7 +25,7 @@
         JSR zero_count
         JSR insert_y
 .loop
-        LDA (src)
+        LDA byte
         BEQ done
         CMP #'!'
         BEQ done
@@ -51,7 +50,7 @@
         ;; probably an error, but continue anyway....
 
 .continue
-        M_INCREMENT src
+        JSR rle_next_byte
         BRA loop
 
 .done

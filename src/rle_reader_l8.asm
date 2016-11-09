@@ -13,7 +13,6 @@
 ;; - this
 ;; - temp
 ;; - xx
-;; - yy
 ;; - count
 ;; - bitmap
 
@@ -28,7 +27,7 @@
         JSR zero_count
         JSR insert_y
 .loop
-        LDA (src)
+        LDA byte
         BEQ done
         CMP #'!'
         BEQ done
@@ -53,7 +52,7 @@
         ;; probably an error, but continue anyway....
 
 .continue
-        M_INCREMENT src
+        JSR rle_next_byte
         BRA loop
 
 .done

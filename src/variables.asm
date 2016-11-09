@@ -45,6 +45,8 @@ dst             = &42
 pat_width       = &44           ; aliases with new_xstart
 pat_depth       = &46           ; aliases with new_ystart
 count           = &48
+handle          = &4A
+byte            = &4B
         
 ;; Beeb Wrapper
 

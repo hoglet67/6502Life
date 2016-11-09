@@ -1,17 +1,17 @@
 .skip_line
 {
-        LDA (src)
+        LDA byte
         CMP #10
         BEQ skip_whitespace
         CMP #13
         BEQ skip_whitespace
-        M_INCREMENT src
+        JSR rle_next_byte
         BRA skip_line
 }
 
 .skip_whitespace
 {
-        LDA (src)
+        LDA byte
         CMP #9
         BEQ skip
         CMP #10
@@ -24,7 +24,7 @@
         BEQ skip
         RTS
 .skip
-        M_INCREMENT src
+        JSR rle_next_byte
         BRA skip_whitespace
 }
 
@@ -32,7 +32,7 @@
 {
         JSR skip_whitespace
 .skip_comments
-        LDA (src)
+        LDA byte
         CMP #'#'
         BNE process
         JSR skip_line
@@ -40,7 +40,7 @@
 
 .process
         JSR skip_whitespace
-        LDA (src)
+        LDA byte
         CMP #'x'
         BNE not_x
         JSR parse_size
@@ -66,20 +66,20 @@
 {
         STZ count
         STZ count + 1
-        M_INCREMENT src
+        JSR rle_next_byte
         JSR skip_whitespace
-        LDA (src)
+        LDA byte
         CMP #'='
         BNE return
-        M_INCREMENT src
+        JSR rle_next_byte
         JSR skip_whitespace
 .digit_loop
-        LDA (src)
+        LDA byte
         CMP #'0'
         BCC return
         CMP #'9' + 1
         BCS return
-        M_INCREMENT src
+        JSR rle_next_byte
         TAX
         JSR count_times_10
         TXA
@@ -119,5 +119,20 @@
         LDA count + 1
         ADC temp + 1
         STA count + 1
+        RTS
+}
+
+.rle_next_byte
+{
+        PHA
+        PHY                     ; preserve Y
+        LDY handle
+        JSR OSBGET
+        BCC not_eof
+        LDA #&00
+.not_eof        
+        STA byte
+        PLY
+        PLA
         RTS
 }

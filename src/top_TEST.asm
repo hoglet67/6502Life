@@ -5,6 +5,7 @@ _LIST8_LIFE_ENGINE = FALSE
 
 _MATCHBOX          = FALSE        
                 
+SCRN_BASE       = &2000
 BUFFER          = &4000
 BUFFER_END      = &F800
         
@@ -34,6 +35,7 @@ include "macros_ll.asm"
         CLI
         RTS
 
+include "utils.asm"
 include "rle_utils.asm"
 include "rle_reader_ll.asm"
 
