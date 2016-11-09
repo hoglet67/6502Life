@@ -424,6 +424,28 @@
 ;; }
 
 ;; ************************************************************
+;; moves the x/y start to the top left corner
+;; ************************************************************
+;;
+;; as list8 life doesn't support zooming, the offset is fixed 
+.list_life_offset_top_left
+        LDA xstart
+        SEC
+        SBC #&10
+        STA xstart
+        LDA xstart + 1
+        SBC #0
+        STA xstart + 1
+        LDA ystart
+        CLC
+        ADC #&80
+        STA ystart
+        LDA ystart + 1
+        ADC #0
+        STA ystart + 1        
+        RTS
+        
+;; ************************************************************
 ;; counts the cells (in BCD)
 ;; ************************************************************
 

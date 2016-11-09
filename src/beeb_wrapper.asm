@@ -22,6 +22,10 @@
         LDX #&FF
         TXS
 
+IF _MATCHBOX
+        ;; Initialize Bank Selection buffers
+        JSR init_banksel_buffers
+ENDIF
         ;; Install Event Handler
         LDA #<event_handler
         STA EVNTV
@@ -106,6 +110,17 @@ IF not(_ATOM_LIFE_ENGINE)
         JSR clear_screen        ; so we are in sync with the host
 .skip_load_buffer
 
+IF _MATCHBOX
+        JSR init_banksel_buffers
+        LDA #<BUFFER1
+        STA this
+        LDA #>BUFFER1
+        STA this + 1
+        LDA #<BUFFER2
+        STA new
+        LDA #>BUFFER2
+        STA new + 1
+ELSE        
         ;; The "this" pointer is now pointing to free memory after the loaded pattern
 
         ;; Update the "new" pointer to this free memory
@@ -116,6 +131,7 @@ IF not(_ATOM_LIFE_ENGINE)
         STA this
         LDA #>BUFFER
         STA this + 1
+ENDIF
 
         ;; Configure the initial viewpoint
         JSR reset_viewpoint
@@ -163,6 +179,11 @@ IF not(_ATOM_LIFE_ENGINE)
         JSR OSRDCH              ; wait for key pressed
         TAX
         JSR process_key_press
+        LDA #&80                ; test if there are further key presses queues
+        LDX #&FF
+        JSR OSBYTE
+        CPX #&00
+        BNE read_keyboard        
         STZ key_pressed         ; clear the key pressed flag
 .skip_read_keyboard
 
@@ -180,20 +201,58 @@ IF not(_ATOM_LIFE_ENGINE)
         INY
         STA (new), Y
 
+IF _MATCHBOX
+        ;; When using the bank selection:
+        ;; - this always points to BUFFER1 at 0x4000
+        ;; - new always points to BUFFER2 at 0x8000
+        
+        ;; Calculate the next generation from "this" to "new"
+        ;; (both "this" and "new" are updated)
+        JSR list_life
+
+        ;; We implement double buffering by swapping pages underneath
+        JSR swap_banksel_buffers
+        LDA #<BUFFER1
+        STA this
+        LDA #>BUFFER1
+        STA this + 1
+        LDA #<BUFFER2
+        STA new
+        LDA #>BUFFER2
+        STA new + 1
+        ;; So now "this" points to the new generation
+ELSE
         ;; Save the "new" pointer
         M_COPY new, stash
 
         ;; Calculate the next generation from "this" to "new"
         ;; (both "this" and "new" are updated)
         JSR list_life
-
+        
         ;; Cycle the pointers
         M_COPY stash, this
-
-IF NOT(_LIST8_LIFE_ENGINE) 
+ENDIF
+        
+IF NOT(_LIST8_LIFE_ENGINE)
         LDA pan_count           ; prune edge cells every 256 generations
         BNE skip_prune
-
+IF _MATCHBOX
+        ;; Prune any cells that are with 256 of the edge
+        ;; (both "this" and "new" are updated)
+        JSR list_life_prune_cells
+        
+        ;; We implement double buffering by swapping pages underneath
+        JSR swap_banksel_buffers
+        LDA #<BUFFER1
+        STA this
+        LDA #>BUFFER1
+        STA this + 1
+        LDA #<BUFFER2
+        STA new
+        LDA #>BUFFER2
+        STA new + 1
+        ;; So now "this" points to the pruned generation
+ELSE
         ;; Save the "new" pointer
         M_COPY new, stash
 
@@ -203,7 +262,7 @@ IF NOT(_LIST8_LIFE_ENGINE)
 
         ;; Cycle the pointers
         M_COPY stash, this
-        
+ENDIF
 .skip_prune
 ENDIF
         
@@ -283,11 +342,16 @@ ENDMACRO
         STA step_pressed
         RTS
 .not_step    
-        CPX #'Z'
-        BNE not_zoom
+        CPX #'Z'                ; Z
+        BNE not_zoom_in
         JSR increment_zoom
         JMP refresh
-.not_zoom        
+.not_zoom_in
+        CPX #'X'                ; X
+        BNE not_zoom_out
+        JSR decrement_zoom
+        JMP refresh
+.not_zoom_out
         CPX #&87                ; copy
         BNE not_reset_pan
         JSR reset_pan
@@ -349,49 +413,21 @@ ENDMACRO
 }
 
 .increment_zoom
-{
         LDX ui_zoom
-        LDA xstart              ; Use the old zoom correction to find the centre of the viewport
-        CLC
-        ADC zoom_correction, X
-        STA xstart
-        LDA xstart + 1
-        ADC #0
-        STA xstart + 1
-        LDA ystart
-        SEC
-        SBC zoom_correction, X
-        STA ystart
-        LDA ystart + 1
-        SBC #0
-        STA ystart + 1
+        CPX #MAX_ZOOM
+        BEQ zoom_return
+        INX
+        BRA change_zoom
+
+.decrement_zoom
+        LDX ui_zoom
+        BEQ zoom_return
+        DEX
         
-        INX                     ; move to the next zoom
-        TXA
-        AND #ZOOM_MASK
-        TAX
+.change_zoom
         STX ui_zoom
-
-        LDA xstart              ; Use the new zoom correction to find the top left of the viewport
-        SEC
-        SBC zoom_correction, X
-        STA xstart
-        LDA xstart + 1
-        SBC #0
-        STA xstart + 1
-        LDA ystart
-        CLC
-        ADC zoom_correction, X
-        STA ystart
-        LDA ystart + 1
-        ADC #0
-        STA ystart + 1
+.zoom_return        
         RTS
-
-.zoom_correction
-        EQUB &80, &40, &20, &10
-}
-
         
 .refresh_panel
 {
@@ -407,12 +443,20 @@ ENDMACRO
         EQUS "        ", 10, 10, 13
         EQUS "Zoom:",  10, 13
         NOP
-        LDX ui_zoom
+        LDA ui_zoom
+        ASL A
+        ASL A
+        TAX
+        LDY #4
+.zoom_loop        
         LDA ui_zoom_table, X
         JSR OSWRCH
+        INX
+        DEY
+        BNE zoom_loop
         
         JSR print_string
-        EQUS "x",10,10,13, "Rate:", 10, 13
+        EQUS 10,10,13, "Rate:", 10, 13
         NOP
         LDX ui_rate
         LDA ui_rate_table, X
@@ -446,7 +490,7 @@ ENDMACRO
         NOP
         RTS
 .ui_zoom_table
-        EQUS "1248"
+        EQUS "1/8x1/4x1/2x1x  2x  4x  8x  "
 }
         
 .list_life_update_screen
@@ -489,7 +533,12 @@ ENDMACRO
         LDA #&FF                ; send the VDU command to expect a new display
         JSR OSWRCH
 
+        ;; Save the old position (which is the centre of the viewport)
+        M_COPY xstart, old_xstart
         M_COPY ystart, old_ystart
+
+        ;; Offset to the top/left
+        JSR list_life_offset_top_left
 
         LDX #&20
 
@@ -497,13 +546,16 @@ ENDMACRO
         TXA
         PHA
 
-        ;; initialize the delta with the current screen
-        JSR copy_screen_to_delta
-
-        ;; EOR render the new strip into the delta
+        ;; Clear the delta
+        JSR clear_delta
+        
+        ;; OR render the new strip into the delta
         LDA ui_zoom
         JSR list_life_update_delta
 
+        ;; initialize the delta with the current screen
+        JSR eor_screen_to_delta
+        
         ;; delta is now the difference between the previous and current screens
         JSR send_delta
 
@@ -522,7 +574,12 @@ ENDMACRO
         BNE loop
 
         ;; Move the strip back to original starting point
+        M_COPY old_xstart, xstart
         M_COPY old_ystart, ystart
+
+IF _MATCHBOX
+        JSR reset_banksel_buffers
+ENDIF
         
         RTS
 }
@@ -591,14 +648,16 @@ ENDMACRO
 
 .reset_viewpoint
 {
-        LDA #<X_START
+        LDA #<X_ORIGIN
         STA xstart
-        LDA #>X_START
+        LDA #>X_ORIGIN
         STA xstart + 1
-        LDA #<Y_START
+        LDA #<Y_ORIGIN
         STA ystart
-        LDA #>Y_START
+        LDA #>Y_ORIGIN
         STA ystart + 1
+        LDA #DEFAULT_ZOOM
+        STA ui_zoom
         ;; fall through to
 }
 

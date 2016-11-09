@@ -82,43 +82,37 @@
         LDA #TYPE_PATTERN
         RTS
 
+.not_found_error
+        JSR print_string
+        EQUS "Not found: "
+        LDY #&FF
+.name_loop
+        INY
+        LDA (src), Y
+        JSR OSASCI
+        CMP #&0D
+        BNE name_loop
+        RTS
+        
 .type_rle
-        LDA src
-        STA osfile_block        ; write the file name pointer
-        LDA src + 1
-        STA osfile_block + 1
-        LDA #<RLE_SRC
-        STA osfile_block + 2
-        LDA #>RLE_SRC
-        STA osfile_block + 3
-        STZ osfile_block + 4
-        STZ osfile_block + 5
-        STZ osfile_block + 6    ; write the load flag
-
-        LDA #&FF
-        LDX #<osfile_block
-        LDY #>osfile_block
-        JSR OSFILE
-
-        LDA #<RLE_SRC
-        STA src
-        LDA #>RLE_SRC
-        STA src + 1
         LDA #<RLE_DST
         STA this
         LDA #>RLE_DST
         STA this + 1
+        LDA #&40                ; open for input only
+        LDX src
+        LDY src + 1             ; X/Y point to filename
+        JSR OSFIND
+        CMP #&00                ; returns file handle in A, or 0 if not found
+        BEQ not_found_error
+        STA handle              ; save the file handle
+        JSR rle_next_byte       ; rle_reader expects first byte of file read 
         JSR rle_reader
-
+        LDA #&00                ; close the file
+        LDY handle
+        JSR OSFIND
         LDA #TYPE_RLE
         RTS
-
-.osfile_block
-        EQUW 0
-        EQUD 0
-        EQUD 0
-        EQUD 0
-        EQUD 0
 
 .random_pattern
 {
@@ -293,6 +287,7 @@
         EQUW patternT
         EQUW patternU
         EQUW patternV
+        EQUW patternW
 .pattern_table_terminator
         EQUW 0
 
@@ -576,6 +571,16 @@
 .patternT
 {
 .start
+        EQUB TYPE_RLE
+        EQUB name - start
+        EQUS "R.TURING", 13
+.name
+        EQUS "Turing Machine (35,149 cells)", 0
+}
+
+.patternU
+{
+.start
         EQUB TYPE_RANDOM
         EQUB name - start
         EQUB 1
@@ -583,7 +588,7 @@
         EQUS "Random (Density 1)", 0
 }
 
-.patternU
+.patternV
 {
 .start
         EQUB TYPE_RANDOM
@@ -593,7 +598,7 @@
         EQUS "Random (Density 2)", 0
 }
 
-.patternV
+.patternW
 {
 .start
         EQUB TYPE_RANDOM

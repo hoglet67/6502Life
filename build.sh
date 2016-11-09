@@ -35,7 +35,7 @@ do
     fi
 
     # Create the .inf file
-    echo -e "\$."${name}"\t0500\t0500" > ../${build}/${name}.inf
+    echo -e "\$."${name}"\t0400\t0400" > ../${build}/${name}.inf
 
     # Add into the SSD
     ../tools/mmb_utils/putfile.pl ../${build}/${ssd} ../${build}/${name}
