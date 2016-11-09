@@ -547,17 +547,17 @@ MACRO M_LIST_LIFE_UPDATE_DELTA zoom
 
         CLC
         LDA xstart
-        ADC #<(256 DIV (2^zoom))
+        ADC #<(2048 DIV (2^zoom))
         STA xend
         LDA xstart + 1
-        ADC #>(256 DIV (2^zoom))
+        ADC #>(2048 DIV (2^zoom))
         STA xend + 1
 
 ;; yend = ystart - 8;
 
         LDA ystart
         SEC
-        SBC #(8 DIV (2^zoom))
+        SBC #(64 DIV (2^zoom))
         STA yend
         LDA ystart + 1
         SBC #0
@@ -614,14 +614,25 @@ MACRO M_LIST_LIFE_UPDATE_DELTA zoom
 
 .not_else2        
 ;;         temp = 32 * (ystart - yy);
+        
+;; 8 bits is sufficient here, as the Y strip is 8 pixels high
+;; 0 1/8  4
+;; 1 1/4  8 
+;; 2 1/2  16
+;; 3 1    32
+;; 4 2    64
+;; 5 4    128
+;; 6 8    256
 
-        ;; 8 bits is sufficient here, as the Y strip is 8 pixels high        
         LDA ystart
         SEC
         SBC yy
-FOR i,1,5 + zoom
+FOR i,1,zoom + 2
         ASL A
-NEXT        
+NEXT
+IF zoom < 3        
+        AND #&E0
+ENDIF        
         STA temp
 
 ;;         while(1) {
@@ -663,27 +674,62 @@ NEXT
 ;;              X_reg = temp + (xx - xstart) >> 3;
 ;;              *(delta_base + X_reg) ^= mask[(xx - xstart) & 7];
 
+;; if zoom < 3 prescale (xx - xstart) 
+;; 0 1/8  >>3 then >>3
+;; 1 1/4  >>2 then >>3
+;; 2 1/2  >>1 then >>3
+;; 3 1    >>0 then >>3
+;; 4 2    >>0 then >>2
+;; 5 4    >>0 then >>1
+;; 6 8    >>0 then >>0
         LDA xx
         SEC
         SBC xstart
+;; If zoom < 3 then xx - xstart can be > 256
+;; so first pre-scale
+IF (zoom < 3) 
+        STA tmplsb
+        LDA xx + 1
+        SBC xstart + 1
+        FOR i, 1, 3-zoom
+                LSR A
+                ROR tmplsb
+        NEXT        
+        LDA tmplsb
         TAY
-
-IF zoom < 3
-    FOR i, 1, 3-zoom
         LSR A
-    NEXT
+        LSR A
+        LSR A
+ELSE        
+        TAY        
+        IF (zoom < 6)
+                FOR i, 1, 6-zoom
+                        LSR A
+                NEXT        
+        ENDIF
 ENDIF
+;; The result in A should always be in the range 0.31
         CLC
         ADC temp
         TAX
-
+;; 0 1/8  6x AND #&07
+;; 1 1/4  5x AND #&07
+;; 2 1/2  4x AND #&07
+;; 3 1    3x AND #&07
+;; 4 2    2x AND #&03
+;; 5 4    1x AND #&01
+;; 6 8    0x AND #&00        
         TYA
-        AND #(7 >> zoom)
+IF (zoom <= 3)
+        AND #&07
+ELSE
+        AND #(&07 >> (zoom - 3))
+ENDIF
         TAY
 
-FOR i, 0, 2^zoom - 1        
+FOR i, 0, 2^(zoom - 3) - 1        
         LDA DELTA_BASE + 32 * i, X
-        EOR pixel_mask, Y
+        ORA pixel_mask, Y
         STA DELTA_BASE + 32 * i, X
 NEXT
         
@@ -697,11 +743,11 @@ NEXT
 }
 
 .pixel_mask
-IF zoom = 3
+IF zoom = 6
         EQUB &FF
-ELIF zoom = 2
+ELIF zoom = 5
         EQUB &F0, &0F
-ELIF zoom = 1
+ELIF zoom = 4
         EQUB &C0, &30, &0C, &03
 ELSE
         EQUB &80, &40, &20, &10, &08, &04, &02, &01        
@@ -715,19 +761,32 @@ ENDMACRO
         JMP (zoom_table, X)
 
 .zoom_table
+        EQUW list_life_update_delta_1_8x
+        EQUW list_life_update_delta_1_4x
+        EQUW list_life_update_delta_1_2x
         EQUW list_life_update_delta_1x
         EQUW list_life_update_delta_2x
         EQUW list_life_update_delta_4x
         EQUW list_life_update_delta_8x
                 
-.list_life_update_delta_1x
+.list_life_update_delta_1_8x
 M_LIST_LIFE_UPDATE_DELTA 0
 
-.list_life_update_delta_2x
+.list_life_update_delta_1_4x
 M_LIST_LIFE_UPDATE_DELTA 1
 
-.list_life_update_delta_4x
+.list_life_update_delta_1_2x
 M_LIST_LIFE_UPDATE_DELTA 2
 
-.list_life_update_delta_8x
+.list_life_update_delta_1x
 M_LIST_LIFE_UPDATE_DELTA 3
+
+.list_life_update_delta_2x
+M_LIST_LIFE_UPDATE_DELTA 4
+
+.list_life_update_delta_4x
+M_LIST_LIFE_UPDATE_DELTA 5
+
+.list_life_update_delta_8x
+M_LIST_LIFE_UPDATE_DELTA 6
+        

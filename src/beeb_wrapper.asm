@@ -342,11 +342,16 @@ ENDMACRO
         STA step_pressed
         RTS
 .not_step    
-        CPX #'Z'
-        BNE not_zoom
+        CPX #'Z'                ; Z
+        BNE not_zoom_in
         JSR increment_zoom
         JMP refresh
-.not_zoom        
+.not_zoom_in
+        CPX #'X'                ; X
+        BNE not_zoom_out
+        JSR decrement_zoom
+        JMP refresh
+.not_zoom_out
         CPX #&87                ; copy
         BNE not_reset_pan
         JSR reset_pan
@@ -408,48 +413,58 @@ ENDMACRO
 }
 
 .increment_zoom
-{
+        LDX ui_zoom
+        CPX #MAX_ZOOM
+        BEQ zoom_return
+        INX
+        BRA change_zoom
+
+.decrement_zoom
+        LDX ui_zoom
+        BEQ zoom_return
+        DEX
+        
+.change_zoom
+        PHX
         LDX ui_zoom
         LDA xstart              ; Use the old zoom correction to find the centre of the viewport
         CLC
-        ADC zoom_correction, X
+        ADC zoom_correction_lo, X
         STA xstart
         LDA xstart + 1
-        ADC #0
+        ADC zoom_correction_hi, X
         STA xstart + 1
         LDA ystart
         SEC
-        SBC zoom_correction, X
+        SBC zoom_correction_lo, X
         STA ystart
         LDA ystart + 1
-        SBC #0
+        SBC zoom_correction_hi, X
         STA ystart + 1
-        
-        INX                     ; move to the next zoom
-        TXA
-        AND #ZOOM_MASK
-        TAX
-        STX ui_zoom
-
+        PLX
+        STX ui_zoom             ; move to the next zoom
         LDA xstart              ; Use the new zoom correction to find the top left of the viewport
         SEC
-        SBC zoom_correction, X
+        SBC zoom_correction_lo, X
         STA xstart
         LDA xstart + 1
-        SBC #0
+        SBC zoom_correction_hi, X
         STA xstart + 1
         LDA ystart
         CLC
-        ADC zoom_correction, X
+        ADC zoom_correction_lo, X
         STA ystart
         LDA ystart + 1
-        ADC #0
+        ADC zoom_correction_hi, X
         STA ystart + 1
+.zoom_return        
         RTS
 
-.zoom_correction
-        EQUB &80, &40, &20, &10
-}
+.zoom_correction_lo
+        EQUB &00, &00, &00, &80, &40, &20, &10
+
+.zoom_correction_hi
+        EQUB &04, &02, &01, &00, &00, &00, &00
 
         
 .refresh_panel
@@ -466,12 +481,20 @@ ENDMACRO
         EQUS "        ", 10, 10, 13
         EQUS "Zoom:",  10, 13
         NOP
-        LDX ui_zoom
+        LDA ui_zoom
+        ASL A
+        ASL A
+        TAX
+        LDY #4
+.zoom_loop        
         LDA ui_zoom_table, X
         JSR OSWRCH
+        INX
+        DEY
+        BNE zoom_loop
         
         JSR print_string
-        EQUS "x",10,10,13, "Rate:", 10, 13
+        EQUS 10,10,13, "Rate:", 10, 13
         NOP
         LDX ui_rate
         LDA ui_rate_table, X
@@ -505,7 +528,7 @@ ENDMACRO
         NOP
         RTS
 .ui_zoom_table
-        EQUS "1248"
+        EQUS "1/8x1/4x1/2x1x  2x  4x  8x  "
 }
         
 .list_life_update_screen
@@ -556,13 +579,16 @@ ENDMACRO
         TXA
         PHA
 
-        ;; initialize the delta with the current screen
-        JSR copy_screen_to_delta
-
-        ;; EOR render the new strip into the delta
+        ;; Clear the delta
+        JSR clear_delta
+        
+        ;; OR render the new strip into the delta
         LDA ui_zoom
         JSR list_life_update_delta
 
+        ;; initialize the delta with the current screen
+        JSR eor_screen_to_delta
+        
         ;; delta is now the difference between the previous and current screens
         JSR send_delta
 
@@ -662,6 +688,8 @@ ENDIF
         STA ystart
         LDA #>Y_START
         STA ystart + 1
+        LDA #DEFAULT_ZOOM
+        STA ui_zoom
         ;; fall through to
 }
 

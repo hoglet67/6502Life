@@ -17,7 +17,7 @@ xend            = &66           ; used by list_life_update_delta()
 yend            = &68           ; used by list_life_update_delta()        
 pan_x           = &6A
 pan_y           = &6C
-        
+tmplsb          = &6E        
 
 ;; Additional locations used by list8 life
 forethis        = &41

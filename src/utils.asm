@@ -54,11 +54,12 @@
         RTS
 }
 
-.copy_screen_to_delta
+.eor_screen_to_delta
 {
         LDY #0
 .loop
-        LDA (scrn), Y
+        LDA (delta), Y
+        EOR (scrn), Y
         STA (delta), Y
         INY
         BNE loop
