@@ -20,17 +20,17 @@ pan_y           = &6C
 tmplsb          = &6E        
 
 ;; Additional locations used by list8 life
-forethis        = &41
-middthis        = &44
-hicnt_f         = &49
-locnt_f         = &4A
-hicnt_m         = &4B
-locnt_m         = &4C
-hicnt_r         = &4D
-locnt_r         = &4E
-t               = &4F
-mask            = &50
-outcome         = &51        
+forethis        = &40
+middthis        = &41
+hicnt_f         = &42
+locnt_f         = &43
+hicnt_m         = &44
+locnt_m         = &45
+hicnt_r         = &46
+locnt_r         = &47
+t               = &48
+mask            = &49
+outcome         = &4A        
         
 ;; Utils
 
@@ -42,26 +42,25 @@ delta           = &72           ; pointer to 8-line block storing
 
 src             = &40
 dst             = &42
-pat_width       = &44           ; aliases with new_xstart
-pat_depth       = &46           ; aliases with new_ystart
+pat_width       = &44
+pat_depth       = &46
 count           = &48
 handle          = &4A
 byte            = &4B
         
 ;; Beeb Wrapper
 
-ui_show         = &74
-ui_rate         = &75
-ui_mode         = &76
-ui_count        = &77
-ui_zoom         = &78        
-key_pressed     = &79
-step_pressed    = &7A
-pan_count       = &7B
-stash           = &7C
-old_ystart      = &7E  
-
-        
+ui_show         = &50
+ui_rate         = &51
+ui_mode         = &52
+ui_count        = &53
+ui_zoom         = &54        
+key_pressed     = &55
+step_pressed    = &56
+pan_count       = &57
+stash           = &58
+old_xstart      = &5A  
+old_ystart      = &5C  
         
 ;; Atom Life Engine
 

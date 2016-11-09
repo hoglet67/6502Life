@@ -425,38 +425,7 @@ ENDMACRO
         DEX
         
 .change_zoom
-        PHX
-        LDX ui_zoom
-        LDA xstart              ; Use the old zoom correction to find the centre of the viewport
-        CLC
-        ADC zoom_correction_lo, X
-        STA xstart
-        LDA xstart + 1
-        ADC zoom_correction_hi, X
-        STA xstart + 1
-        LDA ystart
-        SEC
-        SBC zoom_correction_lo, X
-        STA ystart
-        LDA ystart + 1
-        SBC zoom_correction_hi, X
-        STA ystart + 1
-        PLX
-        STX ui_zoom             ; move to the next zoom
-        LDA xstart              ; Use the new zoom correction to find the top left of the viewport
-        SEC
-        SBC zoom_correction_lo, X
-        STA xstart
-        LDA xstart + 1
-        SBC zoom_correction_hi, X
-        STA xstart + 1
-        LDA ystart
-        CLC
-        ADC zoom_correction_lo, X
-        STA ystart
-        LDA ystart + 1
-        ADC zoom_correction_hi, X
-        STA ystart + 1
+        STX ui_zoom
 .zoom_return        
         RTS
 
@@ -571,8 +540,27 @@ ENDMACRO
         LDA #&FF                ; send the VDU command to expect a new display
         JSR OSWRCH
 
+        ;; Save the old position (which is the centre of the viewport)
+        M_COPY xstart, old_xstart
         M_COPY ystart, old_ystart
 
+        ;; Offset to the top/left
+        LDX ui_zoom
+        LDA xstart
+        SEC
+        SBC zoom_correction_lo, X
+        STA xstart
+        LDA xstart + 1
+        SBC zoom_correction_hi, X
+        STA xstart + 1
+        LDA ystart
+        CLC
+        ADC zoom_correction_lo, X
+        STA ystart
+        LDA ystart + 1
+        ADC zoom_correction_hi, X
+        STA ystart + 1        
+        
         LDX #&20
 
 .loop
@@ -607,6 +595,7 @@ ENDMACRO
         BNE loop
 
         ;; Move the strip back to original starting point
+        M_COPY old_xstart, xstart
         M_COPY old_ystart, ystart
 
 IF _MATCHBOX
@@ -680,13 +669,13 @@ ENDIF
 
 .reset_viewpoint
 {
-        LDA #<X_START
+        LDA #<X_ORIGIN
         STA xstart
-        LDA #>X_START
+        LDA #>X_ORIGIN
         STA xstart + 1
-        LDA #<Y_START
+        LDA #<Y_ORIGIN
         STA ystart
-        LDA #>Y_START
+        LDA #>Y_ORIGIN
         STA ystart + 1
         LDA #DEFAULT_ZOOM
         STA ui_zoom
