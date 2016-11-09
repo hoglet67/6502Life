@@ -32,13 +32,13 @@ IF _MATCHBOX
 BUFFER          = BUFFER1
 BUFFER_END      = BUFFER2
         
-RLE_SRC         = BUFFER2
+RLE_BUF         = BUFFER2
 RLE_DST         = BUFFER1
 ELSE
 BUFFER          = &4000
 BUFFER_END      = &F800
 
-RLE_SRC         = (BUFFER + BUFFER_END) DIV 2
+RLE_BUF         = (BUFFER + BUFFER_END) DIV 2
 RLE_DST         = BUFFER
 ENDIF
 ENDIF

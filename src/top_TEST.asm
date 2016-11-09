@@ -5,9 +5,12 @@ _LIST8_LIFE_ENGINE = FALSE
 
 _MATCHBOX          = FALSE        
                 
+_USE_OSGBPB        = TRUE
+
 SCRN_BASE       = &2000
 BUFFER          = &4000
 BUFFER_END      = &F800
+RLE_BUF         = (BUFFER + BUFFER_END) DIV 2
         
 include "constants.asm"
 include "variables.asm"
