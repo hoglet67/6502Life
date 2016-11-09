@@ -179,6 +179,11 @@ ENDIF
         JSR OSRDCH              ; wait for key pressed
         TAX
         JSR process_key_press
+        LDA #&80                ; test if there are further key presses queues
+        LDX #&FF
+        JSR OSBYTE
+        CPX #&00
+        BNE read_keyboard        
         STZ key_pressed         ; clear the key pressed flag
 .skip_read_keyboard
 
