@@ -26,26 +26,26 @@ The main development here is on a fast and large life, running on a 6502 second 
 * Space - toggle single-step/pause mode
 
 The patterns available are at present:
-* R-Pentomino
-* Acorn
-* Diehard
-* Rabbits
-* Queen Bee
-* Bunnies 9
-* Suppressed Puffer
-* Spaceship
-* Glider
-* Gosper Breeder 1
-* Blinker Ship 1
-* Flying Wing
-* Pi Ship 1
-* Edna
-* 23334M
-* 40514M
-* Half Max
-* Stargate
-* Noah's Ark
-* Turing Machine (35,149 cells)
+* [R-Pentomino](http://conwaylife.com/wiki/R-pentomino)
+* [Acorn](http://conwaylife.com/wiki/Acorn)
+* [Diehard](http://conwaylife.com/wiki/Die_hard)
+* [Rabbits](http://conwaylife.com/wiki/Rabbits)
+* [Queen Bee](http://conwaylife.com/wiki/Queen_bee)
+* [Bunnies 9](http://conwaylife.com/wiki/Bunnies_9)
+* [Puff Suppressor](https://bitstorm.org/gameoflife/lexicon/#t3)
+* [Spaceship](http://members.tip.net.au/~dbell/articles/life2.zip)
+* [Glider](http://conwaylife.com/wiki/Glider)
+* [Gosper Breeder 1](http://conwaylife.com/wiki/Breeder_1)
+* [Blinker Ship 1](http://conwaylife.com/wiki/Blinker_ship_1)
+* [Flying Wing](http://conwaylife.com/wiki/Flying_wing)
+* [Pi Ship 1](http://conwaylife.com/wiki/Pi_ship_1)
+* [Edna](http://conwaylife.com/wiki/Edna)
+* [23334M](http://conwaylife.com/wiki/23334M)
+* [40514M](http://conwaylife.com/wiki/40514M)
+* [Half Max](http://conwaylife.com/wiki/Half_Max)
+* [Stargate](http://conwaylife.com/wiki/Stargate)
+* [Noah's Ark](http://conwaylife.com/wiki/Noah%27s_ark)
+* [Turing Machine (35,149 cells)](http://conwaylife.com/wiki/Turing_machine)
 * Random fill (three densities)
 
 For more information, programs, discussion, and support, see the forum thread at
