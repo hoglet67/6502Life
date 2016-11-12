@@ -417,7 +417,7 @@
         EQUB %0,%00000000,%01101000,%00000000,%00000000
         EQUB %0,%00000000,%00010000,%00000000,%00000000
 .name
-        EQUS "Suppressed Puffer", 0
+        EQUS "Puff Suppressor", 0
 }
 
 .patternH
