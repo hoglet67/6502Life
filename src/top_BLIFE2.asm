@@ -1,9 +1,9 @@
-_ATOM_LIFE_ENGINE  = TRUE
+_ATOM_LIFE_ENGINE  = FALSE
 
 _LIST8_LIFE_ENGINE = FALSE
 
 _MATCHBOX          = FALSE
 
-_DELTA_VDU         = TRUE
+_DELTA_VDU         = FALSE
 
 include "common_BLIFE.asm"

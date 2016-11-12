@@ -5,6 +5,8 @@ _LIST8_LIFE_ENGINE = FALSE
 
 _MATCHBOX          = FALSE        
                 
+_DELTA_VDU         = TRUE
+
 SCRN_BASE       = &2000
 BUFFER          = &4000
 BUFFER_END      = &F800

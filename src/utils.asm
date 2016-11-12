@@ -54,6 +54,8 @@
         RTS
 }
 
+IF _DELTA_VDU
+
 .eor_screen_to_delta
 {
         LDY #0
@@ -148,6 +150,56 @@ FOR x, 0, 31
   NEXT
 NEXT
 
+
+ELSE
+
+.send_delta
+{
+        PHX
+        PHY
+.row_loop
+        LDY #&1F
+.test_loop
+        LDA (delta), Y
+        BNE not_blank
+        DEY
+        BPL test_loop
+        
+        LDA #&00                ; Send a blank row
+.wait_for_space1        
+        BIT &FEF8
+        BVC wait_for_space1
+        STA &FEF9               ; send data
+        
+.next_row
+        LDA delta               ; after 8 rows, delta is back to zero again
+        CLC
+        ADC #&20
+        STA delta
+        BNE row_loop
+        PLY
+        PLX
+        RTS
+        
+.not_blank
+        LDY #&FF
+        TYA
+        BNE wait_for_space2
+        
+.data_loop
+        LDA (delta), Y
+.wait_for_space2
+        BIT &FEF8
+        BVC wait_for_space2
+        STA &FEF9               ; send data        
+        INY
+        CPY #&20
+        BNE data_loop
+        
+        BRA next_row
+}        
+        
+ENDIF
         
 .count_base
 

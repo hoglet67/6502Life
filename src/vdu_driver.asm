@@ -2,6 +2,7 @@ ptr            = &80
 mode4_base     = &5800 + 8 * 8   ; offset by 8 characters to make space for gen count
 mode4_linelen  = 320
 
+emptyrow      = &2000
         
 .vdu_driver_start
 
@@ -10,8 +11,39 @@ mode4_linelen  = 320
         CMP #&FF
         BEQ update_display
 
+IF _DELTA_VDU
+
         JMP (oldwrcvec)
+
+ELSE
         
+        CMP #&FE
+        BEQ clear_display
+
+.old_oswrch        
+        JMP (oldwrcvec)
+
+.clear_display
+        
+        PHA
+        TXA
+        PHA
+        TYA
+        PHA
+
+        LDX #0
+        TAX
+.clear_loop
+        STA emptyrow, X
+        INX
+        BNE clear_loop
+        
+        LDA #12
+        JSR old_oswrch
+        JMP vdu_done
+        
+ENDIF
+
 .update_display
 {
         PHA
@@ -19,11 +51,15 @@ mode4_linelen  = 320
         PHA
         TYA
         PHA
-        
-        LDY #<mode4_base
-        STY ptr
+
+        LDA #<mode4_base
+        STA ptr
         LDA #>mode4_base
         STA ptr + 1
+
+IF _DELTA_VDU
+
+        LDY #0
 .idle1
         BIT &FEE0
         BPL idle1
@@ -44,6 +80,66 @@ mode4_linelen  = 320
         ADC #>mode4_linelen
         STA ptr + 1
         BPL idle1
+ELSE
+        
+        LDY #0
+        LDX #0
+        CLC
+.idle1
+        BIT &FEE0
+        BPL idle1
+        LDA &FEE1               ; a blank row is indicated by a single 00
+        BNE non_empty_row       ; anything else means the row contains cells
+
+        ;; Empty row
+        LDA emptyrow, X         ; test if the screen row is already empty
+        BEQ next_row            ; if so, move onto the next row
+        
+        LDA #0                  ; mark the row as blank
+        STA emptyrow, X
+.clear_row                      ; and then actually blank out the row
+        LDA #0
+        STA (ptr), Y
+        TYA
+        ADC #8                  ; stepping 8 because of the way the graphics
+        TAY                     ; modes on the beeb are laid out
+        BCC clear_row
+        BCS next_row
+
+        ;; Non-empty row
+.non_empty_row
+        LDA #255                ; mark the row as non-empty
+        STA emptyrow, X
+.idle2
+        BIT &FEE0               ; and then fill the row with 32 bytes
+        BPL idle2
+        LDA &FEE1
+        STA (ptr),Y
+        TYA
+        ADC #8
+        TAY
+        BCC idle2
+
+.next_row
+        INY
+        CPY #8
+        BCC inc_row
+        LDY #0
+        CLC
+        LDA ptr
+        ADC #<mode4_linelen
+        STA ptr
+        LDA ptr + 1
+        ADC #>mode4_linelen
+        STA ptr + 1
+.inc_row
+        INX                     ; after 256 rows we are done
+        BNE idle1
+
+ENDIF
+}
+        
+.vdu_done
 
         PLA
         TAY
@@ -51,7 +147,6 @@ mode4_linelen  = 320
         TAX
         PLA
         RTS
-}
 
 .oldwrcvec
         EQUW &E0A4

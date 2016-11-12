@@ -4,6 +4,8 @@ _LIST8_LIFE_ENGINE = FALSE
 
 _MATCHBOX       = FALSE        
         
+_DELTA_VDU      = TRUE
+
 SCRN_BASE       = &8000         ; base address of screen memory
 
 WKSPC0          = &3400         ; workspace 1 (temp copy of a screen row)

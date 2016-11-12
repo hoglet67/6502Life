@@ -87,7 +87,11 @@ ENDIF
         NOP
 
         JSR clear_screen
-
+IF NOT(_DELTA_VDU)
+        LDA #&FE
+        JSR OSWRCH
+ENDIF
+        
         PLA                     ; create initial pattern
         JSR draw_pattern
 
@@ -553,20 +557,24 @@ ENDMACRO
         LDA ui_zoom
         JSR list_life_update_delta
 
+IF _DELTA_VDU        
         ;; initialize the delta with the current screen
         JSR eor_screen_to_delta
+ENDIF
         
         ;; delta is now the difference between the previous and current screens
         JSR send_delta
 
+IF _DELTA_VDU        
         ;; EOR the delta back into the local copy of the screen
         JSR eor_delta_to_screen
-
-        ;; Move the strip down N pixels
-        M_COPY yend, ystart
-
+        
         ;; Point to the next strip of screen
         INC scrn + 1
+ENDIF
+        
+        ;; Move the strip down N pixels
+        M_COPY yend, ystart
 
         PLA
         TAX
