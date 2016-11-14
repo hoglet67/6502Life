@@ -15,7 +15,9 @@ int buffer2[MAX_SIZE];
 
 static unsigned char bitcnt[256];
 
-// #define DEBUG_KERNEL
+//#define DEBUG_KERNEL
+
+//#define DEBUG_PATTERN
 
 /*!
  * \file life.c
@@ -395,7 +397,7 @@ int list_life(int *this, int *new)
                   // last coordinate was a Y
                   new += 1;
                }
-					*new = x - 1;
+					*new = x - 3;
 					*(new + 1) = newbmp;
             }
 				/* move right */
@@ -433,7 +435,7 @@ int main(int argc, char **argv) {
    // .....*..
    // ....*...
    // ....*...
-   int pattern[] = {0};
+   int pattern[] = {12, -11, 0xD0, -7, 0x01, 10, -7, 0x0C, 8, -7, 0x60, 6, -7, 0x80, 0 };
 
 #else
    int pattern[] = {0};
@@ -482,10 +484,12 @@ int main(int argc, char **argv) {
    do {
       calculate_stats(ptr1, &size, &pop);
       cells += pop;
-      if ((gen % 1) == 0) {
+      if ((gen % 100) == 0) {
          printf("gen %6d size %6d pop %6d efficiency (bytes / cell) %4.3f ops %8d\n", gen, size, pop, (double) size / (double) pop, ops);
       }
-      // dump_list(gen, ptr1);
+#ifdef DEBUG_PATTERN
+      dump_list(gen, ptr1);
+#endif
       ops += list_life(ptr1, ptr2);
       gen++;
       tmp = ptr1;
