@@ -3,7 +3,7 @@ CPU 1                           ; allow 65C02 opcodes
 banksel  = &FEE0
 
 B0_PAGE  = &80
-B1_PAGE  = &A0
+B1_PAGE  = &C0
 
 BUFSIZE  = B1_PAGE - B0_PAGE
 OR_MASK  = BUFSIZE - 1          ; used to get to last page in buffer
