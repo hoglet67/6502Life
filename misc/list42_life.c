@@ -352,6 +352,10 @@ int list_life(int *this, int *new)
                lr = *(this + 1);
 					this += 2;
 				}
+            if ((ul | ur | ll | lr) == 0) {
+					break;
+            }
+
 #ifdef DEBUG_KERNEL
             printf("x = %d\n", x);
             print_binary(ul, 7, 4);
@@ -394,8 +398,6 @@ int list_life(int *this, int *new)
 					*new = x - 1;
 					*(new + 1) = newbmp;
             }
-				else if(ur == 0 && lr == 0)
-					break;
 				/* move right */
             ul = ur;
             ll = lr;
@@ -483,7 +485,7 @@ int main(int argc, char **argv) {
       if ((gen % 1) == 0) {
          printf("gen %6d size %6d pop %6d efficiency (bytes / cell) %4.3f ops %8d\n", gen, size, pop, (double) size / (double) pop, ops);
       }
-      dump_list(gen, ptr1);
+      // dump_list(gen, ptr1);
       ops += list_life(ptr1, ptr2);
       gen++;
       tmp = ptr1;
