@@ -5,7 +5,7 @@
 
 #define MAX_SIZE 1000000
 
-#define MAX_GEN 17400
+#define MAX_GEN 1000
 
 #define ORIGIN 0x4000;
 
