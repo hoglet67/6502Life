@@ -252,16 +252,9 @@ static void list_rle_reader_stage1(char *pattern, int *this) {
 //    prev ----> row (N)
 //    this ----> row (N - 1)
 //
-// If prev == this:
-//    Read y
-//    If y is zero, then end of list, return
-//    If y is odd, then merge "0000" and "this", update prev = this = start of next row
-//    If y is even, then update "this" to start of next next row (leaving prev on the even row)
-// Else
-//    if prev == this + 1
-//        merge "prev" and "this", prev = this = start of next row
-//    else
-//        merge prev and 0000, prev = this
+// Case 1: merge "0000" and "prev" (y must be odd)
+// Case 2: merge "prev" and "this" (y must be even)
+// Case 3: merge "prev" and "0000" (y must be even)
 
 void list_rle_reader_stage2(int *this, int *new) {
    int *prev;
@@ -271,67 +264,62 @@ void list_rle_reader_stage2(int *this, int *new) {
    int y;
    prev = this;
    while (1) {
-      if (prev == this) {
-         y = *prev;
-         if (y == 0) {
-            *new = 0;
-            return;
-         } else if (y & 1) {
-            // Output row that is "zero" merged with "this"
-            // printf("Merge zero with this on %d\n", y + 1);
-            *new++ = y + 1;
-            this++;
-            while (*this < 0) {
-               *new++ = *this++;
-               *new++ = merge(0, *this++);
-            }
-            prev = this;
-         } else {
-            this++;
-            while (*this < 0) {
-               this += 2;
-            }
+      y = *prev;
+      // Test for terminator
+      if (y == 0) {
+         *new = 0;
+         return;
+      }
+      // We need to advance "this" to the next line to know what to do
+      if ((prev == this) && (y & 1) == 0) {
+         this++;
+         while (*this < 0) {
+            this += 2;
          }
+         continue;
+      }
+      // Determine which rows to scan
+      if (prev == this) {
+         // Case 1: merge "0000" and "prev" (y must be odd)
+         *new++ = y + 1;
+         // At this point, both "prev" and "this" are pointing to the same row
+         // and it turns out to be more convenient to advance "this" so that
+         // a single form of the scan row code can cope with all three cases.
+         this++;
       } else {
-         y = *prev;
+         *new++ = y;
+         // In both these cases we can "prev"
+         prev++;
          if (y == *this + 1) {
-            // Output row that is "prev" merged with "this"
-            // printf("Merge prev with this on %d\n", y);
-            *new++ = y;
-            prev++;
+            // Case 2: merge "prev" and "this" (y must be even)
             this++;
-            while (1) {
-               x = *prev;
-               if(x > *this) {
-                  x = *this;
-               }
-               if (x >= 0) {
-                  break;
-               }
-               upper = lower = 0;
-               if(*prev == x) {
-                  upper = *(prev + 1);
-                  prev += 2;
-               }
-               if(*this == x) {
-                  lower = *(this + 1);
-                  this += 2;
-               }
-               *new++ = x;
-               *new++ = merge(upper, lower);
-            }
-            prev = this;
          } else {
-            // Output row that is "zero" merged with "prev"
-            // printf("Merge zero with prev on %d\n", y);
-            *new++ = y;
-            prev++;
-            while (*prev < 0) {
-               *new++ = *prev++;
-               *new++ = merge(*prev++, 0);
-            }
+            // Case 3: merge "prev" and "0000" (y must be even)
          }
       }
+      // Scan rows, merging 4x1 blocks into 4x2 blocks
+      while (1) {
+         x = *prev;
+         if (x > *this) {
+            x = *this;
+         }
+         if (x >= 0) {
+            break;
+         }
+         upper = lower = 0;
+         if(*prev == x) {
+            upper = *(prev + 1);
+            prev += 2;
+         }
+         if(*this == x) {
+            lower = *(this + 1);
+            this += 2;
+         }
+         *new++ = x;
+         *new++ = merge(upper, lower);
+      }
+      // Advance prev, as we only process each row once
+      prev = this;      
    }
 }
 
