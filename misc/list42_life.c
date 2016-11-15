@@ -343,16 +343,54 @@ int do_life(cell, neighbours) {
    }
 }
 
-// Index
-// A11 A10 A9 A8
-//  A7  A6 A5 A4
-//  A3  A2 A1 A0
+// A7  A6  A5  A4  C7  C6 
+// A3  A2  A1  A0  C3  C2
+// B7  B6  B5  B4  D7  D6
+// B3  B2  B1  B0  D3  D2
+//
+// 4K lookup table, broken into page and index:
+//
+// X11 X10 X9 X8 <<< Page
+//  X7  X6 X5 X4 <<< Index 
+//  X3  X2 X1 X0 <<< Index
+//
+// Upper Left  - produces bits (7) and [6]
+//   B7  B6  B5  B4
+//   A7  A4  A5  A4
+//   A3 (A2)[A1] A0
+//
+// Upper Right - produces bits (5) and [4]
+//   D7  D6  B5  B4
+//   C7  C6  A5  A4
+//  [C3] C2  A1 (A0)
+//
+// Lower Left  - produces bits (3) and [2]
+//   A3  A2  A1  A0
+//   B7 (B6)[B5] B4
+//   B3  B2  B1  B0
+//
+// Lower Right - produces bits (1) and [0]
+//   C3  C2  A1  A0
+//  [D7] D6  B5 (B4)
+//   D3  D2  B1  B0
 
-#define CELLMASK1 0x040
-#define CELLMASK0 0x020
+#define CELLMASK7 0x004
+#define CELLMASK6 0x002
+#define CELLMASK5 0x001
+#define CELLMASK4 0x008
+#define CELLMASK3 0x040
+#define CELLMASK2 0x020
+#define CELLMASK1 0x010
+#define CELLMASK0 0x080
 
-#define NEIGHBOURMASK1 0xEAE
-#define NEIGHBOURMASK0 0x757
+#define NEIGHBOURMASK7 0xEEA
+#define NEIGHBOURMASK6 0x775
+#define NEIGHBOURMASK5 0xBBA
+#define NEIGHBOURMASK4 0xDD5
+#define NEIGHBOURMASK3 0xEAE
+#define NEIGHBOURMASK2 0x757
+#define NEIGHBOURMASK1 0xBAB
+#define NEIGHBOURMASK0 0xD5D
 
 static unsigned char table[1 << 12];
 
@@ -367,13 +405,25 @@ static int FNbits2(int x) {
 void init_table()
 {
    int i;
+   int bit7;
+   int bit6;
+   int bit5;
+   int bit4;
+   int bit3;
+   int bit2;
    int bit1;
    int bit0;
    for (i = 0; i < (1 << 12); i++) {
+      bit7 = do_life(i & CELLMASK7, i & NEIGHBOURMASK7);
+      bit6 = do_life(i & CELLMASK6, i & NEIGHBOURMASK6);
+      bit5 = do_life(i & CELLMASK5, i & NEIGHBOURMASK5);
+      bit4 = do_life(i & CELLMASK4, i & NEIGHBOURMASK4);
+      bit3 = do_life(i & CELLMASK3, i & NEIGHBOURMASK3);
+      bit2 = do_life(i & CELLMASK2, i & NEIGHBOURMASK2);
       bit1 = do_life(i & CELLMASK1, i & NEIGHBOURMASK1);
       bit0 = do_life(i & CELLMASK0, i & NEIGHBOURMASK0);
-      table[i] = (bit1 << 7) | (bit1 << 5) | (bit1 << 3) | (bit1 << 1) |
-                 (bit0 << 6) | (bit0 << 4) | (bit0 << 2) | (bit0 << 0);
+      table[i] = (bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) |
+                 (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0);
    }
    for (i = 0; i < 256; i++) {
       bitcnt[i] = FNbits2(i);
@@ -387,6 +437,7 @@ int list_life(int *this, int *new)
    int ops = 0;
    unsigned char ul, ur, ll, lr;
    unsigned char newbmp;
+   int page;
    int index;
 
 	prev = this;
@@ -460,18 +511,22 @@ int list_life(int *this, int *new)
 				/* what does this bitmap indicate? */
             ops++;
             newbmp = 0;
-            /* UL table lookup */
-            index = (ul << 4) | (ll >> 4);
-            newbmp |= table[index] & 0xC0;
-            /* LL table lookup */
-            index = ((ul & 0x0f) << 8) | ll;
-            newbmp |= table[index] & 0x0C;
-            /* UR table lookup */
-            index = ((ul  & 0x33) << 6) | ((ur & 0xCC) << 2) | ((ll & 0x30) >> 2) | ((lr & 0xC0) >> 6);
-            newbmp |= table[index] & 0x30;
-            /* LR table lookup */
-            index = ((ul  & 0x03) << 10) | ((ur & 0x0C) << 6) | ((ll & 0x33) << 2) | ((lr & 0xCC) >> 2);
-            newbmp |= table[index] & 0x03;
+            /* UL table lookup, produces bits 7 and 6 */
+            page = ll >> 4;               
+            index = ul;
+            newbmp |= table[(page << 8) | index] & 0xC0;
+            /* LL table lookup, produces bits 3 and 2 */
+            page = ul & 0x0F;
+            index = ll;
+            newbmp |= table[(page << 8) | index] & 0x0C;
+            /* UR table lookup, produces bits 5 and 4 */
+            page = ((lr & 0xC0) | (ll & 0x30)) >> 4;
+            index = (ur & 0xCC) | (ul & 0x33);
+            newbmp |= table[(page << 8) | index] & 0x30;
+            /* LR table lookup, produces bits 1 and 0 */
+            page = (ur & 0x0C) | (ul & 0x03);
+            index = (lr & 0xCC) | (ll & 0x33);
+            newbmp |= table[(page << 8) | index] & 0x03;
 #ifdef DEBUG_KERNEL
             print_binary(newbmp, 7, 4);
             printf("\n");
