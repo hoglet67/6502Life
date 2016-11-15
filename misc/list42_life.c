@@ -50,7 +50,7 @@ static unsigned char bitcnt[256];
 static void print_binary(int n, int start, int nbits) {
    int i;
    for (i = 0; i < nbits; i++) {
-      if (n & (1 << (start - 2 * i))) {
+      if (n & (1 << (start - i))) {
          printf("o");
       } else {
          printf(".");
@@ -136,7 +136,7 @@ int dump_list(int generation, int *list) {
       for (i = 0; i < 2; i++) {
          gptr = grid + y * x_size;
          for (x = 0; x < x_size; x++) {
-            print_binary(*gptr++, 7 - i, 4);
+            print_binary(*gptr++, 7 - 4 * i, 4);
          }
          printf("\n");
       }
@@ -164,15 +164,7 @@ static int shift_bit(int **pthis, int *x, int bit) {
 }
 
 static int merge (int upper, int lower) {
-   return
-      ((upper & 0x08) << 4) | // bit 7
-      ((lower & 0x08) << 3) | // bit 6
-      ((upper & 0x04) << 3) | // bit 5
-      ((lower & 0x04) << 2) | // bit 4
-      ((upper & 0x02) << 2) | // bit 3
-      ((lower & 0x02) << 1) | // bit 2
-      ((upper & 0x01) << 1) | // bit 1
-      ((lower & 0x01) << 0);  // bit 0
+   return ((upper & 0x0F) << 4) | ((lower & 0x0F) << 0);
 }
 
 
@@ -351,35 +343,18 @@ int do_life(cell, neighbours) {
    }
 }
 
-// Index:
-// A7 A6 A5 A4 A3 A2 A1 A0 B7 B6 B5 B4 B3 B2 B1 B0 C7 C6 C5 C4 D7 D6 D5 D4
-//  1  1  1  *  1  1  0  0  1  0  1  0  1  0  0  0  0  0  0  0  0  0  0  0
-//  0  1  0  1  0  1  0  0  1  1  *  1  1  1  0  0  0  0  0  0  0  0  0  0
-//  0  0  1  1  1  *  1  1  0  0  1  0  1  0  1  0  0  0  0  0  0  0  0  0
-//  0  0  0  1  0  1  0  1  0  0  1  1  *  1  1  1  0  0  0  0  0  0  0  0
-//  0  0  0  0  1  1  1  *  0  0  0  0  1  0  1  0  1  1  0  0  1  0  0  0
-//  0  0  0  0  0  1  0  1  0  0  0  0  1  1  *  1  0  1  0  0  1  1  0  0
-//  0  0  0  0  0  0  1  1  0  0  0  0  0  0  1  0  1  *  1  1  1  0  1  0
-//  0  0  0  0  0  0  0  1  0  0  0  0  0  0  1  1  0  1  0  1  *  1  1  1
-#define CELLMASK7 0x100000
-#define CELLMASK6 0x002000
-#define CELLMASK5 0x040000
-#define CELLMASK4 0x000800
-#define CELLMASK3 0x010000
-#define CELLMASK2 0x000200
-#define CELLMASK1 0x000040
-#define CELLMASK0 0x000008
+// Index
+// A11 A10 A9 A8
+//  A7  A6 A5 A4
+//  A3  A2 A1 A0
 
-#define NEIGHBOURMASK7 0xECA800
-#define NEIGHBOURMASK6 0x54DC00
-#define NEIGHBOURMASK5 0x3B2A00
-#define NEIGHBOURMASK4 0x153700
-#define NEIGHBOURMASK3 0x0E0AC8
-#define NEIGHBOURMASK2 0x050D4C
-#define NEIGHBOURMASK1 0x0302BA
-#define NEIGHBOURMASK0 0x010357
+#define CELLMASK1 0x040
+#define CELLMASK0 0x020
 
-static unsigned char table[1 << 24];
+#define NEIGHBOURMASK1 0xEAE
+#define NEIGHBOURMASK0 0x757
+
+static unsigned char table[1 << 12];
 
 static int FNbits2(int x) {
    if (x < 2) {
@@ -392,25 +367,13 @@ static int FNbits2(int x) {
 void init_table()
 {
    int i;
-   int bit7;
-   int bit6;
-   int bit5;
-   int bit4;
-   int bit3;
-   int bit2;
    int bit1;
    int bit0;
-   for (i = 0; i < (1 << 24); i++) {
-      bit7 = do_life(i & CELLMASK7, i & NEIGHBOURMASK7);
-      bit6 = do_life(i & CELLMASK6, i & NEIGHBOURMASK6);
-      bit5 = do_life(i & CELLMASK5, i & NEIGHBOURMASK5);
-      bit4 = do_life(i & CELLMASK4, i & NEIGHBOURMASK4);
-      bit3 = do_life(i & CELLMASK3, i & NEIGHBOURMASK3);
-      bit2 = do_life(i & CELLMASK2, i & NEIGHBOURMASK2);
+   for (i = 0; i < (1 << 12); i++) {
       bit1 = do_life(i & CELLMASK1, i & NEIGHBOURMASK1);
       bit0 = do_life(i & CELLMASK0, i & NEIGHBOURMASK0);
-      table[i] = (bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) |
-                 (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0);
+      table[i] = (bit1 << 7) | (bit1 << 5) | (bit1 << 3) | (bit1 << 1) |
+                 (bit0 << 6) | (bit0 << 4) | (bit0 << 2) | (bit0 << 0);
    }
    for (i = 0; i < 256; i++) {
       bitcnt[i] = FNbits2(i);
@@ -484,25 +447,35 @@ int list_life(int *this, int *new)
             print_binary(ul, 7, 4);
             print_binary(ur, 7, 2);
             printf("\n");
-            print_binary(ul, 6, 4);
-            print_binary(ur, 6, 2);
+            print_binary(ul, 3, 4);
+            print_binary(ur, 3, 2);
             printf("\n");
             print_binary(ll, 7, 4);
             print_binary(lr, 7, 2);
             printf("\n");
-            print_binary(ll, 6, 4);
-            print_binary(lr, 6, 2);
+            print_binary(ll, 3, 4);
+            print_binary(lr, 3, 2);
             printf("\n");
 #endif
 				/* what does this bitmap indicate? */
             ops++;
-            /* big table lookup */
-            index = (ul << 16) | (ll << 8) | (ur & 0xf0) | (lr >> 4);
-            newbmp = table[index];
+            newbmp = 0;
+            /* UL table lookup */
+            index = (ul << 4) | (ll >> 4);
+            newbmp |= table[index] & 0xC0;
+            /* LL table lookup */
+            index = ((ul & 0x0f) << 8) | ll;
+            newbmp |= table[index] & 0x0C;
+            /* UR table lookup */
+            index = ((ul  & 0x33) << 6) | ((ur & 0xCC) << 2) | ((ll & 0x30) >> 2) | ((lr & 0xC0) >> 6);
+            newbmp |= table[index] & 0x30;
+            /* LR table lookup */
+            index = ((ul  & 0x03) << 10) | ((ur & 0x0C) << 6) | ((ll & 0x33) << 2) | ((lr & 0xCC) >> 2);
+            newbmp |= table[index] & 0x03;
 #ifdef DEBUG_KERNEL
             print_binary(newbmp, 7, 4);
             printf("\n");
-            print_binary(newbmp, 6, 4);
+            print_binary(newbmp, 3, 4);
             printf("\n");
 #endif
 
@@ -546,7 +519,7 @@ int main(int argc, char **argv) {
    // .*..
    // ....
 
-   int pattern[] = { 12, -11, 0x78, 10, -11, 0x20, 0};
+   int pattern[] = { 12, -11, 0x6C, 10, -11, 0x40, 0};
 #elif defined(PATTERN_BUNNIES)
    // bunnies 9
    // *.......
@@ -556,7 +529,7 @@ int main(int argc, char **argv) {
    // .....*..
    // ....*...
    // ....*...
-   int pattern[] = {12, -11, 0xD0, -7, 0x01, 10, -7, 0x0C, 8, -7, 0x60, 6, -7, 0x80, 0 };
+   int pattern[] = {12, -11, 0x8C, -7, 0x01, 10, -7, 0x22, 8, -7, 0x48, 6, -7, 0x80, 0 };
 
 #else
    int pattern[] = {0};
