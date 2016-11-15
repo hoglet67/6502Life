@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #pattern=PATTERN_RPENTOMINO
-pattern=PATTERN_BUNNIES
-#pattern=PATTERN_RLE
+#pattern=PATTERN_BUNNIES
+pattern=PATTERN_RLE
 
 CFLAGS=-O3
 

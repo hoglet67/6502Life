@@ -6,7 +6,7 @@
 
 #define MAX_SIZE 1000000
 
-#define MAX_GEN 17400
+#define MAX_GEN 50000
 
 #define ORIGIN 0x4000;
 
@@ -145,7 +145,39 @@ int dump_list(int generation, int *list) {
    free(grid);
 }
 
-void list_rle_reader(char *pattern, int *ptr) {
+static int shift_bit(int **pthis, int *x, int bit) {
+   static int shift_reg = 1;
+   shift_reg <<= 1;
+   shift_reg |= bit;
+   if (shift_reg & 16) {
+      shift_reg &= 15;
+      if (shift_reg) {
+         *(*pthis)++ = *x;
+         *(*pthis)++ = shift_reg;
+      }
+      (*x) += 4;
+      shift_reg = 1;
+      return 1;
+   } else {
+      return 0;
+   }
+}
+
+static int merge (int upper, int lower) {
+   return
+      ((upper & 0x08) << 4) | // bit 7
+      ((lower & 0x08) << 3) | // bit 6
+      ((upper & 0x04) << 3) | // bit 5
+      ((lower & 0x04) << 2) | // bit 4
+      ((upper & 0x02) << 2) | // bit 3
+      ((lower & 0x02) << 1) | // bit 2
+      ((upper & 0x01) << 1) | // bit 1
+      ((lower & 0x01) << 0);  // bit 0
+}
+
+
+/* Stage one build a list containing 4x1 blocks */
+static void list_rle_reader_stage1(char *pattern, int *this) {
    int c;
    int count = 0;
    int y = ORIGIN;
@@ -161,7 +193,7 @@ void list_rle_reader(char *pattern, int *ptr) {
    }
 
    // Start with y
-   *ptr++ = y;
+   *this++ = y;
    while (1) {
       c = *pattern++;
       if (c == 9 || c == 10 || c == 13 || c == 32) {
@@ -171,40 +203,141 @@ void list_rle_reader(char *pattern, int *ptr) {
          count = count * 10 + (c - '0');
          continue;
       }
-      if (c == 'b') {
+      if (c == 'b' || c == 'o') {
+         int bit = c == 'o';
          if (count == 0) {
             count = 1;
          }
-         x += count;
-         count = 0;
-         continue;
-      }
-      if (c == 'o') {
-         if (count == 0) {
-            count = 1;
+         while (count > 0) {
+            shift_bit(&this, &x, bit);
+            count--;
          }
-         while (count--) {
-            *ptr++ = x++;
-         }
-         count = 0;
          continue;
       }
       if (c == '$') {
+         while (!shift_bit(&this, &x, 0)); // flush any buffered bits
          if (count == 0) {
             count = 1;
          }
          y -= count;
-         *ptr++ = y;
+         *this++ = y;
          x = -ORIGIN;
          count = 0;
          continue;
       }
       if (c == '!') {
-         *ptr++ = 0;
+         while (!shift_bit(&this, &x, 0)); // flush buffered bits
+         *this++ = 0;
          break;
       }
       printf("Illegal character %c in rle\n", c);
    }
+}
+
+// Stage 2: Mmerge adjacent lines containing 4x1 blocks into lines containin 4x2 blocs
+//
+// We can only merge odd lines into even lines:
+//
+//    even AAAA BBBB   ===>  even AAAA BBBB 
+//    odd  AAAA BBBB              AAAA BBBB
+//
+// The other cases are handled by passing with zeros:
+//
+//                           even 0000 0000
+//    odd  AAAA BBBB   ===>       AAAA BBBB
+//    even AAAA BBBB         even AAAA BBBB
+//                                0000 0000
+//
+// Algorithm maintain two pointers into the list:
+//    prev ----> row (N)
+//    this ----> row (N - 1)
+//
+// If prev == this:
+//    Read y
+//    If y is zero, then end of list, return
+//    If y is odd, then merge "0000" and "this", update prev = this = start of next row
+//    If y is even, then update "this" to start of next next row (leaving prev on the even row)
+// Else
+//    if prev == this + 1
+//        merge "prev" and "this", prev = this = start of next row
+//    else
+//        merge prev and 0000, prev = this
+
+void list_rle_reader_stage2(int *this, int *new) {
+   int *prev;
+   int upper;
+   int lower;
+   int x;
+   int y;
+   prev = this;
+   while (1) {
+      if (prev == this) {
+         y = *prev;
+         if (y == 0) {
+            *new = 0;
+            return;
+         } else if (y & 1) {
+            // Output row that is "zero" merged with "this"
+            // printf("Merge zero with this on %d\n", y + 1);
+            *new++ = y + 1;
+            this++;
+            while (*this < 0) {
+               *new++ = *this++;
+               *new++ = merge(0, *this++);
+            }
+            prev = this;
+         } else {
+            this++;
+            while (*this < 0) {
+               this += 2;
+            }
+         }
+      } else {
+         y = *prev;
+         if (y == *this + 1) {
+            // Output row that is "prev" merged with "this"
+            // printf("Merge prev with this on %d\n", y);
+            *new++ = y;
+            prev++;
+            this++;
+            while (1) {
+               x = *prev;
+               if(x > *this) {
+                  x = *this;
+               }
+               if (x >= 0) {
+                  break;
+               }
+               upper = lower = 0;
+               if(*prev == x) {
+                  upper = *(prev + 1);
+                  prev += 2;
+               }
+               if(*this == x) {
+                  lower = *(this + 1);
+                  this += 2;
+               }
+               *new++ = x;
+               *new++ = merge(upper, lower);
+            }
+            prev = this;
+         } else {
+            // Output row that is "zero" merged with "prev"
+            // printf("Merge zero with prev on %d\n", y);
+            *new++ = y;
+            prev++;
+            while (*prev < 0) {
+               *new++ = *prev++;
+               *new++ = merge(*prev++, 0);
+            }
+         }
+      }
+   }
+}
+
+void list_rle_reader(char *pattern, int *buff1, int *buff2) {
+   list_rle_reader_stage1(pattern, buff1);
+   list_rle_reader_stage2(buff1, buff2);
 }
 
 int do_life(cell, neighbours) {
@@ -451,7 +584,7 @@ int main(int argc, char **argv) {
          return;
       }
       if (rle_pattern = readfile(argv[1])) {
-         list_rle_reader(rle_pattern, &buffer1[0]);
+         list_rle_reader(rle_pattern, &buffer2[0], &buffer1[0]);
          free(rle_pattern);
       } else {
          printf("%s not found, exiting\n", argv[1]);

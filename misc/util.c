@@ -15,12 +15,13 @@ char *skipline(char *pattern) {
 
 char *readfile(char *filename) {
    FILE *f = fopen(filename, "rb");
+   int ret;
    if (f) {
       fseek(f, 0, SEEK_END);
       long fsize = ftell(f);
       fseek(f, 0, SEEK_SET);  //same as rewind(f);
       char *pattern = malloc(fsize + 1);
-      fread(pattern, fsize, 1, f);
+      ret = fread(pattern, fsize, 1, f);
       fclose(f);
       return pattern;
    } else {
