@@ -1,13 +1,15 @@
         CPU               1
         ORG               &1900
 
-_LIST8_LIFE_ENGINE = FALSE
+_LIST8_LIFE_ENGINE  = FALSE
 
-_MATCHBOX          = FALSE        
+_LIST42_LIFE_ENGINE = FALSE
+
+_MATCHBOX           = FALSE        
                 
-SCRN_BASE       = &2000
-BUFFER          = &4000
-BUFFER_END      = &F800
+SCRN_BASE           = &2000
+BUFFER              = &4000
+BUFFER_END          = &F800
         
 include "constants.asm"
 include "variables.asm"

@@ -1,12 +1,12 @@
 ;; TODO - tidy up these allocations
-        
+
 ;; List Life Engine
 
 this            = &80           ; used by both
 new             = &82           ; used by both
 temp            = &84           ; used by both
 xx              = &86           ; used by both
-yy              = &88           ; used by both        
+yy              = &88           ; used by both
 prev            = &8A           ; used by list_life()
 next            = &8C           ; used by list_life()
 bitmap          = &8E           ; used by list_life()
@@ -14,12 +14,13 @@ list            = &60           ; used by list_life_update_delta()
 xstart          = &62           ; used by list_life_update_delta()
 ystart          = &64           ; used by list_life_update_delta()
 xend            = &66           ; used by list_life_update_delta()
-yend            = &68           ; used by list_life_update_delta()        
+yend            = &68           ; used by list_life_update_delta()
 pan_x           = &6A
 pan_y           = &6C
-tmplsb          = &6E        
+tmplsb          = &6E
 
 ;; Additional locations used by list8 life
+
 forethis        = &40
 middthis        = &41
 hicnt_f         = &42
@@ -28,10 +29,20 @@ hicnt_m         = &44
 locnt_m         = &45
 hicnt_r         = &46
 locnt_r         = &47
+
+;; Additional locations used by list42 life
+
+ul              = &40
+ur              = &41
+ll              = &42
+lr              = &43
+
+;; Additional locations used by list8 and list42 life
+
 t               = &48
 mask            = &49
-outcome         = &4A        
-        
+outcome         = &4A
+
 ;; Utils
 
 tmp             = &70
@@ -47,21 +58,21 @@ pat_depth       = &46
 count           = &48
 handle          = &4A
 byte            = &4B
-        
+
 ;; Beeb Wrapper
 
 ui_show         = &50
 ui_rate         = &51
 ui_mode         = &52
 ui_count        = &53
-ui_zoom         = &54        
+ui_zoom         = &54
 key_pressed     = &55
 step_pressed    = &56
 pan_count       = &57
 stash           = &58
-old_xstart      = &5A  
-old_ystart      = &5C  
-        
+old_xstart      = &5A
+old_ystart      = &5C
+
 ;; Atom Life Engine
 
 pixels          = &80           ; block of 8 pixels (cells) being updates
@@ -78,5 +89,3 @@ row2            = &8F           ; pointer to row0 in the workspace (the row belo
 ;; Atom Life Engine and other stuff
 
 scrn            = &91           ; pointer to the next row in screen memory
-
-        

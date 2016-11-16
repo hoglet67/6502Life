@@ -78,6 +78,12 @@ include "macros_l8.asm"
 include "list8_life.asm"
 include "rle_reader_l8.asm"
 
+ELIF _LIST42_LIFE_ENGINE
+
+include "macros_l42.asm"
+include "list42_life.asm"
+include "rle_reader_l42.asm"
+
 ELSE        
 
 include "macros_ll.asm"

@@ -425,6 +425,18 @@ void init_table()
       table[i] = (bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) |
                  (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0);
    }
+
+   for (i = 0; i < (1<<12); i++) {
+      if ((i & 15) == 0) {
+         printf("        EQUB ");
+      }
+      printf("&%02x", table[i]);
+      if ((i & 15) == 15) {
+         printf("\n");
+      } else {
+         printf(",");
+      }
+   }
    for (i = 0; i < 256; i++) {
       bitcnt[i] = FNbits2(i);
     }

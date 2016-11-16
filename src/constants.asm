@@ -25,10 +25,14 @@ Y_ORIGIN         = &4000         ; in the middle of the positive range
 ;; Ideally we should get rid of this
 IF _LIST8_LIFE_ENGINE        
 X_START        = X_ORIGIN-&10   ; offset by half the screen width in bytes
-ELSE 
-X_START        = X_ORIGIN-&80   ; offset by half the screen width in pixels
-ENDIF
 Y_START        = Y_ORIGIN+&80   ; offset by half the screen width
+ELIF _LIST42_LIFE_ENGINE
+X_START        = X_ORIGIN-&20   ; offset by half the screen width in bytes
+Y_START        = Y_ORIGIN+&40   ; offset by half the screen width
+ELSE
+X_START        = X_ORIGIN-&80   ; offset by half the screen width in pixels
+Y_START        = Y_ORIGIN+&80   ; offset by half the screen width
+ENDIF
 
 PAN_POS         = &0001
 PAN_NEG         = &10000 - PAN_POS

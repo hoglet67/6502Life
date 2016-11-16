@@ -56,6 +56,8 @@ IF _ATOM_LIFE_ENGINE
         EQUS "Using the Atom Life Engine", 10, 10, 13
 ELIF _LIST8_LIFE_ENGINE
         EQUS "Using the List8 Life Engine", 10, 10, 13
+ELIF _LIST42_LIFE_ENGINE
+        EQUS "Using the List42 Life Engine", 10, 10, 13        
 ELSE
         EQUS "Using the List Life Engine", 10, 10, 13
 ENDIF
@@ -233,7 +235,7 @@ ELSE
         M_COPY stash, this
 ENDIF
         
-IF NOT(_LIST8_LIFE_ENGINE)
+IF NOT(_LIST8_LIFE_ENGINE) AND NOT(_LIST42_LIFE_ENGINE)
         LDA pan_count           ; prune edge cells every 256 generations
         BNE skip_prune
 IF _MATCHBOX
