@@ -186,13 +186,14 @@
 .skip_inc_prev
 
 ;;         y-=2;
+        
         LDA yy
         SEC
         SBC #2
         STA yy
-        LDA yy + 1
-        SBC #0
-        STA yy + 1
+        BCS no_carry
+        DEC yy + 1
+.no_carry        
 
 ;;       if(*this == y)
 ;;          this++;
@@ -294,6 +295,12 @@
 ;;          index = ul;
 ;;          outcome = table[(page << 8) | index] & 0xC0;
 
+        STZ outcome
+        
+        LDA ul
+        ORA ll
+        BEQ left_zero
+
         LDX ll                  ; 3 - read a nibble for the first bitpair
         LDA bp1_convert, X      ; 4 - convert nibble to high pointer
         STA bp1_table + 2       ; 4
@@ -301,6 +308,7 @@
         .bp1_table              ;
         LDA table_base, X       ; 4 - get the first bitpair of the result
         AND #&C0                ; 2
+        ORA outcome
         STA outcome             ; 3 - store our work in progress
                                 ; 27 cycles so far
         
@@ -325,6 +333,7 @@
         ORA outcome             ; 3 - combine
         STA outcome             ; 3 - and store
                                 ; 27+30 cycles so far
+.left_zero
         
         ; inputs for third bitpair
         ; ..AA CC..
@@ -451,12 +460,10 @@
         CLC
         ADC #4
         STA xx
-        LDA xx + 1
-        ADC #0
-        STA xx + 1
-
+        BCC jmp_level3
+        INC xx + 1
+.jmp_level3        
         JMP level3
-
 }
 
 ;;       }
