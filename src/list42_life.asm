@@ -304,9 +304,9 @@
         LDX ll                  ; 3 - read a nibble for the first bitpair
         LDA bp1_convert, X      ; 4 - convert nibble to high pointer
         STA bp1_table + 2       ; 4
-        LDX ul                  ; 3 - read a byte
+        LDY ul                  ; 3 - read a byte
         .bp1_table              ;
-        LDA table_base, X       ; 4 - get the first bitpair of the result
+        LDA table_base, Y       ; 4 - get the first bitpair of the result
         AND #&C0                ; 2
         ORA outcome
         STA outcome             ; 3 - store our work in progress
@@ -323,10 +323,8 @@
 ;;          index = ll;
 ;;          outcome |= table[(page << 8) | index] & 0x0C;
 
-        LDX ul                  ; 3 - read a nibble for the second bitpair
-        LDA bp2_convert, X      ; 4 - convert nibble to high pointer
+        LDA bp2_convert, Y      ; 4 - convert nibble to high pointer
         STA bp2_table + 2       ; 4
-        LDX ll                  ; 3 - read a byte
         .bp2_table              ;
         LDA table_base, X       ; 4 - get the second bitpair of the result
         AND #&0C                ; 2
@@ -388,8 +386,8 @@
         LDA ur                  ; 3 - read second half nibble
         AND #&0C                ; 2
         ORA t                   ; 3
-        TAX                     ; 2 - read the nibble index for the fourth bitpair
-        LDA bp4_convert, X      ; 4 - convert nibble to high pointer
+        CLC                     ; 2 - read the nibble index for the fourth bitpair
+        ADC #>table_base        ; 2 - convert nibble to high pointer 
         STA bp4_table + 2       ; 4
         
         LDA ll                  ; 3 - read a half byte
@@ -403,6 +401,9 @@
         .bp4_table              ;
         LDA table_base, X       ; 4 - get the fourth bitpair of the result
         AND #&03                ; 2
+
+        LDY #1                  ; restore constant Y value
+        
         ORA outcome             ; 3 - combine - result is in A
                                 ; 148
         
