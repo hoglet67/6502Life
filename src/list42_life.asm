@@ -52,20 +52,20 @@
 ;;          /* UL table lookup, produces bits 7 and 6 */
 ;;          page = ll >> 4;               
 ;;          index = ul;
-;;          newbmp = table[(page << 8) | index] & 0xC0;
+;;          outcome = table[(page << 8) | index] & 0xC0;
 ;;          /* LL table lookup, produces bits 3 and 2 */
 ;;          page = ul & 0x0F;
 ;;          index = ll;
-;;          newbmp |= table[(page << 8) | index] & 0x0C;
+;;          outcome |= table[(page << 8) | index] & 0x0C;
 ;;          /* UR table lookup, produces bits 5 and 4 */
 ;;          page = ((lr & 0xC0) | (ll & 0x30)) >> 4;
 ;;          index = (ur & 0xCC) | (ul & 0x33);
-;;          newbmp |= table[(page << 8) | index] & 0x30;
+;;          outcome |= table[(page << 8) | index] & 0x30;
 ;;          /* LR table lookup, produces bits 1 and 0 */
 ;;          page = (ur & 0x0C) | (ul & 0x03);
 ;;          index = (lr & 0xCC) | (ll & 0x33);
-;;          newbmp |= table[(page << 8) | index] & 0x03;
-;;          if (newbmp) {
+;;          outcome |= table[(page << 8) | index] & 0x03;
+;;          if (outcome) {
 ;;             if (*new < 0) {
 ;;                // last coordinate was an X 
 ;;                new += 2;
@@ -74,7 +74,7 @@
 ;;                new += 1;
 ;;             }
 ;;             *new = x - 3;
-;;             *(new + 1) = newbmp;
+;;             *(new + 1) = outcome;
 ;;          }
 ;;          /* move right */
 ;;          ul = ur;
@@ -278,7 +278,10 @@
         ORA ur
         ORA ll
         ORA lr
-        BEQ level2
+        BNE not_break
+        JMP level2        
+.not_break
+        
 
         ; inputs for first bitpair
         ; AAAA ....
@@ -289,7 +292,7 @@
 ;;          /* UL table lookup, produces bits 7 and 6 */
 ;;          page = ll >> 4;               
 ;;          index = ul;
-;;          newbmp = table[(page << 8) | index] & 0xC0;
+;;          outcome = table[(page << 8) | index] & 0xC0;
 
         LDX ll                  ; 3 - read a nibble for the first bitpair
         LDA bp1_convert, X      ; 4 - convert nibble to high pointer
@@ -298,7 +301,7 @@
         .bp1_table              ;
         LDA table_base, X       ; 4 - get the first bitpair of the result
         AND #&C0                ; 2
-        STA newbmp              ; 3 - store our work in progress
+        STA outcome             ; 3 - store our work in progress
                                 ; 27 cycles so far
         
         ; inputs for second bitpair
@@ -310,7 +313,7 @@
 ;;          /* LL table lookup, produces bits 3 and 2 */
 ;;          page = ul & 0x0F;
 ;;          index = ll;
-;;          newbmp |= table[(page << 8) | index] & 0x0C;
+;;          outcome |= table[(page << 8) | index] & 0x0C;
 
         LDX ul                  ; 3 - read a nibble for the second bitpair
         LDA bp2_convert, X      ; 4 - convert nibble to high pointer
@@ -319,8 +322,8 @@
         .bp2_table              ;
         LDA table_base, X       ; 4 - get the second bitpair of the result
         AND #&0C                ; 2
-        ORA newbmp              ; 3 - combine
-        STA newbmp              ; 3 - and store
+        ORA outcome             ; 3 - combine
+        STA outcome             ; 3 - and store
                                 ; 27+30 cycles so far
         
         ; inputs for third bitpair
@@ -332,7 +335,7 @@
 ;;          /* UR table lookup, produces bits 5 and 4 */
 ;;          page = ((lr & 0xC0) | (ll & 0x30)) >> 4;
 ;;          index = (ur & 0xCC) | (ul & 0x33);
-;;          newbmp |= table[(page << 8) | index] & 0x30;
+;;          outcome |= table[(page << 8) | index] & 0x30;
 
         LDA ll                  ; 3 - read first half nibble for the third bitpair
         AND #&30                ; 2
@@ -355,8 +358,8 @@
         .bp3_table              ;
         LDA table_base, X       ; 4 - get the third bitpair of the result
         AND #&30                ; 2
-        ORA newbmp              ; 3 - combine
-        STA newbmp              ; 3 - and store
+        ORA outcome             ; 3 - combine
+        STA outcome             ; 3 - and store
                                 ; 27+30+62 cycles so far
         
         ; inputs for fourth bitpair
@@ -368,7 +371,7 @@
 ;;          /* LR table lookup, produces bits 1 and 0 */
 ;;          page = (ur & 0x0C) | (ul & 0x03);
 ;;          index = (lr & 0xCC) | (ll & 0x33);
-;;          newbmp |= table[(page << 8) | index] & 0x03;
+;;          outcome |= table[(page << 8) | index] & 0x03;
         
         LDA ul                  ; 3 - read first half nibble for the fourth bitpair
         AND #&03                ; 2
@@ -391,13 +394,12 @@
         .bp4_table              ;
         LDA table_base, X       ; 4 - get the fourth bitpair of the result
         AND #&03                ; 2
-        ORA newbmp              ; 3 - combine - result is in A
+        ORA outcome             ; 3 - combine - result is in A
                                 ; 148
-.newbmp_ready
         
         ;; A now holds the new chunk
 
-;;          if (newbmp) {
+;;          if (outcome) {
 ;;             if (*new < 0) {
 ;;                // last coordinate was an X 
 ;;                new += 2;
@@ -406,7 +408,7 @@
 ;;                new += 1;
 ;;             }
 ;;             *new = x - 3;
-;;             *(new + 1) = newbmp;
+;;             *(new + 1) = outcome;
 ;;          }
 
 
@@ -691,6 +693,10 @@
         SBC #0
         STA yend + 1;
 
+;; ************************ TODO ******************************
+
+        RTS
+
 ;; while (1) {
 
 
@@ -865,7 +871,7 @@ NEXT
 .bp2_convert
 .bp4_convert
 FOR i, 0, 255
-    EQUB (>table_base) + (i & 0x0F)
+    EQUB (>table_base) + (i AND &0F)
 NEXT
 
 ;; A7  A6  A5  A4  C7  C6 

@@ -28,12 +28,18 @@
         CMP #TYPE_PATTERN
         BEQ type_pattern
 
+        CMP #TYPE_L42
+        BEQ type_l42
+        
         CMP #TYPE_RLE
         BEQ type_rle
 
 .type_random
         LDA (src), Y            ; pattern density
         JMP random_pattern
+
+.type_l42
+        JMP l42_pattern
 
 .default_random
         LDA #2
@@ -113,7 +119,35 @@
         JSR OSFIND
         LDA #TYPE_RLE
         RTS
-
+        
+.l42_pattern
+        LDA #<RLE_DST
+        STA this
+        LDA #>RLE_DST
+        STA this + 1
+        LDY #1
+.l42_copy
+        LDA (src), Y            ; test the MSB of the coordinate
+        PHA
+        BPL l42_copy_y
+        LDA (src)
+        STA (this)
+        M_INCREMENT src
+        M_INCREMENT this        
+.l42_copy_y
+        LDA (src)
+        STA (this)
+        M_INCREMENT src
+        M_INCREMENT this        
+        LDA (src)
+        STA (this)
+        M_INCREMENT src
+        M_INCREMENT this        
+        PLA
+        BNE l42_copy
+        LDA #TYPE_RLE
+        RTS
+        
 .random_pattern
 {
 
@@ -291,6 +325,23 @@
 .pattern_table_terminator
         EQUW 0
 
+IF _LIST42_LIFE_ENGINE
+.patternA
+{
+.start
+        EQUB TYPE_L42
+        EQUB name - start
+        EQUW &4000
+        EQUW &C000
+        EQUB &6C
+        EQUW &3FFE
+        EQUW &C000
+        EQUB &40
+        EQUW &0000
+.name
+        EQUS "R-Pentomino (l42)", 0
+}
+ELSE
 .patternA
 {
 .start
@@ -304,7 +355,8 @@
 .name
         EQUS "R-Pentomino", 0
 }
-
+ENDIF
+        
 .patternB
 {
 .start
@@ -332,7 +384,6 @@
 .name
         EQUS "Diehard", 0
 }
-
 
 .patternD
 {
@@ -366,6 +417,31 @@
         EQUS "Queen Bee", 0
 }
 
+IF _LIST42_LIFE_ENGINE
+.patternF
+{
+.start
+        EQUB TYPE_L42
+        EQUB name - start
+        EQUW &4000
+        EQUW &C000
+        EQUB &8C
+        EQUW &C004
+        EQUB &01
+        EQUW &3FFE
+        EQUW &C004
+        EQUB &22
+        EQUW &3FFC
+        EQUW &C004
+        EQUB &48
+        EQUW &3FFA
+        EQUW &C004
+        EQUB &80
+        EQUW &0000
+.name
+        EQUS "Bunnies 9 (l42)", 0
+}
+ELSE
 .patternF
 {
 .start
@@ -383,6 +459,7 @@
 .name
         EQUS "Bunnies 9", 0
 }
+ENDIF
 
 .patternG
 {
