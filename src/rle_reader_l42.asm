@@ -176,7 +176,13 @@
         STA (this)
         M_INCREMENT_BY_3 this
 .blank
-        M_INCREMENT xx
+        LDA xx
+        CLC
+        ADC #&04
+        STA xx
+        LDA xx + 1
+        ADC #0
+        STA xx + 1
         LDA #&10                ; pre-load the "4 shift" marker bit
         STA bitmap
         SEC                     ; c=1 on exit indicates the last byte was flushed
@@ -239,14 +245,6 @@
         ROR pat_width
         LSR pat_depth + 1
         ROR pat_depth
-
-        LSR pat_width + 1       ; divide the width by another 8, as xx is in bytes not pixels
-        ROR pat_width
-        LSR pat_width + 1
-        ROR pat_width
-        LSR pat_width + 1
-        ROR pat_width
-
         LDA #<X_ORIGIN          ; on exit pat_width contains the X coord to load the pattern at
         SEC
         SBC pat_width
@@ -377,12 +375,14 @@
         LDA yy
         SEC
         SBC #1
-        CMP (this)
-        BNE else2
+        STA t
         LDA yy + 1
         SBC #0
         CMP (this), Y
         BNE else2
+        LDA t
+        CMP (this)
+        BNE else2        
         M_INCREMENT_BY_2 this
 .else2
 .endif2

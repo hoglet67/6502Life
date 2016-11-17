@@ -42,7 +42,7 @@ lr              = &43
 upper           = &44
 lower           = &45
 
-;; Additional locations used by list8 and list42 life
+;; Additional locations used by list8_life and list42_life and rle_reader_l42
 
 t               = &48
 mask            = &49
