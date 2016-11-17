@@ -36,6 +36,11 @@ ul              = &40
 ur              = &41
 ll              = &42
 lr              = &43
+        
+;; Additional locations used by rle_reader_l42
+
+upper           = &44
+lower           = &45
 
 ;; Additional locations used by list8 and list42 life
 

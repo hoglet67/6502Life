@@ -20,7 +20,6 @@ GEN_LO          = &3F00         ; generation counter
 GEN_HI          = &3F01         ; the C% integer variable on the Beeb
 SCRN_BASE       = &4000         ; base address of screen memory
 
-RLE_SRC         = &6000
 RLE_DST         = SCRN_BASE
         
 ELSE
@@ -32,13 +31,11 @@ IF _MATCHBOX
         
 BUFFER          = BUFFER1
 BUFFER_END      = BUFFER2        
-RLE_SRC         = BUFFER2
 RLE_DST         = BUFFER1
         
 ELSE
 BUFFER          = &5000
 BUFFER_END      = &F600
-RLE_SRC         = (BUFFER + BUFFER_END) DIV 2
 RLE_DST         = BUFFER
         
 ENDIF

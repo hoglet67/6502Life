@@ -89,6 +89,7 @@
 ;; Args are (this) and (new)
 
 .list_life
+{
 ;;  keep Y as the constant 1 for efficient access of the high byte of a short
         LDY #1
 
@@ -117,12 +118,10 @@
 ;;    if(*new < 0)
 ;;       new += 2;
 
-{
         LDA (new), Y
-        BPL skip_inc
+        BPL skip_inc_new
         M_INCREMENT_BY_3 new    ; an X values is a two byte coordinate and a one-byte bitmap
-.skip_inc
-}
+.skip_inc_new
 
 ;;		if(prev == this) {
 ;;			/* start a new group of rows */
@@ -140,14 +139,13 @@
 ;;				this++;
 ;;		}
 
-{
 ;;		if(prev == this) {
         LDA prev
         CMP this
-        BNE else
+        BNE else1
         LDA prev + 1
         CMP this + 1
-        BNE else
+        BNE else1
 
         ;; if(*this == 0) {
         LDA (this)
@@ -170,9 +168,9 @@
         STA yy + 1
         M_INCREMENT_BY_2 this
 
-        BRA endif
+        BRA endif1
 
-.else
+.else1
 
 ;;			if(*prev == y)
 ;;				prev++;
@@ -206,8 +204,8 @@
         M_INCREMENT_BY_2 this
 .skip_inc_this
 
-.endif
-}
+.endif1
+
 
 ;;		/* write new row co-ordinate */
 ;;		*new = y + 1;
@@ -248,11 +246,7 @@
 
 ;;       for(;;) {
 
-
-
-
 .level3
-{
 ;;				/* add a column to the bitmap */
 ;;          ur = lr = 0;
          STZ ur
@@ -422,7 +416,7 @@
 ;;          }
 
 
-        BEQ endif
+        BEQ endif2
 
         STA outcome
         LDA (new), Y
@@ -444,7 +438,7 @@
         STA (new), Y
         DEY
 
-.endif
+.endif2
 
 ;;          /* move right */
 ;;          ul = ur;
@@ -465,11 +459,12 @@
         INC xx + 1
 .jmp_level3        
         JMP level3
-}
-
+        
 ;;       }
 ;;    }
 ;; }
+
+}
 
 ;; ************************************************************
 ;; moves the x/y start to the top left corner
