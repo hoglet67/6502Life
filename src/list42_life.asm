@@ -470,18 +470,18 @@
 ;; moves the x/y start to the top left corner
 ;; ************************************************************
 ;;
-;; as list8 life doesn't support zooming, the offset is fixed 
+;; as list42 life doesn't support zooming, the offset is fixed 
 .list_life_offset_top_left
         LDA xstart
         SEC
-        SBC #&20
+        SBC #&80
         STA xstart
         LDA xstart + 1
         SBC #0
         STA xstart + 1
         LDA ystart
         CLC
-        ADC #&40
+        ADC #&80
         STA ystart
         LDA ystart + 1
         ADC #0
@@ -662,8 +662,21 @@
 ;;            list += 3;
 ;;            if (xx >= xstart && xx < xend) {
 ;;              X_reg = temp + (xx - xstart) >> 3;
+;;              ul = bmp & 0xF0
+;;              ll = (bmp & 0x0F) << 4
+;;              ur = 0
+;;              lr = 0
+;;              Y_reg = (xx - xstart) & 7;
+;;              while (Y_reg != 0) {
+;;                  {ul, ur} >>= 1
+;;                  {ll, lr} >>= 1
+;;                  Y_reg--;
+;;              }
 ;;              ;; a chunk is 4 bits wide, and can align with a byte in 8 possible ways
-;;              *(delta_base + X_reg) ^= bmp;
+;;              *(delta_base +      X_reg) |= ul;
+;;              *(delta_base +  1 + X_reg) |= ur;
+;;              *(delta_base + 32 + X_reg) |= ll;
+;;              *(delta_base + 33 + X_reg) |= lr;
 ;;            }
 ;;         }
 ;;     } else {
@@ -678,10 +691,6 @@
 
 ;; xend = xstart + 256;
 
-        LDA xstart
-        CLC
-        ADC #0
-        STA xend
         LDA xstart + 1
         ADC #1
         STA xend + 1
@@ -695,10 +704,6 @@
         LDA ystart + 1
         SBC #0
         STA yend + 1;
-
-;; ************************ TODO ******************************
-
-        RTS
 
 ;; while (1) {
 
@@ -751,8 +756,11 @@
         LDA yend + 1
         SBC yy + 1
 
-        BCS else2
+        BCC not_else2
+        RTS
+.not_else2
 
+        
 ;;         list += 2
         M_INCREMENT_BY_2 list  ;; skip over y        
         
@@ -816,18 +824,72 @@
         SBC xend + 1
         BCS while_level2
 
-;;              X_reg = temp + xx - xstart
-;;              *(delta_base + X_reg) ^= bmp;
-                
+;;              X_reg = temp + (xx - xstart) >> 3;
+;;              ul = bmp & 0xF0
+;;              ll = (bmp & 0x0F) << 4
+;;              ur = 0
+;;              lr = 0
+;;              Y_reg = (xx - xstart) & 7;
+;;              while (Y_reg != 0) {
+;;                  {ul, ur} >>= 1
+;;                  {ll, lr} >>= 1
+;;                  Y_reg--;
+;;              }
+;;              ;; a chunk is 4 bits wide, and can align with a byte in 8 possible ways
+
         LDA xx
         SEC
         SBC xstart
+        TAY
+        LSR A
+        LSR A
+        LSR A
         CLC
         ADC temp
         TAX
+
         LDA bitmap
-        EOR DELTA_BASE, X
+        AND #&F0
+        STA ul
+        LDA bitmap
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        STA ll
+        STZ ur
+        STZ lr
+
+        TYA
+        AND #&07
+        TAY
+        BEQ skip_shift_bitmap
+.shift_bitmap_loop
+        LSR ul
+        ROR ur
+        LSR ll
+        ROR lr
+        DEY
+        BNE shift_bitmap_loop
+.skip_shift_bitmap
+
+;;              *(delta_base +      X_reg) |= ul;
+;;              *(delta_base +  1 + X_reg) |= ur;
+;;              *(delta_base + 32 + X_reg) |= ll;
+;;              *(delta_base + 33 + X_reg) |= lr;
+
+        LDA DELTA_BASE, X
+        ORA ul
         STA DELTA_BASE, X
+        LDA DELTA_BASE + 1, X
+        ORA ur
+        STA DELTA_BASE + 1, X
+        LDA DELTA_BASE + 32, X
+        ORA ll
+        STA DELTA_BASE + 32, X
+        LDA DELTA_BASE + 33, X
+        ORA lr
+        STA DELTA_BASE + 33, X
 
         JMP while_level2
 
@@ -835,10 +897,6 @@
 ;;         return;
 ;;     }
 ;; }
-
-
-.else2
-        RTS
 
 }
 
