@@ -325,48 +325,22 @@
 .pattern_table_terminator
         EQUW 0
 
-IF _LIST42_LIFE_ENGINE
 .patternA
 {
 .start
-        EQUB TYPE_L42
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUW &4000
-        EQUW &C000
-        EQUB &6C
-        EQUW &3FFE
-        EQUW &C000
-        EQUB &40
-        EQUW &0000
-.name
-        EQUS "R-Pentomino (l42)", 0
-}
-ELSE
-.patternA
-{
-.start
-        EQUB TYPE_PATTERN
-        EQUB name - start
-        EQUB 3                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %01100000
-        EQUB %11000000
-        EQUB %01000000
+        EQUS "R.RPENTO", 13
 .name
         EQUS "R-Pentomino", 0
 }
-ENDIF
         
 .patternB
 {
 .start
-        EQUB TYPE_PATTERN
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUB 3                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %01000000
-        EQUB %00010000
-        EQUB %11001110
+        EQUS "R.ACORN", 13
 .name
         EQUS "Acorn", 0
 }
@@ -374,13 +348,9 @@ ENDIF
 .patternC
 {
 .start
-        EQUB TYPE_PATTERN
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUB 3                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %00000010
-        EQUB %11000000
-        EQUB %01000111
+        EQUS "R.DIEHARD", 13
 .name
         EQUS "Diehard", 0
 }
@@ -388,13 +358,9 @@ ENDIF
 .patternD
 {
 .start
-        EQUB TYPE_PATTERN
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUB 3                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %10001110
-        EQUB %11100100
-        EQUB %01000000
+        EQUS "R.RABBITS", 13
 .name
         EQUS "Rabbits", 0
 }
@@ -402,97 +368,29 @@ ENDIF
 .patternE
 {
 .start
-        EQUB TYPE_PATTERN
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUB 7                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %10000000
-        EQUB %10100000
-        EQUB %01010000
-        EQUB %01001000
-        EQUB %01010000
-        EQUB %10100000
-        EQUB %10000000
+        EQUS "R.QUEENB", 13
 .name
         EQUS "Queen Bee", 0
 }
 
-IF _LIST42_LIFE_ENGINE
 .patternF
 {
 .start
-        EQUB TYPE_L42
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUW &4000
-        EQUW &C000
-        EQUB &8C
-        EQUW &C004
-        EQUB &01
-        EQUW &3FFE
-        EQUW &C004
-        EQUB &22
-        EQUW &3FFC
-        EQUW &C004
-        EQUB &48
-        EQUW &3FFA
-        EQUW &C004
-        EQUB &80
-        EQUW &0000
-.name
-        EQUS "Bunnies 9 (l42)", 0
-}
-ELSE
-.patternF
-{
-.start
-        EQUB TYPE_PATTERN
-        EQUB name - start
-        EQUB 7                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %01000000
-        EQUB %11000001
-        EQUB %00000010
-        EQUB %00000010
-        EQUB %00000100
-        EQUB %00001000
-        EQUB %00001000
+        EQUS "R.BUNN9", 13
 .name
         EQUS "Bunnies 9", 0
 }
-ENDIF
 
 .patternG
 {
 .start
-        EQUB TYPE_PATTERN
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUB 25                 ; pattern depth in rows
-        EQUB 5                  ; pattern width in bytes
-        EQUB %0,%00000000,%00010000,%00000000,%00000000
-        EQUB %0,%00000000,%01101000,%00000000,%00000000
-        EQUB %0,%00000000,%01100010,%00000000,%00000000
-        EQUB %0,%00000001,%00011010,%00001000,%00000000
-        EQUB %0,%00000001,%11101100,%01111000,%00001010
-        EQUB %0,%00000100,%00001000,%01110000,%01010010
-        EQUB %0,%00000111,%11110001,%00010000,%10010000
-        EQUB %0,%00101000,%00011001,%00010101,%10000100
-        EQUB %0,%01111111,%11000001,%00110000,%00001000
-        EQUB %0,%11000000,%00000000,%10110111,%10001001
-        EQUB %1,%10000110,%10000000,%00010001,%00101000
-        EQUB %0,%11000010,%00000001,%11000000,%10101001
-        EQUB %0,%00000000,%10000001,%10000001,%00001100
-        EQUB %0,%11000010,%00000001,%11000000,%10101001
-        EQUB %1,%10000110,%10000000,%00010001,%00101000
-        EQUB %0,%11000000,%00000000,%10110111,%10001001
-        EQUB %0,%01111111,%11000001,%00110000,%00001000
-        EQUB %0,%00101000,%00011001,%00010101,%10000100
-        EQUB %0,%00000111,%11110001,%00010000,%10010000
-        EQUB %0,%00000100,%00001000,%01110000,%01010010
-        EQUB %0,%00000001,%11101100,%01111000,%00001010
-        EQUB %0,%00000001,%00011010,%00001000,%00000000
-        EQUB %0,%00000000,%01100010,%00000000,%00000000
-        EQUB %0,%00000000,%01101000,%00000000,%00000000
-        EQUB %0,%00000000,%00010000,%00000000,%00000000
+        EQUS "R.PUFF", 13
 .name
         EQUS "Puff Suppressor", 0
 }
@@ -500,33 +398,9 @@ ENDIF
 .patternH
 {
 .start
-        EQUB TYPE_PATTERN
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUB 23                 ; pattern depth in rows
-        EQUB 5                  ; pattern width in bytes
-        EQUB %00000000,%00000000,%00000000,%00000100,%00000001
-        EQUB %00000000,%00101000,%00000000,%00011100,%00000111
-        EQUB %00000000,%01001000,%00000000,%00110000,%00001100
-        EQUB %00000000,%11000000,%00000000,%00100000,%00001000
-        EQUB %00000001,%00000000,%10000000,%10100000,%00101000
-        EQUB %00000011,%11110111,%10000011,%10000000,%11100000
-        EQUB %00011000,%00001101,%00000110,%10000001,%10100000
-        EQUB %00100011,%10110001,%00000101,%01100001,%01011000
-        EQUB %01000100,%00110001,%10000110,%01100001,%10011000
-        EQUB %01000001,%00011000,%11100100,%00011001,%00000110
-        EQUB %01110001,%11101000,%00100110,%01101001,%10011010
-        EQUB %00000000,%00000000,%00000110,%10000001,%10100000
-        EQUB %01110001,%11101000,%00100110,%01101001,%10011010
-        EQUB %01000001,%00011000,%11100100,%00011001,%00000110
-        EQUB %01000100,%00110001,%10000110,%01100001,%10011000
-        EQUB %00100011,%10110001,%00000101,%01100001,%01011000
-        EQUB %00011000,%00001101,%00000110,%10000001,%10100000
-        EQUB %00000011,%11110111,%10000011,%10000000,%11100000
-        EQUB %00000001,%00000000,%10000000,%10100000,%00101000
-        EQUB %00000000,%11000000,%00000000,%00100000,%00001000
-        EQUB %00000000,%01001000,%00000000,%00110000,%00001100
-        EQUB %00000000,%00101000,%00000000,%00011100,%00000111
-        EQUB %00000000,%00000000,%00000000,%00000100,%00000001
+        EQUS "R.SPACE", 13
 .name
         EQUS "Spaceship", 0
 }
@@ -534,13 +408,9 @@ ENDIF
 .patternI
 {
 .start
-        EQUB TYPE_PATTERN
+        EQUB TYPE_RLE
         EQUB name - start
-        EQUB 3                  ; pattern depth in rows
-        EQUB 1                  ; pattern width in bytes
-        EQUB %11100000
-        EQUB %10000000
-        EQUB %01000000
+        EQUS "R.GLIDER", 13
 .name
         EQUS "Glider", 0
 }

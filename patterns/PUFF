@@ -1,0 +1,29 @@
+#N Puff Suppressor
+#O Hartmut Holzwart
+#C https://bitstorm.org/gameoflife/lexicon/#t3
+x = 34, y = 25, rule = B3/S23
+bbbbbbbbbbbbobbbbbbbbbbbbbbbbbbbb$
+bbbbbbbbbboobobbbbbbbbbbbbbbbbbbb$
+bbbbbbbbbboobbbobbbbbbbbbbbbbbbbb$
+bbbbbbbbobbboobobbbbbobbbbbbbbbbb$
+bbbbbbbbooooboobbboooobbbbbbbobob$
+bbbbbbobbbbbbobbbbooobbbbbobobbob$
+bbbbbbooooooobbbobbbobbbbobbobbbb$
+bbbobobbbbbboobbobbboboboobbbbobb$
+bbooooooooobbbbbobboobbbbbbbbobbb$
+boobbbbbbbbbbbbbbobooboooobbbobbo$
+oobbbboobobbbbbbbbbbobbbobbobobbb$
+boobbbbobbbbbbbbooobbbbbbobobobbo$
+bbbbbbbbbobbbbbboobbbbbbobbbboobb$
+boobbbbobbbbbbbbooobbbbbbobobobbo$
+oobbbboobobbbbbbbbbbobbbobbobobbb$
+boobbbbbbbbbbbbbbobooboooobbbobbo$
+bbooooooooobbbbbobboobbbbbbbbobbb$
+bbbobobbbbbboobbobbboboboobbbbobb$
+bbbbbbooooooobbbobbbobbbbobbobbbb$
+bbbbbbobbbbbbobbbbooobbbbbobobbob$
+bbbbbbbbooooboobbboooobbbbbbbobob$
+bbbbbbbbobbboobobbbbbobbbbbbbbbbb$
+bbbbbbbbbboobbbobbbbbbbbbbbbbbbbb$
+bbbbbbbbbboobobbbbbbbbbbbbbbbbbbb$
+bbbbbbbbbbbbobbbbbbbbbbbbbbbbbbbb$!

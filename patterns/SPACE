@@ -1,0 +1,28 @@
+#N Spaceship
+#O David I Bell
+#C Period 2 spaceship with repeatable tagalong (speed c/2)
+#C http://members.tip.net.au/~dbell/articles/life2.zip
+x = 39, y = 23, rule = B3/S23
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbobbbbbbbbbo$
+bbbbbbbbbobobbbbbbbbbbbbbbooobbbbbbbooo$
+bbbbbbbbobbobbbbbbbbbbbbboobbbbbbbboobb$
+bbbbbbboobbbbbbbbbbbbbbbbobbbbbbbbbobbb$
+bbbbbbobbbbbbbbobbbbbbbobobbbbbbbobobbb$
+bbbbbooooooboooobbbbbooobbbbbbbooobbbbb$
+bboobbbbbbboobobbbbboobobbbbbboobobbbbb$
+bobbboooboobbbobbbbboboboobbbboboboobbb$
+obbbobbbboobbboobbbboobboobbbboobboobbb$
+obbbbbobbboobbbooobbobbbbboobbobbbbboob$
+ooobbboooobobbbbbobboobboobobboobboobob$
+bbbbbbbbbbbbbbbbbbbboobobbbbbboobobbbbb$
+ooobbboooobobbbbbobboobboobobboobboobob$
+obbbbbobbboobbbooobbobbbbboobbobbbbboob$
+obbbobbbboobbboobbbboobboobbbboobboobbb$
+bobbboooboobbbobbbbboboboobbbboboboobbb$
+bboobbbbbbboobobbbbboobobbbbbboobobbbbb$
+bbbbbooooooboooobbbbbooobbbbbbbooobbbbb$
+bbbbbbobbbbbbbbobbbbbbbobobbbbbbbobobbb$
+bbbbbbboobbbbbbbbbbbbbbbbobbbbbbbbbobbb$
+bbbbbbbbobbobbbbbbbbbbbbboobbbbbbbboobb$
+bbbbbbbbbobobbbbbbbbbbbbbbooobbbbbbbooo$
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbobbbbbbbbbo$!
