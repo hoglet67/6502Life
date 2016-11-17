@@ -520,6 +520,71 @@
 .exit
         RTS
 }
+
+;; ************************************************************
+;; prune the universe
+;; ************************************************************
+
+;; (this) points to the source list
+;; (new) points to the destination list
+        
+.list_life_prune_cells
+{
+        LDY #1
+.loop
+        LDA (this), Y           ; is it an X or a Y coordinate?
+        BPL is_y_or_terminator
+        CMP #&80                ; at the left edge?
+        BEQ skip_copy_x
+        CMP #&FF                ; at the right edge?
+        BEQ skip_copy_x
+        INY
+        LDA (this), Y
+        STA (new), Y
+        DEY
+        LDA (this), Y
+        STA (new), Y
+        LDA (this)
+        STA (new)
+        M_INCREMENT_BY_3 new
+.skip_copy_x        
+        M_INCREMENT_BY_3 this
+        BRA loop
+
+.is_y_or_terminator
+        TAX                     ; test for the terminating 0000
+        ORA (this)
+        BEQ terminator
+        TXA
+        CMP #&7F                ; at the top edge?
+        BEQ skip_row            ; yes, skip the whole row
+        CMP #&00                ; at the bottom edge?
+        BEQ skip_row            ; no, copy the y coord and continue processing x coords
+        LDA (this), Y
+        STA (new), Y
+        LDA (this)
+        STA (new)
+        M_INCREMENT_BY_2 new
+        M_INCREMENT_BY_2 this
+        JMP loop
+        
+.skip_row
+        M_INCREMENT_BY_2 this
+.skip_row_loop        
+        LDA (this), Y           ; is it an X or a Y coordinate?
+        BPL is_y_or_terminator
+        M_INCREMENT_BY_3 this
+        BRA skip_row_loop
+        
+.terminator
+        LDA #0
+        STA (new)
+        STA (new), Y
+        M_INCREMENT_BY_2 new
+        RTS
+}        
+        
+        
 ;; ************************************************************
 ;; list_life_load_buffer()
 ;; ************************************************************
@@ -529,105 +594,7 @@
 
 .list_life_load_buffer
 {
-
-        LDA #<SCRN_BASE
-        STA scrn
-        LDA #>SCRN_BASE
-        STA scrn + 1
-
-        ;; y is positive and decreasing as you go down the screen
-        ;; e.g. 1256 ... 1001
-        LDA #<Y_START
-        STA yy
-        LDA #>Y_START
-        STA yy + 1
-
-        LDX #0
-        
-.row_loop
-        TXA
-        PHA
-        
-        LDY #&1F
-.test_blank_loop
-        LDA (scrn), Y
-        BNE row_not_blank
-        DEY
-        BPL test_blank_loop
-
-.next_row
-
-        LDA scrn
-        CLC
-        ADC #&20
-        STA scrn
-        LDA scrn + 1
-        ADC #0
-        STA scrn + 1
-
-        LDA yy
-        SEC
-        SBC #1
-        STA yy
-        LDA yy + 1
-        SBC #0
-        STA yy + 1
-
-        PLA
-        TAX
-        DEX
-        BNE row_loop
-
-        
-        ;; write the terminating zero
-        LDY #1
-        LDA #0
-        STA (this)
-        STA (this), Y
-        M_INCREMENT_BY_2 this
-
         RTS
-
-.row_not_blank
-
-        ;; Start the row by writing the positive Y value
-        LDY #1
-        LDA yy
-        STA (this)
-        LDA yy + 1
-        STA (this), Y
-        M_INCREMENT_BY_2 this
-
-        ;; x is negative and increasing as you go right across the screen
-        LDA #<X_START
-        STA xx
-        LDA #>X_START
-        STA xx + 1
-
-        LDY #&00
-.byte_loop
-        LDA (scrn), Y
-        BEQ skip_zero
-
-        PHY
-        LDY #2
-        STA (this), Y
-        DEY
-        LDA xx + 1
-        STA (this), Y
-        LDA xx
-        STA (this)
-        M_INCREMENT_BY_3 this
-        PLY
-
-.skip_zero
-        M_INCREMENT xx
-        INY
-        CPY #&20
-        BNE byte_loop
-
-        JMP next_row
-
 }
 
 ;; ************************************************************

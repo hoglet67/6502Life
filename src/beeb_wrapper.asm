@@ -235,7 +235,7 @@ ELSE
         M_COPY stash, this
 ENDIF
         
-IF NOT(_LIST8_LIFE_ENGINE) AND NOT(_LIST42_LIFE_ENGINE)
+IF NOT(_LIST8_LIFE_ENGINE)
         LDA pan_count           ; prune edge cells every 256 generations
         BNE skip_prune
 IF _MATCHBOX
