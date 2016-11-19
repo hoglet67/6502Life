@@ -654,12 +654,28 @@
 
 .list_life_update_delta
 {
-
+        ;; test for 4x2 straddling the delta buffer last time
+        LDA (list)              ; Load the LSB of the first Y coordinate
+        EOR ystart              ; Compare to the LSB of the ystart
+        AND #&01                ; If the bit 0s are the same
+        BEQ no_straddle         ; then things are nicely aligned
+        LDX #&1F                ; otherwise copy the line that overflowed the delta buffer
+.copy_loop
+        LDA DELTA_BASE + 256, X
+        STA DELTA_BASE, X
+        STZ DELTA_BASE + 256, X ; and clear the buffer, for the overflow this time
+        DEX
+        BPL copy_loop
+.no_straddle
 
 ;; xend = xstart + 256;
 
+        CLC
+        LDA xstart
+        ADC #&FD                ; only render 253 pixels, so overflow of the 4x2 pixel
+        STA xend                ; block cannot happen
         LDA xstart + 1
-        ADC #1
+        ADC #&00
         STA xend + 1
 
 ;; yend = ystart - 8;
