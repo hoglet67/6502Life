@@ -7,7 +7,7 @@ mkdir -p ${build}
 
 # Set the BEEBASM executable for the platform
 BEEBASM=../tools/beebasm/beebasm.exe
-if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+if [ "$(uname -s | awk '{print substr($0,1,5)}')" == "Linux" ]; then
     BEEBASM=../tools/beebasm/beebasm
 fi
 
