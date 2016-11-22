@@ -709,6 +709,15 @@ int main(int argc, char **argv) {
    int pattern[] = {12, -11, 0x8C, -7, 0x2201,
                      8,            -7, 0x8048, 0};
 
+#elif defined(PATTERN_MULTUM)
+   // multum in parvo
+   // .... ***.
+   // ...* ..*.
+   // ..*. ....
+   // .*.. ....
+   int pattern[] = {12, -11, 0x2401, -7, 0x00E2,
+                     0};
+
 #elif defined(PATTERN_DOOMED)
    // agar doomed by a virus
    // .**. **.* *.** .**. **.* *.**

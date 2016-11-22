@@ -444,65 +444,65 @@ void init_table()
 
 int list_life(int *this, int *new)
 {
-	int *prev;
-	int x, y;
+   int *prev;
+   int x, y;
    int ops = 0;
    unsigned char ul, ur, ll, lr;
    unsigned char newbmp;
    int page;
    int index;
 
-	prev = this;
-	ul = ur = ll = lr = 0;
-	*new = 0;
-	for(;;) {
-		/* did we write an X co-ordinate? */
-		if(*new < 0)
-			new+=2;
-		if(prev == this) {
-			/* start a new group of rows */
-			if(*this == 0) {
-				*new = 0;
-				return ops;
-			}
-			y = *this++;
-		} else {
-			/* move to next row and work out which ones to scan */
-			if(*prev == y)
-				prev++;
+   prev = this;
+   ul = ur = ll = lr = 0;
+   *new = 0;
+   for(;;) {
+      /* did we write an X co-ordinate? */
+      if(*new < 0)
+         new+=2;
+      if(prev == this) {
+         /* start a new group of rows */
+         if(*this == 0) {
+            *new = 0;
+            return ops;
+         }
+         y = *this++;
+      } else {
+         /* move to next row and work out which ones to scan */
+         if(*prev == y)
+            prev++;
          y-=2;
-			if(*this == y)
-				this++;
-		}
+         if(*this == y)
+            this++;
+      }
       //printf("y=%d\n", y);
-		/* write new row co-ordinate */
-		*new = y + 1;
+      /* write new row co-ordinate */
+      *new = y + 1;
 #ifdef DEBUG_KERNEL
       printf("new y = %d\n", y + 1);
 #endif
-		for(;;) {
-			/* skip to the leftmost cell */
-			x = *prev;
-			if(x > *this)
-				x = *this;
-			/* end of line? */
-			if(x >= 0)
-				break;
+      for(;;) {
+         /* skip to the leftmost cell */
+         x = *prev;
+         if(x > *this)
+            x = *this;
+         /* end of line? */
+         if(x >= 0)
+            break;
          //printf("x=%d\n", x);
 
-			for(;;) {
+         for(;;) {
             ur = lr = 0;
-				/* add a column to the bitmap */
-				if(*prev == x) {
+            /* add a column to the bitmap */
+            if(*prev == x) {
                ur = *(prev + 1);
-					prev += 2;
+               prev += 2;
             }
-				if(*this == x) {
+            if(*this == x) {
                lr = *(this + 1);
-					this += 2;
-				}
+               this += 2;
+            }
             if ((ul | ur | ll | lr) == 0) {
-					break;
+               break;
             }
 
 #ifdef DEBUG_KERNEL
@@ -520,7 +520,7 @@ int list_life(int *this, int *new)
             print_binary(lr, 3, 2);
             printf("\n");
 #endif
-				/* what does this bitmap indicate? */
+            /* what does this bitmap indicate? */
             ops++;
             newbmp = 0;
             /* UL table lookup, produces bits 7 and 6 */
@@ -558,16 +558,16 @@ int list_life(int *this, int *new)
                   // last coordinate was a Y
                   new += 1;
                }
-					*new = x - 3;
-					*(new + 1) = newbmp;
+               *new = x - 3;
+               *(new + 1) = newbmp;
             }
-				/* move right */
+            /* move right */
             ul = ur;
             ll = lr;
-				x += 4;
-			}
-		}
-	}
+            x += 4;
+         }
+      }
+   }
 }
 
 int main(int argc, char **argv) {
@@ -596,7 +596,54 @@ int main(int argc, char **argv) {
    // .....*..
    // ....*...
    // ....*...
+   // ........
    int pattern[] = {12, -11, 0x8C, -7, 0x01, 10, -7, 0x22, 8, -7, 0x48, 6, -7, 0x80, 0 };
+
+#elif defined(PATTERN_ACORN)
+   // acorn
+   // ..*. ....
+   // .... *...
+   // .**. .***
+   // .... ....
+   int pattern[] = {12, -11, 0x20, -7, 0x08,
+                    10, -11, 0x60, -7, 0x70,
+           0};
+
+#elif defined(PATTERN_MULTUM)
+   // multum in parvo
+   // .... ***.
+   // ...* ..*.
+   // ..*. ....
+   // .*.. ....
+   int pattern[] = {12, -11, 0x01, -7, 0xE2,
+                    10, -11, 0x24,
+                     0};
+
+#elif defined(PATTERN_DOOMED)
+   // agar doomed by a virus
+   // .**. **.* *.** .**. **.* *.**
+   // .**. **.* *.** .**. **.* *.**
+   // .... .... .... .... .... ....
+   // .**. **.* *.** .**. **.* *.**
+
+   // .**. **.* *.** .**. **.* *.**
+   // .... .... .... .... .... ....
+   // .**. **.* *.** ***. **.* *.**
+   // .**. **.* *.** .**. **.* *.**
+
+   // .... .... .... .... .... ....
+   // .**. **.* *.** .**. **.* *.**
+   // .**. **.* *.** .**. **.* *.**
+   // .... .... .... .... .... ....
+
+   int pattern[] = {
+                    20, -30, 0x66, -26, 0xDD, -22, 0xBB, -18, 0x66, -14, 0xDD, -10, 0xBB,
+                    18, -30, 0x06, -26, 0x0D, -22, 0x0B, -18, 0x06, -14, 0x0D, -10, 0x0B,
+                    16, -30, 0x60, -26, 0xD0, -22, 0xB0, -18, 0x60, -14, 0xD0, -10, 0xB0,
+                    14, -30, 0x66, -26, 0xDD, -22, 0xBB, -18, 0xE6, -14, 0xDD, -10, 0xBB,
+                    12, -30, 0x06, -26, 0x0D, -22, 0x0B, -18, 0x06, -14, 0x0D, -10, 0x0B,
+                    10, -30, 0x60, -26, 0xD0, -22, 0xB0, -18, 0x60, -14, 0xD0, -10, 0xB0,
+           0};
 
 #else
    int pattern[] = {0};
