@@ -30,7 +30,7 @@
 
         CMP #TYPE_L42
         BEQ type_l42
-        
+
         CMP #TYPE_RLE
         BEQ type_rle
 
@@ -99,7 +99,7 @@
         CMP #&0D
         BNE name_loop
         RTS
-        
+
 .type_rle
         LDA #<RLE_DST
         STA this
@@ -112,14 +112,14 @@
         CMP #&00                ; returns file handle in A, or 0 if not found
         BEQ not_found_error
         STA handle              ; save the file handle
-        JSR rle_next_byte       ; rle_reader expects first byte of file read 
+        JSR rle_next_byte       ; rle_reader expects first byte of file read
         JSR rle_reader
         LDA #&00                ; close the file
         LDY handle
         JSR OSFIND
         LDA #TYPE_RLE
         RTS
-        
+
 .l42_pattern
         LDA #<RLE_DST
         STA this
@@ -133,21 +133,21 @@
         LDA (src)
         STA (this)
         M_INCREMENT src
-        M_INCREMENT this        
+        M_INCREMENT this
 .l42_copy_y
         LDA (src)
         STA (this)
         M_INCREMENT src
-        M_INCREMENT this        
+        M_INCREMENT this
         LDA (src)
         STA (this)
         M_INCREMENT src
-        M_INCREMENT this        
+        M_INCREMENT this
         PLA
         BNE l42_copy
         LDA #TYPE_RLE
         RTS
-        
+
 .random_pattern
 {
 
@@ -162,8 +162,8 @@
         LDX #&44
         JSR OSBYTE
         TYA
-        STA seed, X
         PLX
+        STA seed, X
         DEX
         BPL seed_loop
 
@@ -334,7 +334,7 @@
 .name
         EQUS "R-Pentomino", 0
 }
-        
+
 .patternB
 {
 .start
@@ -484,7 +484,7 @@
 .name
         EQUS "40514M", 0
 }
-        
+
 .patternQ
 {
 .start
@@ -554,4 +554,3 @@
 .name
         EQUS "Random (Density 3)", 0
 }
-
