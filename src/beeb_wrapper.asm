@@ -16,7 +16,7 @@
         STA ui_mode
         LDA #DEFAULT_ZOOM
         STA ui_zoom
-        
+
 .warm_boot
 
         LDX #&FF
@@ -47,7 +47,7 @@ ENDIF
         LDA #&0E
         LDX #&02
         JSR OSBYTE
-        
+
         JSR print_string
 
         EQUB 22, MODE
@@ -57,7 +57,7 @@ IF _ATOM_LIFE_ENGINE
 ELIF _LIST8_LIFE_ENGINE
         EQUS "Using the List8 Life Engine", 10, 10, 13
 ELIF _LIST42_LIFE_ENGINE
-        EQUS "Using the List42 Life Engine", 10, 10, 13        
+        EQUS "Using the List42 Life Engine", 10, 10, 13
 ELSE
         EQUS "Using the List Life Engine", 10, 10, 13
 ENDIF
@@ -122,7 +122,7 @@ IF _MATCHBOX
         STA new
         LDA #>BUFFER2
         STA new + 1
-ELSE        
+ELSE
         ;; The "this" pointer is now pointing to free memory after the loaded pattern
 
         ;; Update the "new" pointer to this free memory
@@ -141,9 +141,9 @@ ENDIF
         ;; Clear the generation count
         LDX #(gen_count - count_base)
         JSR clear_count
-        
+
         JSR refresh_panel
-        
+
 ;;;  Initialize interaction counters
         STZ ui_count
         STZ pan_count
@@ -157,7 +157,7 @@ ENDIF
         ;; rate=100. You would expect the gen count to be xxx00 but
         ;; without this is will be xxx99.
         DEC ui_count
-        
+
 .generation_loop
 
         ;; Determine if a UI update is due
@@ -185,7 +185,7 @@ ENDIF
         LDX #&FF
         JSR OSBYTE
         CPX #&00
-        BNE read_keyboard        
+        BNE read_keyboard
         STZ key_pressed         ; clear the key pressed flag
 .skip_read_keyboard
 
@@ -207,7 +207,7 @@ IF _MATCHBOX
         ;; When using the bank selection:
         ;; - this always points to BUFFER1 at 0x4000
         ;; - new always points to BUFFER2 at 0x8000
-        
+
         ;; Calculate the next generation from "this" to "new"
         ;; (both "this" and "new" are updated)
         JSR list_life
@@ -230,11 +230,11 @@ ELSE
         ;; Calculate the next generation from "this" to "new"
         ;; (both "this" and "new" are updated)
         JSR list_life
-        
+
         ;; Cycle the pointers
         M_COPY stash, this
 ENDIF
-        
+
 IF NOT(_LIST8_LIFE_ENGINE)
         LDA pan_count           ; prune edge cells every 256 generations
         BNE skip_prune
@@ -242,7 +242,7 @@ IF _MATCHBOX
         ;; Prune any cells that are with 256 of the edge
         ;; (both "this" and "new" are updated)
         JSR list_life_prune_cells
-        
+
         ;; We implement double buffering by swapping pages underneath
         JSR swap_banksel_buffers
         LDA #<BUFFER1
@@ -267,7 +267,7 @@ ELSE
 ENDIF
 .skip_prune
 ENDIF
-        
+
         ;; Increment the generation counter
         LDX #gen_count - count_base
         LDA #1
@@ -285,7 +285,7 @@ MACRO M_UPDATE_VIEWPOINT_COORD pan, coord
         LDX #pan
         LDY #coord
         JSR update_pan          ; use a subroutine to save code
-.skip_pan        
+.skip_pan
 ENDMACRO
 
         ;; Update the viewpoint position
@@ -303,7 +303,7 @@ ENDMACRO
         ;;
         ;; The value to add in even frames is pan/2
         ;; The value to add in odd frames is pan/2 if pan is even, and pan/2 + 1 if pan is odd
-        
+
         LDA 1, X
         ASL A                   ; carry = sign bit
         LDA 1, X                ; divide pan by two, taking account of sign
@@ -316,7 +316,7 @@ ENDMACRO
         AND #1
         BNE odd_frame
         CLC                     ; never add one in even frames
-.odd_frame        
+.odd_frame
         LDA 0, Y
         ADC tmp
         STA 0, Y
@@ -326,7 +326,7 @@ ENDMACRO
         RTS
 }
 
-        
+
 .ui_rate_table
         EQUB 1, 2, 3, 4, 5, 10, 20, 50, 100, 200
 .ui_rate_table_end
@@ -343,7 +343,7 @@ ENDMACRO
         LDA ui_mode
         STA step_pressed
         RTS
-.not_step    
+.not_step
         CPX #'Z'                ; Z
         BNE not_zoom_in
         JSR increment_zoom
@@ -392,7 +392,7 @@ ENDMACRO
         CMP #ui_rate_table_end - ui_rate_table
         BCC store_rate
         LDA #0
-.store_rate        
+.store_rate
         STA ui_rate
         BRA refresh
 .not_rate
@@ -409,7 +409,7 @@ ENDMACRO
 
 .refresh
         JMP refresh_panel
- 
+
 .not_toggle_step
         RTS
 }
@@ -425,16 +425,16 @@ ENDMACRO
         LDX ui_zoom
         BEQ zoom_return
         DEX
-        
+
 .change_zoom
         STX ui_zoom
-.zoom_return        
+.zoom_return
         RTS
-        
+
 .refresh_panel
 {
         JSR print_string
-        EQUB 30        
+        EQUB 30
         EQUS "Gen:", 10, 13
         EQUS "        ", 10, 10, 13
         EQUS "Cells:", 10, 13
@@ -450,13 +450,13 @@ ENDMACRO
         ASL A
         TAX
         LDY #4
-.zoom_loop        
+.zoom_loop
         LDA ui_zoom_table, X
         JSR OSWRCH
         INX
         DEY
         BNE zoom_loop
-        
+
         JSR print_string
         EQUS 10,10,13, "Rate:", 10, 13
         NOP
@@ -466,14 +466,14 @@ ENDMACRO
         STZ tmp + 1
         LDX #tmp
         JSR print_as_unsigned
-        
+
         JSR print_string
         EQUS 10, 10, 13, "X-Pan:", 10, 13
         NOP
 
         LDX #pan_x
         JSR print_as_signed
-        
+
         JSR print_string
         EQUS " ", 10, 10, 13, "Y-Pan:", 10, 13
         NOP
@@ -486,7 +486,7 @@ ENDMACRO
         EQUS " ", 10, 10, 13, "Running"
         NOP
         RTS
-.single_step        
+.single_step
         JSR print_string
         EQUS " ", 10, 10, 13, "Stopped"
         NOP
@@ -494,7 +494,7 @@ ENDMACRO
 .ui_zoom_table
         EQUS "1/8x1/4x1/2x1x  2x  4x  8x  "
 }
-        
+
 .list_life_update_screen
 {
         LDA ui_show
@@ -550,19 +550,19 @@ ENDMACRO
 
         ;; Clear the delta
         JSR clear_delta
-        
+
         ;; OR render the new strip into the delta
         LDA ui_zoom
         JSR list_life_update_delta
 
         ;; initialize the delta with the current screen
         JSR eor_screen_to_delta
-        
-        ;; delta is now the difference between the previous and current screens
-        JSR send_delta
 
         ;; EOR the delta back into the local copy of the screen
         JSR eor_delta_to_screen
+
+        ;; delta is now the difference between the previous and current screens
+        JSR send_delta
 
         ;; Move the strip down N pixels
         M_COPY yend, ystart
@@ -582,7 +582,7 @@ ENDMACRO
 IF _MATCHBOX
         JSR reset_banksel_buffers
 ENDIF
-        
+
         RTS
 }
 
@@ -626,7 +626,7 @@ ENDIF
         ;; -X is 8000 to BFFF (10) ->10  C000 to FFFF
         ;; +X is C000 to FFFF (11) ->00  0000 to 3FFF
         ;; Copy bit 14 (coord sign bit) to bit 15 and clear bit 14
-        
+
         LDA 0, X
         STA tmp
         LDA 1, X
@@ -732,7 +732,7 @@ extra = 1
         RTS
 
 ENDIF
-        
+
 .event_handler
 {
         PHP

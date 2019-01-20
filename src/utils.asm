@@ -1,7 +1,7 @@
 ;; ************************************************************
 ;; Code
 ;; ************************************************************
-        
+
 .print_string
 {
         PLA
@@ -10,7 +10,7 @@
         STA tmp + 1
 
         LDY #0
-.loop        
+.loop
         INC tmp
         BNE nocarry
         INC tmp + 1
@@ -64,7 +64,7 @@
         INY
         BNE loop
         RTS
-}        
+}
 
 .eor_delta_to_screen
 {
@@ -77,9 +77,9 @@
         BNE loop
         RTS
 
-}        
-        
-.send_screen_delta        
+}
+
+.send_screen_delta
         LDA #&FF                ; send the VDU command to expect a new display
         JSR OSWRCH
 
@@ -94,7 +94,7 @@
         DEX
         BNE send_loop
         RTS
-        
+
 ;; Send one one strip 8 pixels heigh x 256 pixels wide to VDU driver
 ;; Converting from row linear atom" to character striped "beeb" screen format on the fly
 ;; And compressing zeros
@@ -105,42 +105,44 @@
 
         TXA
         PHA
-        
+
         LDX #0
 
 ;; always send the data for X=0
         LDY #0
         LDA (delta), Y
 
-.wait_for_space1        
+.wait_for_space1
         BIT &FEF8
         BVC wait_for_space1
         STA &FEF9               ; send data
 
-.skip_blank        
+.skip_blank
         INX
         BEQ wait_for_space2
-                
+
         LDA char_to_linear_map, X
         TAY
         LDA (delta), Y
 
-        BEQ skip_blank        
-        
-.wait_for_space2        
+        BEQ skip_blank
+
+        LDA (scrn), Y
+
+.wait_for_space2
         BIT &FEF8
         BVC wait_for_space2
         STX &FEF9               ; send index
-        
+
         CPX #0
         BNE wait_for_space1
 
         PLA
         TAX
-        
+
         RTS
 }
-        
+
 .char_to_linear_map
 FOR x, 0, 31
   FOR y, 0, 7
@@ -148,7 +150,7 @@ FOR x, 0, 31
   NEXT
 NEXT
 
-        
+
 .count_base
 
 .gen_count
@@ -159,15 +161,15 @@ NEXT
 
 .bcd_count
         EQUB 0, 0, 0, 0
-        
+
 .clear_count
 {
 FOR i, 0, COUNT_PRECISION - 1
         STZ count_base + i, X
-NEXT        
+NEXT
         RTS
 }
-        
+
 .add_to_count
 {
         SED
@@ -180,7 +182,7 @@ FOR i, 1, COUNT_PRECISION - 1
         ADC #0
         STA count_base + i, X
 NEXT
-.done        
+.done
         CLD
         RTS
 }
@@ -199,13 +201,13 @@ NEXT
         STA tmp + 1
         BRA print_tmp
 
-.print_as_unsigned        
+.print_as_unsigned
         LDA 0, X
         STA tmp
         LDA 1, X
         STA tmp + 1
         ;; fall through to print_tmp
-        
+
 .print_tmp
 {
         JSR bin_to_bcd
@@ -213,7 +215,7 @@ NEXT
         LDY #2
         BRA print_count_inner
 }
-        
+
 .print_count
         LDY #COUNT_PRECISION - 1
 FOR i, 1, COUNT_PRECISION - 1
@@ -221,14 +223,14 @@ FOR i, 1, COUNT_PRECISION - 1
 NEXT
 .print_count_inner
 {
-.loop        
+.loop
         LDA count_base, X
         JSR print_bcd
         DEX
         DEY
         BPL loop
         RTS
-.print_bcd        
+.print_bcd
         PHA
         LSR A
         LSR A
@@ -240,8 +242,8 @@ NEXT
         AND #&0F
         ORA #&30
         JMP OSWRCH
-}        
-        
+}
+
 .bin_to_bcd
 {
         SED                 ; Switch to decimal mode
@@ -266,4 +268,3 @@ NEXT
         CLD                 ; Back to binary
         RTS
 }
-        

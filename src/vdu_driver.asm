@@ -2,16 +2,16 @@ ptr            = &80
 mode4_base     = &5800 + 8 * 8   ; offset by 8 characters to make space for gen count
 mode4_linelen  = 320
 
-        
+
 .vdu_driver_start
 
         ;; Hijack &&FF - this will break plot commands!
-        
+
         CMP #&FF
         BEQ update_display
 
         JMP (oldwrcvec)
-        
+
 .update_display
 {
         PHA
@@ -19,7 +19,7 @@ mode4_linelen  = 320
         PHA
         TYA
         PHA
-        
+
         LDY #<mode4_base
         STY ptr
         LDA #>mode4_base
@@ -28,7 +28,6 @@ mode4_linelen  = 320
         BIT &FEE0
         BPL idle1
         LDA &FEE1
-        EOR (ptr),Y
         STA (ptr),Y
 .idle2
         BIT &FEE0
@@ -57,7 +56,7 @@ mode4_linelen  = 320
         EQUW &E0A4
 
 .vdu_driver_end
-                
+
 .install_vdu_driver
 
 ;; Read old OSWRCH vector
@@ -66,7 +65,7 @@ mode4_linelen  = 320
         LDA #>WRCVEC
         STA param + 1
         JSR osword_05
-        STA oldwrcvec        
+        STA oldwrcvec
         JSR osword_05
         STA oldwrcvec + 1
 
@@ -80,7 +79,7 @@ mode4_linelen  = 320
 .copy_vdu_loop
         LDY #0
         LDA (ptr), Y
-        JSR osword_06        
+        JSR osword_06
         INC ptr
         BNE copy_vdu_nocarry
         INC ptr + 1
@@ -103,7 +102,7 @@ mode4_linelen  = 320
         JSR osword_06
 
 ;; Start the new VDU driver
-        
+
         LDA #0
         JMP OSWRCH
 
@@ -125,11 +124,10 @@ mode4_linelen  = 320
         INC param
         BNE nocarry
         INC param + 1
-.nocarry        
+.nocarry
         LDA param + 4
         RTS
 }
 
 .param
         EQUB 0,0,0,0,0
-        
