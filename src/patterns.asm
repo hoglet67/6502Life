@@ -322,6 +322,7 @@
         EQUW patternU
         EQUW patternV
         EQUW patternW
+        EQUW patternX
 .pattern_table_terminator
         EQUW 0
 
@@ -553,4 +554,14 @@
         EQUB 3
 .name
         EQUS "Random (Density 3)", 0
+}
+
+.patternX
+{
+.start
+        EQUB TYPE_RLE
+        EQUB name - start
+        EQUS "R.4GUNS", 13
+.name
+        EQUS "4GUNS", 0
 }
