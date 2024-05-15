@@ -5,12 +5,16 @@ _LIST8_LIFE_ENGINE  = FALSE
 
 _LIST42_LIFE_ENGINE = FALSE
 
-_MATCHBOX           = FALSE        
-                
+_MATCHBOX           = FALSE
+
+_USE_OSGBPB         = TRUE
+
 SCRN_BASE           = &2000
 BUFFER              = &4000
 BUFFER_END          = &F800
-        
+
+RLE_BUF             = (BUFFER + BUFFER_END) DIV 2
+
 include "constants.asm"
 include "variables.asm"
 include "macros_common.asm"
@@ -18,19 +22,19 @@ include "macros_ll.asm"
 
 .start
         SEI
-        
+
         LDA #<breeder
         STA this
         LDA #>breeder
         STA this + 1
-        
+
         LDA #&00
         STA new
         LDA #&50
         STA new + 1
 
         JSR rle_reader
-        
+
         LDA #'A'
         JSR OSWRCH
 
@@ -42,7 +46,7 @@ include "rle_utils.asm"
 include "rle_reader_ll.asm"
 
         ORG &2000
-        
+
 .breeder
         EQUS "404bo2bo341b$408bo340b$404bo3bo340b$405b4o340b$416b2o331b$402bo11bo4bo"
         EQUS "329b$400bobo17bo328b$342bobo46bo8bobo11bo5bo328b$342bobo44bo3bo21b6o5b"
@@ -198,7 +202,7 @@ include "rle_reader_ll.asm"
         EQUS "15b3ob2o34b2o316b$374bo19b2o21b4o6b4ob2o315b$416b6o5b6o316b$416b4ob2o"
         EQUS "5b4o317b$403b2o15b2o327b$402bo346b$407b2o340b$406b4o339b$406b2ob2o338b"
         EQUS "$408b2o!"
-                
+
 .end
 
 SAVE "",start,end

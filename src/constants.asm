@@ -8,6 +8,7 @@ WRCVEC          = &020E
 EVNTV           = &0220        
 
 OSFIND          = &FFCE
+OSGBPB          = &FFD1
 OSBGET          = &FFD7
 OSRDCH          = &FFE0
 OSASCI          = &FFE3

@@ -101,22 +101,15 @@
         RTS
 
 .type_rle
+        JSR rle_open_file
+        BCS not_found_error
+        JSR rle_next_byte       ; rle_reader expects first byte of file read
         LDA #<RLE_DST
         STA this
         LDA #>RLE_DST
         STA this + 1
-        LDA #&40                ; open for input only
-        LDX src
-        LDY src + 1             ; X/Y point to filename
-        JSR OSFIND
-        CMP #&00                ; returns file handle in A, or 0 if not found
-        BEQ not_found_error
-        STA handle              ; save the file handle
-        JSR rle_next_byte       ; rle_reader expects first byte of file read
         JSR rle_reader
-        LDA #&00                ; close the file
-        LDY handle
-        JSR OSFIND
+        JSR rle_close_file
         LDA #TYPE_RLE
         RTS
 

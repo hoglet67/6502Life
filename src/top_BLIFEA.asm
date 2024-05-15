@@ -6,4 +6,6 @@ _LIST42_LIFE_ENGINE = FALSE
 
 _MATCHBOX           = FALSE
 
+_USE_OSGBPB         = FALSE
+
 include "common_BLIFE.asm"

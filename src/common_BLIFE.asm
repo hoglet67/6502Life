@@ -21,24 +21,26 @@ GEN_HI          = &3F01         ; the C% integer variable on the Beeb
 SCRN_BASE       = &4000         ; base address of screen memory
 
 RLE_DST         = SCRN_BASE
-        
+
 ELSE
 
 DELTA_BASE      = &F700         ; 8 row buffer for accumulating delta
 
 IF _MATCHBOX
-        
+
 BUFFER          = BUFFER1
-BUFFER_END      = BUFFER2        
+BUFFER_END      = BUFFER2
+RLE_BUF         = BUFFER2
 RLE_DST         = BUFFER1
 SCRN_BASE       = &2000         ; base address of screen memory
-        
+
 ELSE
 BUFFER          = &5000
 BUFFER_END      = &F600
+RLE_BUF         = (BUFFER + BUFFER_END) DIV 2
 RLE_DST         = BUFFER
 SCRN_BASE       = &3000         ; base address of screen memory
-        
+
 ENDIF
 
 ENDIF
@@ -58,10 +60,10 @@ JMP beeb_life
 
 IF _MATCHBOX
 include "banksel.asm"
-ENDIF        
-        
+ENDIF
+
 include "utils.asm"
-        
+
 include "rle_utils.asm"
 
 include "patterns.asm"
@@ -84,7 +86,7 @@ include "macros_l42.asm"
 include "list42_life.asm"
 include "rle_reader_l42.asm"
 
-ELSE        
+ELSE
 
 include "macros_ll.asm"
 include "list_life.asm"

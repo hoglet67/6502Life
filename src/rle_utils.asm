@@ -122,10 +122,99 @@
         RTS
 }
 
+.rle_open_file
+{
+        LDA #&40                ; open for input only
+        LDX src
+        LDY src + 1             ; X/Y point to filename
+        JSR OSFIND
+        CMP #&00                ; returns file handle in A, or 0 if not found
+        BEQ not_found
+        STA handle              ; save the file handle
+        LDA #&FF
+        STA src
+        STA src + 1
+        CLC
+        RTS
+.not_found
+        SEC
+        RTS
+}
+
+.rle_close_file
+{
+        LDA #&00                ; close the file
+        LDY handle
+        JMP OSFIND
+}
+        
+IF _USE_OSGBPB
+
+BLOCK_LEN = &2000
+        
 .rle_next_byte
 {
         PHA
-        PHY                     ; preserve Y
+        LDA src + 1
+        CMP #>(RLE_BUF + BLOCK_LEN)
+        BCC skip_read_block
+
+        ;;  Attempt to read 8K into a buffer
+        LDA handle
+        STA file_handle
+        LDA #<RLE_BUF
+        STA address
+        LDA #>RLE_BUF
+        STA address + 1
+        LDA #<BLOCK_LEN
+        STA length
+        LDA #>BLOCK_LEN
+        STA length + 1
+        PHX
+        PHY
+        LDA #&04                ; Read bytes ignoring pointer
+        LDX #<control_block
+        LDY #>control_block
+        JSR OSGBPB
+        LDA address
+        STA src
+        LDA address + 1
+        STA src + 1
+        LDA #0
+        STA (src)
+        LDA #<RLE_BUF
+        STA src
+        LDA #>RLE_BUF
+        STA src + 1
+        PLY
+        PLX
+        
+.skip_read_block        
+        LDA (src)
+        STA byte
+        BEQ skip_increment
+        M_INCREMENT src
+.skip_increment
+        PLA
+        RTS
+        
+.control_block
+.file_handle
+        EQUB 0
+.address
+        EQUD 0
+.length
+        EQUD 0
+.ptr
+        EQUD 0
+}
+        
+ELSE
+       
+.rle_next_byte
+{
+        PHA
+        PHY
         LDY handle
         JSR OSBGET
         BCC not_eof
@@ -136,3 +225,5 @@
         PLA
         RTS
 }
+
+ENDIF
