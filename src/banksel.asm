@@ -35,7 +35,7 @@ EOR_MASK = B0_PAGE EOR B1_PAGE  ; used to swap between buffers
         LDA banksel_shadow, X   ; increment the bank select register by two pages
         INC A
         INC A
-        BIT #(BUFSIZE - 2)
+        BIT #(BUFSIZE - 2)      ; DMB: 13/12/24: this test seems wrong!!!
         BNE not_wrapped
         SEC
         SBC #BUFSIZE
@@ -53,9 +53,9 @@ EOR_MASK = B0_PAGE EOR B1_PAGE  ; used to swap between buffers
 ;; 0x0000 - unchanged (should be 0x00)
 ;; 0x2000 - unchanged (should be 0x01)
 ;; 0x4000 - 0x80
-;; 0x6000 - 0x9F
-;; 0x8000 - 0xA0
-;; 0xA000 - 0xBF
+;; 0x6000 - 0xBF
+;; 0x8000 - 0xC0
+;; 0xA000 - 0xFF
 ;; 0xC000 - unchanged (should be 0x06)
 ;; 0xE000 - unchanged (should be 0x07)
 
@@ -65,13 +65,13 @@ EOR_MASK = B0_PAGE EOR B1_PAGE  ; used to swap between buffers
         STA banksel_shadow + 2  ; 0x4000 -> 0x80
         STA banksel        + 2
         ORA #OR_MASK
-        STA banksel_shadow + 3  ; 0x6000 -> 0x9F
+        STA banksel_shadow + 3  ; 0x6000 -> 0xBF
         STA banksel        + 3
         LDA #B1_PAGE
-        STA banksel_shadow + 4  ; 0x8000 -> 0xA0
+        STA banksel_shadow + 4  ; 0x8000 -> 0xC0
         STA banksel        + 4
         ORA #OR_MASK
-        STA banksel_shadow + 5  ; 0xA000 -> 0xBF
+        STA banksel_shadow + 5  ; 0xA000 -> 0xFF
         STA banksel        + 5
         RTS
 }
