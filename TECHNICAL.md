@@ -31,8 +31,8 @@ to make the Y value following the line sort after the line.
 <Y> is in the range 32767 to 1 (top to bottom)
 
 Both X and Y are stored as 16-bit twos-complement integers, stored in
-little endian order with the LSB at an even address. Consequently a
-coordianate will never straddle a page boundary.
+little-endian order with the LSB at an even address. Consequently, a
+coordinate will never straddle a page boundary.
 
 The list data structures are generally traversed sequentially
 (i.e. left to right, top to bottom)
@@ -61,10 +61,10 @@ generation is then constructed immediately following this
 Once the new generation is complete, it becomes the current
 generation and the process continues.
 
-Wrapping is at the end of the buffer happens transparently (by the
+Wrapping at the end of the buffer happens transparently (by the
 macro which increments a pointer).
 
-Patterns of approx 20,000 cells are possible with this layout.
+Patterns of approximately 20,000 cells are possible with this layout.
 
 There is not currently any detection of overflow.
 
@@ -74,29 +74,29 @@ The MLIFE program uses banked memory provided by some 6502 Co
 Processor implementations (specifically the Matchbox FPGA and
 PiTubeDirect) to support much larger patterns.
 
-Note, this banked memory is not currently implemented by any of the
+Note, that this banked memory is not currently implemented by any of the
 software emulators, so you can only run MLIFE on real hardware.
 
 The banked memory operates in 8K pages:
 
-The implemenation uses two buffers in logical memory:
+The implementation uses two buffers in logical memory:
 - BUFFER1: &4000-&7FFF (two 8K pages)
 - BUFFER2: &8000-&BFFF (two 8K pages)
 
-The initial pattern (generation 1) is loaded into BUFFER1 and new
-generation (generaton 2) is constructed in BUFFER2.  Once complete,
+The initial pattern (generation 1) is loaded into BUFFER1 and the new
+generation (generation 2) is constructed in BUFFER2.  Once complete,
 BUFFER2 becomes current generation, and the new generation (generation
-3) is constructed in BUFFER1. This process continues,
+3) is constructed in BUFFER1. This process continues indefinitely.
 
-Although BUFFER1 and BUFFER2 each occupy 16KB of logical memory, are
-in fact backed by a much larger amount of physical memory:
+Although BUFFER1 and BUFFER2 each occupy 16KB of logical memory, they
+are backed by a much larger amount of physical memory:
 
 - BUFFER1 is backed by 64x 8K pages (512KB total, physical pages 0x80-0xBF)
 - BUFFER2 is backed by 64x 8K pages (512KB total, physical pages 0xC0-0xFF)
 
 [ this allocation may soon change to BUFFER1 = even, BUFFER2 = odd pages ]
 
-A 512KB buffer allows patterns of approx 250,000 cells.
+A 512KB buffer allows patterns of approximately 250,000 cells.
 
 There is not currently any detection of overflow, though this would be
 trivial to add.
@@ -116,15 +116,15 @@ made from list_life to a function called cycle_banksel_buffers
 2. It updates the appropriate bank select register to page in the next
 seqential page.
 
-There is one further subtlty here. Recall there are three pointers
+There is one further subtlety here. Recall there are three pointers
 into the current generation (called prev/this/next) and one pointer
 into the new generation (called new).
 
 When traversing the current generation data structure, the "next"
 pointer is always the first to cross an 8K page boundary. It's
-important that only the "next" (and "new") pointers trigger the page
+important that only the "next" (and "new") pointers trigger the page-
 swapping behaviour. Further, the "prev" and "this" pointers must still
-access the the previous page. This is achieved by making the BUFFER1/2
+access the previous page. This is achieved by making the BUFFER1/2
 16KB (two pages) rather than 8KB (one page).
 
 
