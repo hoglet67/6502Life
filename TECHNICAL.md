@@ -44,7 +44,7 @@ The implementation uses two logical buffers:
 - one for the new generation that is written sequentially
 
 There are three pointers into the current generation (prev, this and
-next) that point to three successive <X> coordinates in a row.
+next) that point to three successive rows.
 
 There is just one pointer into the new generation, tracking the end of
 the list. New cells are only ever appended to the end.
@@ -123,9 +123,15 @@ into the new generation (called new).
 When traversing the current generation data structure, the "next"
 pointer is always the first to cross an 8K page boundary. It's
 important that only the "next" (and "new") pointers trigger the page-
-swapping behaviour. Further, the "prev" and "this" pointers must still
-access the previous page. This is achieved by making the BUFFER1/2
-16KB (two pages) rather than 8KB (one page).
+swapping behaviour.
 
+Further, the "prev" and "this" pointers must still access the previous
+page. This is achieved by making the BUFFER1/2 16KB (two pages) rather
+than 8KB (one page).
+
+Note, this implementation effectively limits patterns to rows with at
+most about 2,000 cells, since the "prev" and "this" rows must both fit
+within a single page. In practice, I don't think any of our current
+patterns exceed this.
 
 
