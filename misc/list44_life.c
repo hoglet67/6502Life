@@ -6,7 +6,7 @@
 
 #define MAX_SIZE 1000000
 
-#define MAX_GEN 1000
+#define MAX_GEN 17400
 
 #define ORIGIN 0x40000;
 
@@ -337,7 +337,7 @@ void list_rle_reader(char *pattern, int *buff1, int *buff2) {
    list_rle_reader_stage2(buff1, buff2);
 }
 
-int do_life(cell, neighbours) {
+int do_life(int cell, int neighbours) {
    int count = 0;
    while (neighbours) {
       if (neighbours & 1) {
@@ -679,7 +679,7 @@ int list_life(int *this, int *new)
    }
 }
 
-int main(int argc, char **argv) {
+void main(int argc, char **argv) {
 
    int i;
    int pop;

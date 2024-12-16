@@ -481,7 +481,7 @@ int list8_life(int *this, int *new)
 	}
 }
 
-int main(int argc, char **argv) {
+void main(int argc, char **argv) {
 
    int i;
    int coords;
@@ -563,7 +563,7 @@ int main(int argc, char **argv) {
       cells += pop;
       //dump_list(gen, ptr1);
       if ((gen % 100) == 0) {
-         printf("gen %6d size %6d pop %6d coords %6d efficiency (bytes / cell) %4.3f\n", gen, size, pop, coords, (double) size / (double) pop);
+	printf("gen %6d size %6d pop %6d coords %6d efficiency (bytes / cell) %4.3f ops %d\n", gen, size, pop, coords, (double) size / (double) pop, ops);
       }
       ops += list8_life(ptr1, ptr2);
       gen++;

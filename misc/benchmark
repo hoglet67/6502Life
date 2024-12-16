@@ -4,8 +4,9 @@ for i in `ls ../patterns`
 do
 ./list_life ../patterns/$i | tail -4 > 1
 ./list42_life ../patterns/$i | tail -4 > 2
+./list44_life ../patterns/$i | tail -4 > 3
 echo $i
-cat 1 2
+cat 1 2 3
 done
-rm -f 1 2
+rm -f 1 2 3
 

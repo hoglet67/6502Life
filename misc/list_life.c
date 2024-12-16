@@ -5,7 +5,7 @@
 
 #define MAX_SIZE 1000000
 
-#define MAX_GEN 1000
+#define MAX_GEN 17400
 
 #define ORIGIN 0x4000;
 
@@ -206,7 +206,7 @@ int list_life(int *this, int *new)
 	}
 }
 
-int main(int argc, char **argv) {
+void main(int argc, char **argv) {
 
    int i;
    int pop;
