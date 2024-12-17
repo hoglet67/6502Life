@@ -6,7 +6,9 @@
 
 #define MAX_SIZE 1000000
 
+#ifndef MAX_GEN
 #define MAX_GEN 17400
+#endif
 
 #define ORIGIN 0x4000;
 
@@ -230,7 +232,7 @@ static void list_rle_reader_stage1(char *pattern, int *this) {
 //
 // We can only merge odd lines into even lines:
 //
-//    even AAAA BBBB   ===>  even AAAA BBBB 
+//    even AAAA BBBB   ===>  even AAAA BBBB
 //    odd  AAAA BBBB              AAAA BBBB
 //
 // The other cases are handled by passing with zeros:
@@ -311,7 +313,7 @@ void list_rle_reader_stage2(int *this, int *new) {
          *new++ = merge(upper, lower);
       }
       // Advance prev, as we only process each row once
-      prev = this;      
+      prev = this;
    }
 }
 
@@ -343,7 +345,7 @@ int do_life(int cell, int neighbours) {
    }
 }
 
-// A7  A6  A5  A4  C7  C6 
+// A7  A6  A5  A4  C7  C6
 // A3  A2  A1  A0  C3  C2
 // B7  B6  B5  B4  D7  D6
 // B3  B2  B1  B0  D3  D2
@@ -351,7 +353,7 @@ int do_life(int cell, int neighbours) {
 // 4K lookup table, broken into page and index:
 //
 // X11 X10 X9 X8 <<< Page
-//  X7  X6 X5 X4 <<< Index 
+//  X7  X6 X5 X4 <<< Index
 //  X3  X2 X1 X0 <<< Index
 //
 // Upper Left  - produces bits (7) and [6]
@@ -524,7 +526,7 @@ int list_life(int *this, int *new)
             ops++;
             newbmp = 0;
             /* UL table lookup, produces bits 7 and 6 */
-            page = ll >> 4;               
+            page = ll >> 4;
             index = ul;
             newbmp |= table[(page << 8) | index] & 0xC0;
             /* LL table lookup, produces bits 3 and 2 */
@@ -552,7 +554,7 @@ int list_life(int *this, int *new)
                printf("new bmp = %02x\n", newbmp);
 #endif
                if (*new < 0) {
-                  // last coordinate was an X 
+                  // last coordinate was an X
                   new += 2;
                } else {
                   // last coordinate was a Y
@@ -648,11 +650,11 @@ void main(int argc, char **argv) {
 #else
    int pattern[] = {0};
 #endif
-   
+
    int *tmp;
    int *ptr1 = &pattern[0];
    int *ptr2 = &buffer1[0];
-   
+
    if (pattern[0] == 0) {
       if (argc < 2) {
          printf("No pattern defined, exiting\n");
@@ -664,7 +666,7 @@ void main(int argc, char **argv) {
       } else {
          printf("%s not found, exiting\n", argv[1]);
          return;
-      }                 
+      }
    } else {
       // Copy the test pattern into the buffer 1
       int coord = 0;
@@ -684,7 +686,7 @@ void main(int argc, char **argv) {
 
    ptr1 = &buffer1[0];
    ptr2 = &buffer2[0];
-   
+
    printf("Building table\n");
    init_table();
    printf("Building table done\n");

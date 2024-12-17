@@ -5,7 +5,9 @@
 
 #define MAX_SIZE 1000000
 
+#ifndef MAX_GEN
 #define MAX_GEN 17400
+#endif
 
 #define ORIGIN 0x4000;
 
@@ -241,11 +243,11 @@ void main(int argc, char **argv) {
 #else
    int pattern[] = {0};
 #endif
-   
+
    int *tmp;
    int *ptr1 = &pattern[0];
    int *ptr2 = &buffer1[0];
-   
+
    if (pattern[0] == 0) {
       if (argc < 2) {
          printf("No pattern defined, exiting\n");
@@ -257,7 +259,7 @@ void main(int argc, char **argv) {
       } else {
          printf("%s not found, exiting\n", argv[1]);
          return;
-      }                 
+      }
    } else {
       // Copy the test pattern into the buffer 1
       int coord = 0;

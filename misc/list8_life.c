@@ -6,7 +6,9 @@
 
 #define MAX_SIZE 1000000
 
+#ifndef MAX_GEN
 #define MAX_GEN 17400
+#endif
 
 #define ORIGIN 0x4000
 
@@ -152,7 +154,7 @@ int dump_list(int generation, int *list) {
 
    ptr = list;
    x = x_right;
-   y = *ptr;             
+   y = *ptr;
    while (*ptr) {
       if (*ptr < 0) {
          // X Coordinate
@@ -178,10 +180,10 @@ int dump_list(int generation, int *list) {
             while (x < x_right) {
                print_binary(0);
                x++;
-            }         
+            }
             printf("\n");
             y--;
-         } 
+         }
          // Start the next line
          printf("%5d ", y);
          x = x_left;
@@ -203,7 +205,7 @@ static int calculate_stats(int *ptr, int *size, int *pop, int *coords) {
    *pop = 0;
    *coords = 0;
    while (*ptr) {
-      (*coords)++; 
+      (*coords)++;
       (*size) += 2; // coordinate is 2 bytes
       if (*ptr++ < 0) {
          bitmap = *ptr++;
@@ -254,7 +256,7 @@ void list_rle_reader(char *pattern, int *ptr) {
          while (count--) {
             line[x++] = 0;
          }
-         count = 0;
+        count = 0;
          continue;
       }
       if (c == 'o') {
@@ -442,7 +444,7 @@ int list8_life(int *this, int *new)
                (rtmsk[(locnt_m & 0xc0) | (hicnt_m & 0x3f)] << 4) |
                (ltmsk[(locnt_m & 0xfc) | (hicnt_m & 0x03)]     ) |
                (rtmsk[(hicnt_f & 0xc0) | (locnt_m & 0x3f)]     );
-               
+
             newbmp = (middthis & mask) | outcome;
 
 #ifdef DEBUG_KERNEL
@@ -457,7 +459,7 @@ int list8_life(int *this, int *new)
                printf("new bmp = %02x\n", newbmp);
 #endif
                if (*new < 0) {
-                  // last coordinate was an X 
+                  // last coordinate was an X
                   new += 2;
                } else {
                   // last coordinate was a Y
@@ -498,7 +500,7 @@ void main(int argc, char **argv) {
    // .**
    // **.
    // .*.
-   int pattern[] = { 12, -8, 0x60, 11, -8, 0xc0, 10, -8, 0x40, 0}; 
+   int pattern[] = { 12, -8, 0x60, 11, -8, 0xc0, 10, -8, 0x40, 0};
 #elif defined(PATTERN_BUNNIES)
    // bunnies 9
    // *.......
@@ -520,7 +522,7 @@ void main(int argc, char **argv) {
 #else
    int pattern[] = {0};
 #endif
-   
+
    int *tmp;
    int *ptr1 = &pattern[0];
    int *ptr2 = &buffer1[0];
@@ -536,8 +538,8 @@ void main(int argc, char **argv) {
       } else {
          printf("%s not found, exiting\n", argv[1]);
          return;
-      }                 
-   } else {   
+      }
+   } else {
       // Copy the pattern into the buffer 1
       int coord = 0;
       do {
