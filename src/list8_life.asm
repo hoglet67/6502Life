@@ -100,7 +100,7 @@
         STA yy + 1
         M_INCREMENT_BY_2 next
 
-        BRA endif
+        JMP endif
 
 .else
 
@@ -113,7 +113,7 @@
         LDA (prev), Y
         CMP yy + 1
         BNE skip_inc_prev
-        M_INCREMENT_BY_2 prev
+        M_INCREMENT_BY_2_NOSWITCH prev
 .skip_inc_prev
         M_DECREMENT yy
 
@@ -125,7 +125,7 @@
         LDA (this), Y
         CMP yy + 1
         BNE skip_inc_this
-        M_INCREMENT_BY_2 this
+        M_INCREMENT_BY_2_NOSWITCH this
 .skip_inc_this
 
 ;;       if(*next == y-1)

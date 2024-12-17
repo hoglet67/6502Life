@@ -2,10 +2,11 @@
 ;; rle_reader()
 ;; ************************************************************
 ;;
-;; This version outputs in list8_life format
+;; This version outputs in list42_life format
 ;;
 ;; params
-;; - src = pointer to raw RLE data
+;; - handle = open file handle for raw RLE data
+;; - byte = last byte of data read from file
 ;; - this = pointer to output buffer
 ;;
 ;; uses
@@ -17,34 +18,50 @@
 ;; - bitmap
 .rle_reader
 {
+
         ;; Save the original buffer pointer
         M_COPY this, new
 
-        ;; Increment this by 4K
+        ;; Increment this by 16K/4K
         LDA new + 1
         CLC
+IF _MATCHBOX
+        ADC #&40
+ELSE
         ADC #&10
+ENDIF
         STA this + 1
 
         ;; Load the RLE file into (this), the original buffer plus 4KB
         ;; (new) is unused, so remains unchanged
         JSR rle_reader_stage1
 
+IF _MATCHBOX
+        JSR reset_banksel_buffers
+ENDIF
+
         ;; Restore original buffer pointer
         M_COPY new, this
 
-        ;; Increment this by 4K
+        ;; Increment this by 16K/4K
         LDA new + 1
         CLC
+IF _MATCHBOX
+        ADC #&40
+ELSE
         ADC #&10
+ENDIF
         STA this + 1
 
         ;; Reprocess the data structure from (this) back to (new), the original buffer
         JSR rle_reader_stage2
 
+IF _MATCHBOX
+        JSR reset_banksel_buffers
+ENDIF
+
         ;; Leave (this) pointing at the first byte of free memory
         M_COPY new, this
-
         RTS
 }
 
@@ -371,7 +388,7 @@
         STA (new)
         LDA yy + 1
         STA (new), Y
-        M_INCREMENT_BY_2 prev
+        M_INCREMENT_BY_2_NOSWITCH prev
         LDA yy
         SEC
         SBC #1

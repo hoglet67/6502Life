@@ -5,7 +5,8 @@
 ;; This version outputs in list8_life format
 ;;
 ;; params
-;; - src = pointer to raw RLE data
+;; - handle = open file handle for raw RLE data
+;; - byte = last byte of data read from file
 ;; - this = pointer to output buffer
 ;;
 ;; uses

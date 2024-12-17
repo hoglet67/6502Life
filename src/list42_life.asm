@@ -180,7 +180,7 @@
         LDA (prev), Y
         CMP yy + 1
         BNE skip_inc_prev
-        M_INCREMENT_BY_2 prev
+        M_INCREMENT_BY_2_NOSWITCH prev
 .skip_inc_prev
 
 ;;         y-=2;

@@ -147,11 +147,11 @@
         LDY handle
         JMP OSFIND
 }
-        
+
 IF _USE_OSGBPB
 
-BLOCK_LEN = &2000
-        
+BLOCK_LEN = &1000
+
 .rle_next_byte
 {
         PHA
@@ -188,8 +188,8 @@ BLOCK_LEN = &2000
         STA src + 1
         PLY
         PLX
-        
-.skip_read_block        
+
+.skip_read_block
         LDA (src)
         STA byte
         BEQ skip_increment
@@ -197,7 +197,7 @@ BLOCK_LEN = &2000
 .skip_increment
         PLA
         RTS
-        
+
 .control_block
 .file_handle
         EQUB 0
@@ -208,9 +208,9 @@ BLOCK_LEN = &2000
 .ptr
         EQUD 0
 }
-        
+
 ELSE
-       
+
 .rle_next_byte
 {
         PHA
@@ -219,7 +219,7 @@ ELSE
         JSR OSBGET
         BCC not_eof
         LDA #&00
-.not_eof        
+.not_eof
         STA byte
         PLY
         PLA

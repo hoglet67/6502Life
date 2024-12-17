@@ -22,6 +22,8 @@ SCRN_BASE       = &4000         ; base address of screen memory
 
 RLE_DST         = SCRN_BASE
 
+GUARD             SCRN_BASE - 1
+
 ELSE
 
 DELTA_BASE      = &F700         ; 8 row buffer for accumulating delta
@@ -30,9 +32,11 @@ IF _MATCHBOX
 
 BUFFER          = BUFFER1
 BUFFER_END      = BUFFER2
-RLE_BUF         = BUFFER2
+RLE_BUF         = &E000
 RLE_DST         = BUFFER1
-SCRN_BASE       = &2000         ; base address of screen memory
+SCRN_BASE       = &C000         ; base address of screen memory
+
+GUARD             BUFFER1 - 1
 
 ELSE
 BUFFER          = &5000
@@ -41,12 +45,13 @@ RLE_BUF         = (BUFFER + BUFFER_END) DIV 2
 RLE_DST         = BUFFER
 SCRN_BASE       = &3000         ; base address of screen memory
 
+GUARD             SCRN_BASE - 1
+
 ENDIF
 
 ENDIF
 
 ORG               &0400         ; base address of the code on the Beeb
-GUARD             SCRN_BASE - 1
 
 include "constants.asm"
 
