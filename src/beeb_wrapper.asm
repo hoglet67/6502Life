@@ -51,16 +51,22 @@ ENDIF
         JSR print_string
 
         EQUB 22, MODE
-        EQUS "Conway Life for the 6502 Co Processor", 10, 10, 13
-IF _ATOM_LIFE_ENGINE
-        EQUS "Using the Atom Life Engine", 10, 10, 13
-ELIF _LIST8_LIFE_ENGINE
-        EQUS "Using the List8 Life Engine", 10, 10, 13
-ELIF _LIST42_LIFE_ENGINE
-        EQUS "Using the List42 Life Engine", 10, 10, 13
+        EQUS "Conway Life for the 6502 Co Processor", 10, 10, 13, "Using the "
+IF _MATCHBOX
+        EQUS "1MB "
 ELSE
-        EQUS "Using the List Life Engine", 10, 10, 13
+        EQUS "64KB "
 ENDIF
+IF _ATOM_LIFE_ENGINE
+        EQUS "Atom"
+ELIF _LIST8_LIFE_ENGINE
+        EQUS "List8"
+ELIF _LIST42_LIFE_ENGINE
+        EQUS "List42"
+ELSE
+        EQUS "List"
+ENDIF
+        EQUS " Life Engine", 10, 10, 13
         NOP
 
         JSR list_patterns
