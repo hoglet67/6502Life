@@ -15,7 +15,7 @@
         LDA this + 1
         STA prev + 1
         STA next + 1
-        
+
 ;; rearprev = middprev = foreprev = 0;
 ;; rearthis = middthis = forethis = 0;
 ;; rearnext = middnext = forenext = 0;
@@ -234,7 +234,7 @@
 
         LDA middthis
         BEQ oldbmp_zero
-        
+
         LDA hicnt_m
         AND #&FC
         STA t
@@ -293,7 +293,7 @@
         BRA newbmp_ready
 
 .oldbmp_zero
-        
+
         LDA hicnt_m
         AND #&FC
         STA t
@@ -316,7 +316,7 @@
         ASL A
         ASL A
         STA outcome
-        
+
         LDA locnt_m
         AND #&FC
         STA t
@@ -334,16 +334,16 @@
 
         LDA ltsum, X
         ORA rtsum, Y
-        LDY #1                  ;; restore the Y constant value of 1        
+        LDY #1                  ;; restore the Y constant value of 1
         ORA outcome
-        
+
 .newbmp_ready
-        
+
         ;; A now holds the new chunk
 
 ;;          if(newbmp) {
 ;;             if (*new < 0) {
-;;                // last coordinate was an X 
+;;                // last coordinate was an X
 ;;                new += 2;
 ;;             } else {
 ;;                // last coordinate was a Y
@@ -410,7 +410,7 @@
         STA hicnt_r
         LDA hicnt_f
         STA hicnt_m
-        
+
 ;;				x += 1;
 
         M_INCREMENT xx
@@ -427,7 +427,7 @@
 ;; moves the x/y start to the top left corner
 ;; ************************************************************
 ;;
-;; as list8 life doesn't support zooming, the offset is fixed 
+;; as list8 life doesn't support zooming, the offset is fixed
 .list_life_offset_top_left
         LDA xstart
         SEC
@@ -442,9 +442,9 @@
         STA ystart
         LDA ystart + 1
         ADC #0
-        STA ystart + 1        
+        STA ystart + 1
         RTS
-        
+
 ;; ************************************************************
 ;; counts the cells (in BCD)
 ;; ************************************************************
@@ -500,11 +500,11 @@
         STA yy + 1
 
         LDX #0
-        
+
 .row_loop
         TXA
         PHA
-        
+
         LDY #&1F
 .test_blank_loop
         LDA (scrn), Y
@@ -535,7 +535,7 @@
         DEX
         BNE row_loop
 
-        
+
         ;; write the terminating zero
         LDY #1
         LDA #0
@@ -595,7 +595,7 @@
 
 ;; NOTE: this won't actually work in C, as the list offsets are butchered
 ;; TODO: add suitable casts so it will with list being char *
-        
+
 ;; xend = xstart + 32;
 ;; yend = ystart - 8;
 ;; while (1) {
@@ -668,7 +668,7 @@
 
 ;;     if (ystart < yy) {
 
-        
+
         ;; yy and ystart can only be positive (or zero), so we can use 16-bit unsigned comparison
         LDA ystart
         CMP yy
@@ -679,7 +679,7 @@
 
 ;;         list += 2
         M_INCREMENT_BY_2 list  ;; skip over y
-        
+
 ;;         // Skip over x-coordinates
 ;;         while (*list < 0) {
 ;;            list += 3;
@@ -706,8 +706,8 @@
         BCS else2
 
 ;;         list += 2
-        M_INCREMENT_BY_2 list  ;; skip over y        
-        
+        M_INCREMENT_BY_2 list  ;; skip over y
+
 ;;         temp = 32 * (ystart - yy);
 
         ;; 8 bits is sufficient here, as the Y strip is 8 pixels high
@@ -734,7 +734,7 @@
         LDA (list), Y
         STA xx + 1
 
-        
+
 ;;            // Test if we have read a y coordinate
 ;;            if (xx >= 0) {
 ;;                break;
@@ -742,17 +742,17 @@
         BMI less_than_zero
         JMP while_level1
 .less_than_zero
-        
+
 ;;            bmp = *(list + 2);
 ;;            list += 3;
 
         INY
-        LDA (list), Y        
+        LDA (list), Y
         STA bitmap
-        
+
         M_INCREMENT_BY_3 list
 
-        
+
 ;;            if (xx >= xstart && xx < xend) {
 
         ;; xx and xstart and xend can only be negative, so we can use 16-bit unsigned comparison
@@ -770,7 +770,7 @@
 
 ;;              X_reg = temp + xx - xstart
 ;;              *(delta_base + X_reg) ^= bmp;
-                
+
         LDA xx
         SEC
         SBC xstart
@@ -796,7 +796,7 @@
 
 
 ALIGN 256
-        
+
 ;;         .... LOOK-UP TABLES ....
 
 .ltsum
@@ -983,4 +983,3 @@ ALIGN 256
 ;; DEFFNbits2(X%)
 ;; IF X%<2 =X%
 ;; =(X%AND1) +FNbits2(X%DIV2)
-        

@@ -30,7 +30,7 @@
         ;; (new) is unused, so remains unchanged
         JSR rle_reader_stage1
 
-        ;; Restore original buffer pointer        
+        ;; Restore original buffer pointer
         M_COPY new, this
 
         ;; Increment this by 4K
@@ -47,7 +47,7 @@
 
         RTS
 }
-        
+
 
 .rle_reader_stage1
 {
@@ -382,7 +382,7 @@
         BNE else2
         LDA t
         CMP (this)
-        BNE else2        
+        BNE else2
         M_INCREMENT_BY_2 this
 .else2
 .endif2
@@ -459,10 +459,9 @@
 
 .level2_break
 ;;      // Advance prev, as we only process each row once
-;;      prev = this;      
+;;      prev = this;
 ;;   }
 ;;}
         M_COPY this, prev
         JMP level1
 }
-        

@@ -1,9 +1,9 @@
 ;; ************************************************************
 ;; rle_reader()
 ;; ************************************************************
-;; 
-;; This version outputs in list_life format 
-;; 
+;;
+;; This version outputs in list_life format
+;;
 ;; params
 ;; - handle = open file handle for raw RLE data
 ;; - byte = last byte of data read from file
@@ -180,6 +180,6 @@
         STA pat_depth
         LDA #>Y_ORIGIN
         ADC pat_depth + 1
-        STA pat_depth + 1        
+        STA pat_depth + 1
         RTS
 }

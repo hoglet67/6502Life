@@ -50,7 +50,7 @@
 ;;             break;
 ;;          }
 ;;          /* UL table lookup, produces bits 7 and 6 */
-;;          page = ll >> 4;               
+;;          page = ll >> 4;
 ;;          index = ul;
 ;;          outcome = table[(page << 8) | index] & 0xC0;
 ;;          /* LL table lookup, produces bits 3 and 2 */
@@ -67,7 +67,7 @@
 ;;          outcome |= table[(page << 8) | index] & 0x03;
 ;;          if (outcome) {
 ;;             if (*new < 0) {
-;;                // last coordinate was an X 
+;;                // last coordinate was an X
 ;;                new += 2;
 ;;             } else {
 ;;                // last coordinate was a Y
@@ -85,7 +85,7 @@
 ;;  }
 ;;}
 ;;
-        
+
 ;; Args are (this) and (new)
 
 .list_life
@@ -98,7 +98,7 @@
         STA prev
         LDA this + 1
         STA prev + 1
-        
+
 ;;	ul = ur = ll = lr = 0;
         STZ ul
         STZ ur
@@ -184,14 +184,14 @@
 .skip_inc_prev
 
 ;;         y-=2;
-        
+
         LDA yy
         SEC
         SBC #2
         STA yy
         BCS no_carry
         DEC yy + 1
-.no_carry        
+.no_carry
 
 ;;       if(*this == y)
 ;;          this++;
@@ -274,23 +274,23 @@
         ORA ll
         ORA lr
         BNE not_break
-        JMP level2        
+        JMP level2
 .not_break
-        
+
 
         ; inputs for first bitpair
         ; AAAA ....
         ; AaaA ....
         ; BBBB ....
         ; .... ....
-        
+
 ;;          /* UL table lookup, produces bits 7 and 6 */
-;;          page = ll >> 4;               
+;;          page = ll >> 4;
 ;;          index = ul;
 ;;          outcome = table[(page << 8) | index] & 0xC0;
 
         STZ outcome
-        
+
         LDA ul
         ORA ll
         BEQ left_zero
@@ -305,13 +305,13 @@
         ORA outcome
         STA outcome             ; 3 - store our work in progress
                                 ; 27 cycles so far
-        
+
         ; inputs for second bitpair
         ; .... ....
         ; AAAA ....
         ; BbbB ....
         ; BBBB ....
-        
+
 ;;          /* LL table lookup, produces bits 3 and 2 */
 ;;          page = ul & 0x0F;
 ;;          index = ll;
@@ -326,13 +326,13 @@
         STA outcome             ; 3 - and store
                                 ; 27+30 cycles so far
 .left_zero
-        
+
         ; inputs for third bitpair
         ; ..AA CC..
         ; ..Aa cC..
         ; ..BB DD..
         ; .... ....
-        
+
 ;;          /* UR table lookup, produces bits 5 and 4 */
 ;;          page = ((lr & 0xC0) | (ll & 0x30)) >> 4;
 ;;          index = (ur & 0xCC) | (ul & 0x33);
@@ -347,7 +347,7 @@
         TAX                     ; 2 - read the nibble index for the third bitpair
         LDA bp3_convert, X      ; 4 - convert nibble to high pointer
         STA bp3_table + 2       ; 4
-        
+
         LDA ul                  ; 3 - read a half byte
         AND #&33                ; 2
         STA t                   ; 3
@@ -355,25 +355,25 @@
         AND #&CC                ; 2
         ORA t                   ; 3 - combine to make the byte
         TAX                     ; 2
-        
+
         .bp3_table              ;
         LDA table_base, X       ; 4 - get the third bitpair of the result
         AND #&30                ; 2
         ORA outcome             ; 3 - combine
         STA outcome             ; 3 - and store
                                 ; 27+30+62 cycles so far
-        
+
         ; inputs for fourth bitpair
         ; .... ....
         ; ..AA CC..
         ; ..Bb dD..
         ; ..BB DD..
-        
+
 ;;          /* LR table lookup, produces bits 1 and 0 */
 ;;          page = (ur & 0x0C) | (ul & 0x03);
 ;;          index = (lr & 0xCC) | (ll & 0x33);
 ;;          outcome |= table[(page << 8) | index] & 0x03;
-        
+
         LDA ul                  ; 3 - read first half nibble for the fourth bitpair
         AND #&03                ; 2
         STA t                   ; 3
@@ -381,9 +381,9 @@
         AND #&0C                ; 2
         ORA t                   ; 3
         CLC                     ; 2 - read the nibble index for the fourth bitpair
-        ADC #>table_base        ; 2 - convert nibble to high pointer 
+        ADC #>table_base        ; 2 - convert nibble to high pointer
         STA bp4_table + 2       ; 4
-        
+
         LDA ll                  ; 3 - read a half byte
         AND #&33                ; 2
         STA t                   ; 3
@@ -391,21 +391,21 @@
         AND #&CC                ; 2
         ORA t                   ; 3 - combine to make the byte
         TAX                     ; 2
-        
+
         .bp4_table              ;
         LDA table_base, X       ; 4 - get the fourth bitpair of the result
         AND #&03                ; 2
 
         LDY #1                  ; restore constant Y value
-        
+
         ORA outcome             ; 3 - combine - result is in A
                                 ; 148
-        
+
         ;; A now holds the new chunk
 
 ;;          if (outcome) {
 ;;             if (*new < 0) {
-;;                // last coordinate was an X 
+;;                // last coordinate was an X
 ;;                new += 2;
 ;;             } else {
 ;;                // last coordinate was a Y
@@ -457,9 +457,9 @@
         STA xx
         BCC jmp_level3
         INC xx + 1
-.jmp_level3        
+.jmp_level3
         JMP level3
-        
+
 ;;       }
 ;;    }
 ;; }
@@ -470,7 +470,7 @@
 ;; moves the x/y start to the top left corner
 ;; ************************************************************
 ;;
-;; as list42 life doesn't support zooming, the offset is fixed 
+;; as list42 life doesn't support zooming, the offset is fixed
 .list_life_offset_top_left
         LDA xstart
         SEC
@@ -485,9 +485,9 @@
         STA ystart
         LDA ystart + 1
         ADC #0
-        STA ystart + 1        
+        STA ystart + 1
         RTS
-        
+
 ;; ************************************************************
 ;; counts the cells (in BCD)
 ;; ************************************************************
@@ -527,7 +527,7 @@
 
 ;; (this) points to the source list
 ;; (new) points to the destination list
-        
+
 .list_life_prune_cells
 {
         LDY #1
@@ -547,7 +547,7 @@
         LDA (this)
         STA (new)
         M_INCREMENT_BY_3 new
-.skip_copy_x        
+.skip_copy_x
         M_INCREMENT_BY_3 this
         BRA loop
 
@@ -567,24 +567,24 @@
         M_INCREMENT_BY_2 new
         M_INCREMENT_BY_2 this
         JMP loop
-        
+
 .skip_row
         M_INCREMENT_BY_2 this
-.skip_row_loop        
+.skip_row_loop
         LDA (this), Y           ; is it an X or a Y coordinate?
         BPL is_y_or_terminator
         M_INCREMENT_BY_3 this
         BRA skip_row_loop
-        
+
 .terminator
         LDA #0
         STA (new)
         STA (new), Y
         M_INCREMENT_BY_2 new
         RTS
-}        
-        
-        
+}
+
+
 ;; ************************************************************
 ;; list_life_load_buffer()
 ;; ************************************************************
@@ -605,7 +605,7 @@
 
 ;; NOTE: this won't actually work in C, as the list offsets are butchered
 ;; TODO: add suitable casts so it will with list being char *
-        
+
 ;; xend = xstart + 256;
 ;; yend = ystart - 8;
 ;; while (1) {
@@ -704,7 +704,7 @@
 
 ;;     if (ystart < yy) {
 
-        
+
         ;; yy and ystart can only be positive (or zero), so we can use 16-bit unsigned comparison
         LDA ystart
         CMP yy
@@ -715,7 +715,7 @@
 
 ;;         list += 2
         M_INCREMENT_BY_2 list  ;; skip over y
-        
+
 ;;         // Skip over x-coordinates
 ;;         while (*list < 0) {
 ;;            list += 3;
@@ -743,10 +743,10 @@
         RTS
 .not_else2
 
-        
+
 ;;         list += 2
-        M_INCREMENT_BY_2 list  ;; skip over y        
-        
+        M_INCREMENT_BY_2 list  ;; skip over y
+
 ;;         temp = 32 * (ystart - yy);
 
         ;; 8 bits is sufficient here, as the Y strip is 8 pixels high
@@ -773,7 +773,7 @@
         LDA (list), Y
         STA xx + 1
 
-        
+
 ;;            // Test if we have read a y coordinate
 ;;            if (xx >= 0) {
 ;;                break;
@@ -781,17 +781,17 @@
         BMI less_than_zero
         JMP while_level1
 .less_than_zero
-        
+
 ;;            bmp = *(list + 2);
 ;;            list += 3;
 
         INY
-        LDA (list), Y        
+        LDA (list), Y
         STA bitmap
-        
+
         M_INCREMENT_BY_3 list
 
-        
+
 ;;            if (xx >= xstart && xx < xend) {
 
         ;; xx and xstart and xend can only be negative, so we can use 16-bit unsigned comparison
@@ -885,7 +885,7 @@
 
 
 ALIGN 256
-        
+
 ;;         .... LOOK-UP TABLES ....
 
 .bitcnt
@@ -918,7 +918,7 @@ FOR i, 0, 255
     EQUB (>table_base) + (i AND &0F)
 NEXT
 
-;; A7  A6  A5  A4  C7  C6 
+;; A7  A6  A5  A4  C7  C6
 ;; A3  A2  A1  A0  C3  C2
 ;; B7  B6  B5  B4  D7  D6
 ;; B3  B2  B1  B0  D3  D2
@@ -926,7 +926,7 @@ NEXT
 ;; 4K lookup table, broken into page and index:
 ;;
 ;; X11 X10 X9 X8 <<< Page
-;;  X7  X6 X5 X4 <<< Index 
+;;  X7  X6 X5 X4 <<< Index
 ;;  X3  X2 X1 X0 <<< Index
 ;;
 ;; Upper Left  - produces bits (7) and [6]
@@ -948,7 +948,7 @@ NEXT
 ;;   C3  C2  A1  A0
 ;;  [D7] D6  B5 (B4)
 ;;   D3  D2  B1  B0
-;; 
+;;
 ;; Data created by code in misc/list42_life.c
 
 .table_base

@@ -64,7 +64,7 @@ NEXT
         LDA this + 1
         STA prev + 1
         STA next + 1
-        
+
         LDA #0
 
 ;; bitmap = 0;
@@ -131,7 +131,7 @@ NEXT
         ;; return;
 IF _MATCHBOX
         JMP reset_banksel_buffers
-ELSE        
+ELSE
         RTS
 ENDIF
 
@@ -308,7 +308,7 @@ ENDIF
         LSR A
         ROR bitmap
         STA bitmap + 1
-        
+
 ;;          x += 1;
 
         M_INCREMENT xx
@@ -337,15 +337,15 @@ ENDIF
         STA ystart
         LDA ystart + 1
         ADC zoom_correction_hi, X
-        STA ystart + 1        
+        STA ystart + 1
         RTS
-        
+
 .zoom_correction_lo
         EQUB &00, &00, &00, &80, &40, &20, &10
 
 .zoom_correction_hi
-        EQUB &04, &02, &01, &00, &00, &00, &00        
-        
+        EQUB &04, &02, &01, &00, &00, &00, &00
+
 ;; ************************************************************
 ;; counts the cells (in BCD)
 ;; ************************************************************
@@ -369,7 +369,7 @@ ENDIF
         BNE loop
 IF _MATCHBOX
         JMP reset_banksel_buffers
-ELSE        
+ELSE
         RTS
 ENDIF
 }
@@ -380,7 +380,7 @@ ENDIF
 
 ;; (this) points to the source list
 ;; (new) points to the destination list
-        
+
 .list_life_prune_cells
 {
         LDY #1
@@ -391,12 +391,12 @@ ENDIF
         BEQ skip_copy_x
         CMP #&FF                ; at the right edge?
         BEQ skip_copy_x
-.copy        
+.copy
         STA (new), Y            ; copy the coord
         LDA (this)
         STA (new)
         M_INCREMENT_PTR_BS new
-.skip_copy_x        
+.skip_copy_x
         M_INCREMENT_PTR_BS this
         BRA loop
 
@@ -415,19 +415,19 @@ ENDIF
         LDA (this), Y           ; is it an X or a Y coordinate?
         BMI skip_row
         BPL is_y_or_terminator
-                
+
 .terminator
         LDA #0
         STA (new)
         STA (new), Y
-        M_INCREMENT_PTR_BS new        
+        M_INCREMENT_PTR_BS new
 IF _MATCHBOX
         JMP reset_banksel_buffers
-ELSE        
+ELSE
         RTS
 ENDIF
-}        
-        
+}
+
 ;; ************************************************************
 ;; list_life_load_buffer()
 ;; ************************************************************
@@ -451,11 +451,11 @@ ENDIF
         STA yy + 1
 
         LDX #0
-        
+
 .row_loop
         TXA
         PHA
-        
+
         LDY #&1F
 .test_blank_loop
         LDA (scrn), Y
@@ -465,37 +465,37 @@ ENDIF
 
 .next_row
 
-       LDA scrn
-       CLC
-       ADC #&20
-       STA scrn
-       LDA scrn + 1
-       ADC #0
-       STA scrn + 1
+        LDA scrn
+        CLC
+        ADC #&20
+        STA scrn
+        LDA scrn + 1
+        ADC #0
+        STA scrn + 1
 
-       LDA yy
-       SEC
-       SBC #1
-       STA yy
-       LDA yy + 1
-       SBC #0
-       STA yy + 1
+        LDA yy
+        SEC
+        SBC #1
+        STA yy
+        LDA yy + 1
+        SBC #0
+        STA yy + 1
 
-       PLA
-       TAX
-       DEX
-       BNE row_loop
+        PLA
+        TAX
+        DEX
+        BNE row_loop
 
-       LDA #0
-       STA yy
-       STA yy + 1
-        
-       ;; write the terminating zero
-       M_WRITE this, yy
+        LDA #0
+        STA yy
+        STA yy + 1
+
+        ;; write the terminating zero
+        M_WRITE this, yy
 
 IF _MATCHBOX
         JMP reset_banksel_buffers
-ELSE        
+ELSE
         RTS
 ENDIF
 
@@ -639,12 +639,12 @@ MACRO M_LIST_LIFE_UPDATE_DELTA zoom
         BCC not_else2
         RTS
 
-.not_else2        
+.not_else2
 ;;         temp = 32 * (ystart - yy);
-        
+
 ;; 8 bits is sufficient here, as the Y strip is 8 pixels high
 ;; 0 1/8  4
-;; 1 1/4  8 
+;; 1 1/4  8
 ;; 2 1/2  16
 ;; 3 1    32
 ;; 4 2    64
@@ -657,9 +657,9 @@ MACRO M_LIST_LIFE_UPDATE_DELTA zoom
 FOR i,1,zoom + 2
         ASL A
 NEXT
-IF zoom < 3        
+IF zoom < 3
         AND #&E0
-ENDIF        
+ENDIF
         STA temp
 
 ;;         while(1) {
@@ -701,7 +701,7 @@ ENDIF
 ;;              X_reg = temp + (xx - xstart) >> 3;
 ;;              *(delta_base + X_reg) ^= mask[(xx - xstart) & 7];
 
-;; if zoom < 3 prescale (xx - xstart) 
+;; if zoom < 3 prescale (xx - xstart)
 ;; 0 1/8  >>3 then >>3
 ;; 1 1/4  >>2 then >>3
 ;; 2 1/2  >>1 then >>3
@@ -714,25 +714,25 @@ ENDIF
         SBC xstart
 ;; If zoom < 3 then xx - xstart can be > 256
 ;; so first pre-scale
-IF (zoom < 3) 
+IF (zoom < 3)
         STA tmplsb
         LDA xx + 1
         SBC xstart + 1
         FOR i, 1, 3-zoom
                 LSR A
                 ROR tmplsb
-        NEXT        
+        NEXT
         LDA tmplsb
         TAY
         LSR A
         LSR A
         LSR A
-ELSE        
-        TAY        
+ELSE
+        TAY
         IF (zoom < 6)
                 FOR i, 1, 6-zoom
                         LSR A
-                NEXT        
+                NEXT
         ENDIF
 ENDIF
 ;; The result in A should always be in the range 0.31
@@ -745,7 +745,7 @@ ENDIF
 ;; 3 1    3x AND #&07
 ;; 4 2    2x AND #&03
 ;; 5 4    1x AND #&01
-;; 6 8    0x AND #&00        
+;; 6 8    0x AND #&00
         TYA
 IF (zoom <= 3)
         AND #&07
@@ -754,12 +754,12 @@ ELSE
 ENDIF
         TAY
 
-FOR i, 0, 2^(zoom - 3) - 1        
+FOR i, 0, 2^(zoom - 3) - 1
         LDA DELTA_BASE + 32 * i, X
         ORA pixel_mask, Y
         STA DELTA_BASE + 32 * i, X
 NEXT
-        
+
         JMP while_level2
 
 ;;     } else {
@@ -777,11 +777,11 @@ ELIF zoom = 5
 ELIF zoom = 4
         EQUB &C0, &30, &0C, &03
 ELSE
-        EQUB &80, &40, &20, &10, &08, &04, &02, &01        
+        EQUB &80, &40, &20, &10, &08, &04, &02, &01
 ENDIF
-        
+
 ENDMACRO
-        
+
 .list_life_update_delta
         ASL A
         TAX
@@ -795,7 +795,7 @@ ENDMACRO
         EQUW list_life_update_delta_2x
         EQUW list_life_update_delta_4x
         EQUW list_life_update_delta_8x
-                
+
 .list_life_update_delta_1_8x
 M_LIST_LIFE_UPDATE_DELTA 0
 
@@ -816,4 +816,3 @@ M_LIST_LIFE_UPDATE_DELTA 5
 
 .list_life_update_delta_8x
 M_LIST_LIFE_UPDATE_DELTA 6
-        
