@@ -601,6 +601,9 @@ ENDIF
         JSR goto_row
         M_COPY this, list
         JSR list_life_count_cells
+IF _MATCHBOX
+        JSR reset_banksel_buffers
+ENDIF
         LDX #(cell_count - count_base)
         JSR print_count
         RTS

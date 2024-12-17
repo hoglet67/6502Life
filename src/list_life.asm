@@ -129,11 +129,7 @@ NEXT
         STA (new), Y
         M_INCREMENT_PTR_BS new
         ;; return;
-IF _MATCHBOX
-        JMP reset_banksel_buffers
-ELSE
         RTS
-ENDIF
 
 .next_not_zero
         ;; y = *next++ + 1;
@@ -367,11 +363,7 @@ ENDIF
 .y_or_termiator
         ORA (list)
         BNE loop
-IF _MATCHBOX
-        JMP reset_banksel_buffers
-ELSE
         RTS
-ENDIF
 }
 
 ;; ************************************************************
@@ -421,11 +413,7 @@ ENDIF
         STA (new)
         STA (new), Y
         M_INCREMENT_PTR_BS new
-IF _MATCHBOX
-        JMP reset_banksel_buffers
-ELSE
         RTS
-ENDIF
 }
 
 ;; ************************************************************
@@ -492,12 +480,7 @@ ENDIF
 
         ;; write the terminating zero
         M_WRITE this, yy
-
-IF _MATCHBOX
-        JMP reset_banksel_buffers
-ELSE
         RTS
-ENDIF
 
 .row_not_blank
 
