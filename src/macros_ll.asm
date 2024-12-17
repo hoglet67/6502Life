@@ -4,7 +4,7 @@
 
 IF _MATCHBOX
 
-MACRO M_INCREMENT_PTR zp
+MACRO M_INCREMENT_PTR_NOSWITCH zp
         INC zp
         INC zp
         BNE nocarry
@@ -19,7 +19,7 @@ MACRO M_INCREMENT_PTR zp
 .nocarry
 ENDMACRO
 
-MACRO M_INCREMENT_PTR_BS zp
+MACRO M_INCREMENT_PTR zp
         INC zp
         INC zp
         BNE nocarry
@@ -35,7 +35,7 @@ ENDMACRO
 
 ELSE
 
-MACRO M_INCREMENT_PTR zp
+MACRO M_INCREMENT_PTR_NOSWITCH zp
         INC zp
         INC zp
         BNE nocarry
@@ -45,12 +45,12 @@ MACRO M_INCREMENT_PTR zp
         BNE nowrap
         LDA #(BUFFER DIV 256)
         STA zp + 1
-.nowrap        
+.nowrap
 .nocarry
 ENDMACRO
 
-MACRO M_INCREMENT_PTR_BS zp
-        M_INCREMENT_PTR zp
+MACRO M_INCREMENT_PTR zp
+        M_INCREMENT_PTR_NOSWITCH zp
 ENDMACRO
 
 ENDIF
@@ -71,9 +71,9 @@ MACRO M_UPDATE_BITMAP_IF_EQUAL_TO_X ptr, bmaddr, bmmask
         ORA #bmmask
         STA bmaddr
 IF (ptr = next)
-        M_INCREMENT_PTR_BS ptr
-ELSE
         M_INCREMENT_PTR ptr
+ELSE
+        M_INCREMENT_PTR_NOSWITCH ptr
 ENDIF
 .skip_inc
 ENDMACRO
@@ -86,7 +86,6 @@ MACRO M_WRITE ptr, val
         INY
         LDA val + 1
         STA (ptr), Y
-        M_INCREMENT_PTR_BS ptr
+        M_INCREMENT_PTR ptr
         PLY
 ENDMACRO
-        

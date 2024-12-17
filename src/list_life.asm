@@ -86,7 +86,7 @@ NEXT
 {
         LDA (new), Y
         BPL skip_inc
-        M_INCREMENT_PTR_BS new
+        M_INCREMENT_PTR new
 .skip_inc
 }
 
@@ -127,7 +127,7 @@ NEXT
         LDA #0
         STA (new)
         STA (new), Y
-        M_INCREMENT_PTR_BS new
+        M_INCREMENT_PTR new
         ;; return;
         RTS
 
@@ -140,7 +140,7 @@ NEXT
         LDA (next), Y
         ADC #0
         STA yy + 1
-        M_INCREMENT_PTR_BS next
+        M_INCREMENT_PTR next
 
         BRA endif
 
@@ -155,7 +155,7 @@ NEXT
         LDA (prev), Y
         CMP yy + 1
         BNE skip_inc_prev
-        M_INCREMENT_PTR prev
+        M_INCREMENT_PTR_NOSWITCH prev
 .skip_inc_prev
         M_DECREMENT yy
 
@@ -167,7 +167,7 @@ NEXT
         LDA (this), Y
         CMP yy + 1
         BNE skip_inc_this
-        M_INCREMENT_PTR this
+        M_INCREMENT_PTR_NOSWITCH this
 .skip_inc_this
 
 ;;       if(*next == y-1)
@@ -182,7 +182,7 @@ NEXT
         BNE skip_inc_next
         CPX yy
         BNE skip_inc_next
-        M_INCREMENT_PTR_BS next
+        M_INCREMENT_PTR next
 .skip_inc_next
 
 .endif
@@ -269,7 +269,7 @@ NEXT
         LDA state + &100, X
         BEQ else
 .is_live
-        M_INCREMENT_PTR_BS new
+        M_INCREMENT_PTR new
         LDA xx
         SEC
         SBC #1
@@ -354,7 +354,7 @@ NEXT
         JSR clear_count
         LDY #1
 .loop
-        M_INCREMENT_PTR_BS list
+        M_INCREMENT_PTR list
         LDA (list), Y           ; the sign bit indicates X vs Y coordinates
         BPL y_or_termiator
         LDA #1
@@ -387,9 +387,9 @@ NEXT
         STA (new), Y            ; copy the coord
         LDA (this)
         STA (new)
-        M_INCREMENT_PTR_BS new
+        M_INCREMENT_PTR new
 .skip_copy_x
-        M_INCREMENT_PTR_BS this
+        M_INCREMENT_PTR this
         BRA loop
 
 .is_y_or_terminator
@@ -403,7 +403,7 @@ NEXT
         BNE copy                ; no, copy the y coord and continue processing x coords
 
 .skip_row
-        M_INCREMENT_PTR_BS this
+        M_INCREMENT_PTR this
         LDA (this), Y           ; is it an X or a Y coordinate?
         BMI skip_row
         BPL is_y_or_terminator
@@ -412,7 +412,7 @@ NEXT
         LDA #0
         STA (new)
         STA (new), Y
-        M_INCREMENT_PTR_BS new
+        M_INCREMENT_PTR new
         RTS
 }
 
@@ -604,7 +604,7 @@ MACRO M_LIST_LIFE_UPDATE_DELTA zoom
 
         LDY #1
 .skip_over_x
-        M_INCREMENT_PTR_BS list
+        M_INCREMENT_PTR list
         LDA (list), Y
         BMI skip_over_x
 
@@ -651,7 +651,7 @@ ENDIF
 
 ;;            xx = *++list;
 
-        M_INCREMENT_PTR_BS list
+        M_INCREMENT_PTR list
 
         LDY #0
         LDA (list), Y
