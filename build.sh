@@ -6,9 +6,9 @@ rm -rf ${build}
 mkdir -p ${build}
 
 # Set the BEEBASM executable for the platform
-BEEBASM=../tools/beebasm/beebasm.exe
+BEEBASM=beebasm.exe
 if [ "$(uname -s | awk '{print substr($0,1,5)}')" == "Linux" ]; then
-    BEEBASM=../tools/beebasm/beebasm
+    BEEBASM=beebasm
 fi
 
 ssd=life.ssd
