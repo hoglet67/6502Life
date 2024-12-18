@@ -477,6 +477,7 @@
 ;;
 ;; as list42 life doesn't support zooming, the offset is fixed
 .list_life_offset_top_left
+{
         LDA xstart
         SEC
         SBC #&80
@@ -491,7 +492,15 @@
         LDA ystart + 1
         ADC #0
         STA ystart + 1
+        ;; Clear the delta "overflow" line used by list42 rendering
+        ;; !! This is wipes MOS reset code at &F800-&F81F !!
+        LDX #&1F
+.loop
+        STZ DELTA_BASE+&100,X
+        DEX
+        BPL loop
         RTS
+}
 
 ;; ************************************************************
 ;; counts the cells (in BCD)
