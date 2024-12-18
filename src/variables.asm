@@ -33,20 +33,24 @@ locnt_r         = &47
 ;; Additional locations used by list42 life
 
 ul              = &40
-ur              = &41
+ulmsb           = &41 ;; Allows UL to act as a pointer
 ll              = &42
-lr              = &43
-        
+llmsb           = &43 ;; Allows LL to act as a pointer
+ur              = &44
+lr              = &45
+tbl             = &46 ;; A table pointer, used LDA (tbl),Y with tbl zerp
+tblmsb          = &47
+
 ;; Additional locations used by rle_reader_l42
 
-upper           = &44
-lower           = &45
+upper           = &48
+lower           = &49
 
 ;; Additional locations used by list8_life and list42_life and rle_reader_l42
 
-t               = &48
-mask            = &49
-outcome         = &4A
+t               = &4A
+mask            = &4B
+outcome         = &4C
 
 ;; Utils
 
@@ -56,13 +60,13 @@ delta           = &72           ; pointer to 8-line block storing
 
 ;; Patterns
 
-src             = &40
-dst             = &42
-pat_width       = &44
-pat_depth       = &46
-count           = &48
-handle          = &4A
-byte            = &4B
+src             = &60
+dst             = &62
+pat_width       = &64
+pat_depth       = &66
+count           = &68
+handle          = &6A
+byte            = &6B
 
 ;; Beeb Wrapper
 
