@@ -93,6 +93,9 @@
 ;;  keep Y as the constant 1 for efficient access of the high byte of a short
         LDY #1
 
+;;  keep the LSB of the table pointer zero
+        STZ tbl
+
 ;;	prev = this;
         LDA this
         STA prev
@@ -297,14 +300,12 @@
 
         LDX ll                  ; 3 - read a nibble for the first bitpair
         LDA bp1_convert, X      ; 4 - convert nibble to high pointer
-        STA bp1_table + 2       ; 4
-        LDY ul                  ; 3 - read a byte
-        .bp1_table              ;
-        LDA table_base, Y       ; 4 - get the first bitpair of the result
+        STA ulmsb               ; 3 - store the high pointer; low pointer already in ul
+        LDA (ul)                ; 5 - get the first bitpair of the result
         AND #&C0                ; 2 - extact bits 7 and 6
 ;;      ORA outcome             ; 0 - combine not needed, as outcome is zero at this point
         STA outcome             ; 3 - store our work in progress
-                                ; 23 cycles so far
+                                ; 20 cycles so far
 
         ; inputs for second bitpair
         ; .... ....
@@ -317,14 +318,14 @@
 ;;          index = ll;
 ;;          outcome |= table[(page << 8) | index] & 0x0C;
 
-        LDA bp2_convert, Y      ; 4 - convert nibble to high pointer
-        STA bp2_table + 2       ; 4 - convert nibble to high pointer
-        .bp2_table              ;
-        LDA table_base, X       ; 4 - get the second bitpair of the result
+        LDX ul                  ; 3 - read a nibble for the second bitpair
+        LDA bp2_convert, X      ; 4 - convert nibble to high pointer
+        STA llmsb               ; 3 - store the high pointer; low pointer already in ll
+        LDA (ll)                ; 4 - get the second bitpair of the result
         AND #&0C                ; 2 - extract bits 3 and 2
         ORA outcome             ; 3 - combine
         STA outcome             ; 3 - and store
-                                ; 23+20 cycles so far
+                                ; 20+22 cycles so far
 .left_zero
 
         ; inputs for third bitpair
@@ -346,7 +347,7 @@
         ORA t                   ; 3
         TAX                     ; 2 - read the nibble index for the third bitpair
         LDA bp3_convert, X      ; 4 - convert nibble to high pointer
-        STA bp3_table + 2       ; 4
+        STA tblmsb              ; 3
 
         LDA ul                  ; 3 - read a half byte
         AND #&33                ; 2
@@ -354,14 +355,13 @@
         LDA ur                  ; 3 - read a half byte
         AND #&CC                ; 2
         ORA t                   ; 3 - combine to make the byte
-        TAX                     ; 2
+        TAY                     ; 2
 
-        .bp3_table              ;
-        LDA table_base, X       ; 4 - get the third bitpair of the result
+        LDA (tbl),Y             ; 5 - get the third bitpair of the result
         AND #&30                ; 2
         ORA outcome             ; 3 - combine
         STA outcome             ; 3 - and store
-                                ; 23+20+56 cycles so far
+                                ; 20+22+56 cycles so far
 
         ; inputs for fourth bitpair
         ; .... ....
@@ -382,7 +382,7 @@
         ORA t                   ; 3
         CLC                     ; 2 - read the nibble index for the fourth bitpair
         ADC #>table_base        ; 2 - convert nibble to high pointer
-        STA bp4_table + 2       ; 4
+        STA tblmsb              ; 3
 
         LDA ll                  ; 3 - read a half byte
         AND #&33                ; 2
@@ -390,17 +390,21 @@
         LDA lr                  ; 3 - read a half byte
         AND #&CC                ; 2
         ORA t                   ; 3 - combine to make the byte
-        TAX                     ; 2
+        TAY                     ; 2
 
-        .bp4_table              ;
-        LDA table_base, X       ; 4 - get the fourth bitpair of the result
+        LDA (tbl), Y            ; 5 - get the fourth bitpair of the result
         AND #&03                ; 2
 
         LDY #1                  ; 2 - restore constant Y value
 
         ORA outcome             ; 3 - combine - result is in A
 
-                                ; 23+20+56+53 cycles so far = 152 cycles
+                                ; 20+22+56+53 cycles so far = 151 cycles
+
+        ; NOTE: the above could be tweaked to not use Y by replaing
+        ; the TAY with STA tbl then using LDA (tbl). This would, however,
+        ; be performance neutral.
+
 
         ;; A now holds the new chunk
 
