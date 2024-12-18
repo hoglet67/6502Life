@@ -301,10 +301,10 @@
         LDY ul                  ; 3 - read a byte
         .bp1_table              ;
         LDA table_base, Y       ; 4 - get the first bitpair of the result
-        AND #&C0                ; 2
-        ORA outcome
+        AND #&C0                ; 2 - extact bits 7 and 6
+;;      ORA outcome             ; 0 - combine not needed, as outcome is zero at this point
         STA outcome             ; 3 - store our work in progress
-                                ; 27 cycles so far
+                                ; 23 cycles so far
 
         ; inputs for second bitpair
         ; .... ....
@@ -318,13 +318,13 @@
 ;;          outcome |= table[(page << 8) | index] & 0x0C;
 
         LDA bp2_convert, Y      ; 4 - convert nibble to high pointer
-        STA bp2_table + 2       ; 4
+        STA bp2_table + 2       ; 4 - convert nibble to high pointer
         .bp2_table              ;
         LDA table_base, X       ; 4 - get the second bitpair of the result
-        AND #&0C                ; 2
+        AND #&0C                ; 2 - extract bits 3 and 2
         ORA outcome             ; 3 - combine
         STA outcome             ; 3 - and store
-                                ; 27+30 cycles so far
+                                ; 23+20 cycles so far
 .left_zero
 
         ; inputs for third bitpair
@@ -361,7 +361,7 @@
         AND #&30                ; 2
         ORA outcome             ; 3 - combine
         STA outcome             ; 3 - and store
-                                ; 27+30+62 cycles so far
+                                ; 23+20+56 cycles so far
 
         ; inputs for fourth bitpair
         ; .... ....
@@ -396,10 +396,11 @@
         LDA table_base, X       ; 4 - get the fourth bitpair of the result
         AND #&03                ; 2
 
-        LDY #1                  ; restore constant Y value
+        LDY #1                  ; 2 - restore constant Y value
 
         ORA outcome             ; 3 - combine - result is in A
-                                ; 148
+
+                                ; 23+20+56+53 cycles so far = 152 cycles
 
         ;; A now holds the new chunk
 
