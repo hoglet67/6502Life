@@ -1,4 +1,5 @@
 *~
+*.bin
 not_in_git/
 build/
 misc/list_life

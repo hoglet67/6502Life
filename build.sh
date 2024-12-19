@@ -24,7 +24,13 @@ do
     echo "Building $name..."
 
     # Assember the ROM
-    $BEEBASM -i ${top} -o ../${build}/${name} -v >& ../${build}/${name}.log
+    $BEEBASM \
+        -i ${top} \
+        -o ../${build}/${name} \
+        -v \
+        -dd \
+        -labels ../${build}/${name}.labels \
+        >& ../${build}/${name}.log
 
     # Check if ROM has been build, otherwise fail early
     if [ ! -f ../${build}/${name} ]
