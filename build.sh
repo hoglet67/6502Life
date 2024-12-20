@@ -7,7 +7,7 @@ mkdir -p ${build}
 
 # Set the BEEBASM executable for the platform
 BEEBASM=beebasm.exe
-if [ "$(uname -s | awk '{print substr($0,1,5)}')" == "Linux" ]; then
+if (uname -s | egrep -q "Linux|Darwin" ); then
     BEEBASM=beebasm
 fi
 
