@@ -62,6 +62,7 @@ delta           = &72           ; pointer to 8-line block storing
 xoffset         = &74
 yoffset         = &76
 xblock          = &78
+yblock          = &7A
 
 ;; Patterns
 

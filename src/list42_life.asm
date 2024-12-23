@@ -719,6 +719,14 @@
         SBC #0
         STA yend + 1;
 
+        LDA ystart
+        CLC
+        ADC #1
+        STA yblock
+        LDA ystart + 1
+        ADC #0
+        STA yblock + 1;
+
 ;; while (1) {
 
 
@@ -737,9 +745,9 @@
 
 
         ;; yy and ystart can only be positive (or zero), so we can use 16-bit unsigned comparison
-        LDA ystart
+        LDA yblock
         CMP yy
-        LDA ystart + 1
+        LDA yblock + 1
         SBC yy + 1
 
         BCS else1
@@ -864,6 +872,9 @@
 .point_loop2
         ASL bitmap
         BCC skip_plot           ; skip if point zero
+
+        LDA yoffset+1
+        BMI skip_plot           ; skip if yoffset negative
 
         PHX                     ; stack col counter
 
