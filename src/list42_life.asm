@@ -494,17 +494,12 @@
         ADC zoom_correction_hi, X
         STA ystart + 1
 
-        LDX ui_zoom
-	CPX #&03
-	BCC no_straddle
         ;; Clear the delta "overflow" line used by list42 rendering
-        ;; !! This is wipes MOS reset code at &F800-&F81F !!
         LDX #&00
 .loop
         STZ DELTA_BASE+&100,X
         DEX
         BNE loop
-.no_straddle
         RTS
 
 .zoom_correction_lo
@@ -680,11 +675,8 @@
 
 .list_life_update_delta
 {
-	LDX ui_zoom
-	CPX #&03
-	BCC no_straddle
-
         ;; test for 4x2 straddling the delta buffer last time
+	LDX ui_zoom
         LDA (list)              ; Load the LSB of the first Y coordinate
         EOR ystart              ; Compare to the LSB of the ystart
         AND #&01                ; If the bit 0s are the same
@@ -701,7 +693,6 @@
 	LDX ui_zoom
 
 .no_straddle
-
         CLC
         LDA xstart
         ADC window_size_x_lsb, X
@@ -977,8 +968,11 @@
 	LSR A
 	STA temp
 	LDA yoffset
+	PLP
+	ADC #0
 	ASL A
 	ASL A
+	PHP
 	AND #&E0
 	ORA temp
 	TAY
@@ -989,9 +983,16 @@
 	AND #&07
 	TAX
 	PLP
+	BCS bottom_row	
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
+	PLY
+	RTS
+.bottom_row
+        LDA DELTA_BASE+256, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE+256, Y
 	PLY
 	RTS
 
@@ -1017,10 +1018,13 @@
 	LSR A
 	LSR A
 	STA temp
+	PLP
 	LDA yoffset
+	ADC #0
 	ASL A
 	ASL A
 	ASL A
+	PHP
 	AND #&E0
 	ORA temp
 	TAY
@@ -1030,9 +1034,16 @@
 	AND #&07
 	TAX
 	PLP
+	BCS bottom_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
+	PLY
+	RTS
+.bottom_row
+        LDA DELTA_BASE+256, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE+256, Y
 	PLY
 	RTS
 
@@ -1045,13 +1056,30 @@
 ;; mask index = (xoffset >> 1) & 7
 ;; byte index = (yoffset << 4) | (xoffset >> 4)
 
+	;; 0 C=0
+	;; 0 C=1
+	;; 2 C=0 * *
+	;; 2 C=1 * *
+	;; 4 C=0
+	;; 4 C=1
+	
+	;; 1 C=0
+	;; 1 C=1 * *
+	;; 3 C=0 * *
+	;; 3 C=1
+	;; 4 C=0
+	;; 4 C=1
+
 .plot_point_1_2x
 {
+	PLP
 	LDA yoffset
+	ADC #0
 	ASL A
 	ASL A
 	ASL A
 	ASL A
+	PHP
 	AND #&E0
 	STA temp
 	LDA xoffset+1
@@ -1068,9 +1096,16 @@
 	AND #&07
 	TAX
 	PLP
+	BCS bottom_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
+	PLY
+	RTS
+.bottom_row
+        LDA DELTA_BASE+256, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE+256, Y
 	PLY
 	RTS
 
