@@ -840,25 +840,9 @@
         SBC yy+1
         STA yoffset+1
 
-        LDA xx
-        SEC
-        SBC xstart
-        STA xoffset
-        LDA xx+1
-        SBC xstart+1
-        STA xoffset+1
-
-        LDY #4
+        LDY #2                  ; loop over two rows
 .point_loop1
-        ASL bitmap
-        BCC skip_plot1          ; skip if point zero
-        BIT xoffset+1
-        BMI skip_plot1          ; skip if X offset is negative
-        JSR plot_point
-.skip_plot1
-        M_INCREMENT xoffset
-        DEY
-        BNE point_loop1
+        PHY                     ; stack row counter
 
         LDA xx
         SEC
@@ -867,21 +851,27 @@
         LDA xx+1
         SBC xstart+1
         STA xoffset+1
+
+        LDX #4                  ; loop over four columns
+.point_loop2
+        ASL bitmap
+        BCC skip_plot           ; skip if point zero
+        BIT xoffset+1
+        BMI skip_plot           ; skip if X offset is negative
+
+        PHX                     ; stack col counter
+        JSR plot_point
+        PLX                     ; restore col counter
+.skip_plot
+        M_INCREMENT xoffset
+        DEX                     ; next col
+        BNE point_loop2
 
         M_INCREMENT yoffset     ; increment Y for the lower 4 cells
 
-        LDY #4
-.point_loop2
-        ASL bitmap
-        BCC skip_plot2          ; skip if point zero
-        BIT xoffset+1
-        BMI skip_plot2          ; skip if X offset is negative
-        JSR plot_point
-.skip_plot2
-        M_INCREMENT xoffset
-        DEY
-        BNE point_loop2
-
+        PLY                     ; retore row counter
+        DEY                     ; next row
+        BNE point_loop1
 
         JMP while_level2
 
@@ -912,7 +902,6 @@
 
 .plot_point
 {
-        PHY
         LDA ui_zoom
         ASL A
         TAX
@@ -923,7 +912,6 @@
         BCS skip
         JMP (zoom_table, X)
 .skip
-        PLY
         RTS
 
 .limit_table
@@ -984,7 +972,6 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        PLY
         RTS
 }
 
@@ -1021,7 +1008,6 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        PLY
         RTS
 }
 
@@ -1055,7 +1041,6 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        PLY
         RTS
 }
 
@@ -1063,7 +1048,6 @@
         LDA DELTA_BASE+256, Y
         ORA pixel_mask, X
         STA DELTA_BASE+256, Y
-        PLY
         RTS
 
 .pixel_mask
@@ -1095,7 +1079,6 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        PLY
         RTS
 }
 
@@ -1127,7 +1110,6 @@ FOR i,0,1
         ORA pixel_mask, X
         STA DELTA_BASE + i * 32, Y
 NEXT
-        PLY
         RTS
 .overflow_row
 FOR i,0,1
@@ -1135,7 +1117,6 @@ FOR i,0,1
         ORA pixel_mask, X
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-        PLY
         RTS
 
 .pixel_mask
@@ -1170,7 +1151,6 @@ FOR i,0,3
         ORA pixel_mask, X
         STA DELTA_BASE + i * 32, Y
 NEXT
-        PLY
         RTS
 .overflow_row
 FOR i,0,3
@@ -1178,7 +1158,6 @@ FOR i,0,3
         ORA pixel_mask, X
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-        PLY
         RTS
 
 .pixel_mask
@@ -1197,13 +1176,11 @@ NEXT
 FOR i,0,7
         STA DELTA_BASE + i * 32, Y
 NEXT
-        PLY
         RTS
 .overflow_row
 FOR i,0,7
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-        PLY
         RTS
 }
 
