@@ -96,13 +96,13 @@
 ;;  keep the LSB of the table pointer zero
         STZ tbl
 
-;;	prev = this;
+;;      prev = this;
         LDA this
         STA prev
         LDA this + 1
         STA prev + 1
 
-;;	ul = ur = ll = lr = 0;
+;;      ul = ur = ll = lr = 0;
         STZ ul
         STZ ur
         STZ ll
@@ -126,23 +126,23 @@
         M_INCREMENT_BY_3 new    ; an X values is a two byte coordinate and a one-byte bitmap
 .skip_inc_new
 
-;;		if(prev == this) {
-;;			/* start a new group of rows */
-;;			if(*this == 0) {
-;;				*new = 0;
-;;				return;
-;;			}
-;;			y = *this++;
-;;		} else {
-;;			/* move to next row and work out which ones to scan */
-;;			if(*prev == y)
-;;				prev++;
+;;              if(prev == this) {
+;;                      /* start a new group of rows */
+;;                      if(*this == 0) {
+;;                              *new = 0;
+;;                              return;
+;;                      }
+;;                      y = *this++;
+;;              } else {
+;;                      /* move to next row and work out which ones to scan */
+;;                      if(*prev == y)
+;;                              prev++;
 ;;         y-=2;
-;;			if(*this == y)
-;;				this++;
-;;		}
+;;                      if(*this == y)
+;;                              this++;
+;;              }
 
-;;		if(prev == this) {
+;;              if(prev == this) {
         LDA prev
         CMP this
         BNE else1
@@ -175,8 +175,8 @@
 
 .else1
 
-;;			if(*prev == y)
-;;				prev++;
+;;                      if(*prev == y)
+;;                              prev++;
         LDA (prev)
         CMP yy
         BNE skip_inc_prev
@@ -210,8 +210,8 @@
 .endif1
 
 
-;;		/* write new row co-ordinate */
-;;		*new = y + 1;
+;;              /* write new row co-ordinate */
+;;              *new = y + 1;
 
         LDA yy
         CLC
@@ -250,27 +250,27 @@
 ;;       for(;;) {
 
 .level3
-;;				/* add a column to the bitmap */
+;;                              /* add a column to the bitmap */
 ;;          ur = lr = 0;
          STZ ur
          STZ lr
 
-;;				if(*prev == x) {
+;;                              if(*prev == x) {
 ;;             ur = *(prev + 1);
-;;					prev += 2;
+;;                                      prev += 2;
 ;;          }
 
         M_UPDATE_CHUNK_IF_EQUAL_TO_X prev, ur
 
-;;				if(*this == x) {
+;;                              if(*this == x) {
 ;;             lr = *(this + 1);
-;;					this += 2;
-;;				}
+;;                                      this += 2;
+;;                              }
         M_UPDATE_CHUNK_IF_EQUAL_TO_X this, lr
 
 
 ;;            if ((ul | ur | ll | lr) == 0) {
-;;					break;
+;;                                      break;
 ;;            }
         LDA ul
         ORA ur
@@ -676,21 +676,21 @@
 .list_life_update_delta
 {
         ;; test for 4x2 straddling the delta buffer last time
-	LDX ui_zoom
+        LDX ui_zoom
         LDA (list)              ; Load the LSB of the first Y coordinate
         EOR ystart              ; Compare to the LSB of the ystart
         AND #&01                ; If the bit 0s are the same
         BEQ no_straddle         ; then things are nicely aligned
-	LDY overflow_size, X
-	LDX #0
+        LDY overflow_size, X
+        LDX #0
 .copy_loop
         LDA DELTA_BASE + 256, X
         STA DELTA_BASE, X
         STZ DELTA_BASE + 256, X ; and clear the buffer, for the overflow this time
         INX
-	DEY
+        DEY
         BNE copy_loop
-	LDX ui_zoom
+        LDX ui_zoom
 
 .no_straddle
         CLC
@@ -830,57 +830,57 @@
 ;;                  {ll, lr} >>= 1
 ;;                  Y_reg--;
 ;;              }
-	;;              ;; a chunk is 4 bits wide, and can align with a byte in 8 possible ways
+        ;;              ;; a chunk is 4 bits wide, and can align with a byte in 8 possible ways
 
-	LDA ystart
-	SEC
-	SBC yy
-	STA yoffset
-	LDA ystart+1
-	SBC yy+1
-	STA yoffset+1
+        LDA ystart
+        SEC
+        SBC yy
+        STA yoffset
+        LDA ystart+1
+        SBC yy+1
+        STA yoffset+1
 
         LDA xx
         SEC
         SBC xstart
-	STA xoffset
-	LDA xx+1
-	SBC xstart+1
-	STA xoffset+1
+        STA xoffset
+        LDA xx+1
+        SBC xstart+1
+        STA xoffset+1
 
-	LDY #4
+        LDY #4
 .point_loop1
-	ASL bitmap
-	BCC skip_plot1		; skip if point zero
-	BIT xoffset+1
-	BMI skip_plot1		; skip if X offset is negative
-	JSR plot_point
+        ASL bitmap
+        BCC skip_plot1          ; skip if point zero
+        BIT xoffset+1
+        BMI skip_plot1          ; skip if X offset is negative
+        JSR plot_point
 .skip_plot1
-	M_INCREMENT xoffset
-	DEY
-	BNE point_loop1
+        M_INCREMENT xoffset
+        DEY
+        BNE point_loop1
 
         LDA xx
         SEC
         SBC xstart
-	STA xoffset
-	LDA xx+1
-	SBC xstart+1
-	STA xoffset+1
+        STA xoffset
+        LDA xx+1
+        SBC xstart+1
+        STA xoffset+1
 
-	M_INCREMENT yoffset	; increment Y for the lower 4 cells
+        M_INCREMENT yoffset     ; increment Y for the lower 4 cells
 
-	LDY #4
+        LDY #4
 .point_loop2
-	ASL bitmap
-	BCC skip_plot2		; skip if point zero
-	BIT xoffset+1
-	BMI skip_plot2		; skip if X offset is negative
-	JSR plot_point
+        ASL bitmap
+        BCC skip_plot2          ; skip if point zero
+        BIT xoffset+1
+        BMI skip_plot2          ; skip if X offset is negative
+        JSR plot_point
 .skip_plot2
-	M_INCREMENT xoffset
-	DEY
-	BNE point_loop2
+        M_INCREMENT xoffset
+        DEY
+        BNE point_loop2
 
 
         JMP while_level2
@@ -890,7 +890,7 @@
 ;;     }
 ;; }
 
-	}
+        }
 
 ;; OR-plot the point at xoffset,yoffset in the delta buffer
 ;; scaling as per the current ui_zoom level:
@@ -912,28 +912,28 @@
 
 .plot_point
 {
-	PHY
-	LDA ui_zoom
+        PHY
+        LDA ui_zoom
         ASL A
         TAX
-	LDA xoffset
-	CMP clamp_table, X
-	LDA xoffset+1
-	SBC clamp_table+1, X
-	BCS skip
+        LDA xoffset
+        CMP clamp_table, X
+        LDA xoffset+1
+        SBC clamp_table+1, X
+        BCS skip
         JMP (zoom_table, X)
 .skip
-	PLY
-	RTS
+        PLY
+        RTS
 
 .clamp_table
-	EQUW &800
-	EQUW &400
-	EQUW &200
-	EQUW &100
-	EQUW &80
-	EQUW &40
-	EQUW &20
+        EQUW &800
+        EQUW &400
+        EQUW &200
+        EQUW &100
+        EQUW &80
+        EQUW &40
+        EQUW &20
 
 .zoom_table
         EQUW plot_point_1_8x
@@ -950,38 +950,38 @@
 .plot_point_1_8x
 {
 ;; mask index = (xoffset >> 2) & 7
-	LDA xoffset
-	LSR A
-	LSR A
-	LSR A
-	AND #&07
-	TAX
+        LDA xoffset
+        LSR A
+        LSR A
+        LSR A
+        AND #&07
+        TAX
 ;; byte index = (yoffset << 3) | (xoffset >> 5)
-	LDA xoffset+1
-	STA temp
-	LDA xoffset
-	LSR temp
-	ROR A
-	LSR temp
-	ROR A
-	LSR temp
-	ROR A
-	LSR A
-	LSR A
-	LSR A
-	STA temp
-	LDA yoffset
-	ASL A
-	ASL A
-	AND #&E0
-	ORA temp
-	TAY
-	BCS overflow_row
+        LDA xoffset+1
+        STA temp
+        LDA xoffset
+        LSR temp
+        ROR A
+        LSR temp
+        ROR A
+        LSR temp
+        ROR A
+        LSR A
+        LSR A
+        LSR A
+        STA temp
+        LDA yoffset
+        ASL A
+        ASL A
+        AND #&E0
+        ORA temp
+        TAY
+        BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-	PLY
-	RTS
+        PLY
+        RTS
 }
 
 ;; xoffset in range 0..1023 ==> 0..31
@@ -989,36 +989,36 @@
 .plot_point_1_4x
 {
 ;; mask index = (xoffset >> 2) & 7
-	LDA xoffset
-	LSR A
-	LSR A
-	AND #&07
-	TAX
+        LDA xoffset
+        LSR A
+        LSR A
+        AND #&07
+        TAX
 ;; byte index = (yoffset << 3) | (xoffset >> 5)
-	LDA xoffset+1
-	STA temp
-	LDA xoffset
-	LSR temp
-	ROR A
-	LSR temp
-	ROR A
-	LSR A
-	LSR A
-	LSR A
-	STA temp
-	LDA yoffset
-	ASL A
-	ASL A
-	ASL A
-	AND #&E0
-	ORA temp
-	TAY
-	BCS overflow_row
+        LDA xoffset+1
+        STA temp
+        LDA xoffset
+        LSR temp
+        ROR A
+        LSR temp
+        ROR A
+        LSR A
+        LSR A
+        LSR A
+        STA temp
+        LDA yoffset
+        ASL A
+        ASL A
+        ASL A
+        AND #&E0
+        ORA temp
+        TAY
+        BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-	PLY
-	RTS
+        PLY
+        RTS
 }
 
 ;; xoffset in range 0..511 ==> 0..31
@@ -1026,73 +1026,73 @@
 .plot_point_1_2x
 {
 ;; mask index = (xoffset >> 1) & 7
-	LDA xoffset
-	LSR A
-	AND #&07
-	TAX
+        LDA xoffset
+        LSR A
+        AND #&07
+        TAX
 ;; byte index = (yoffset << 4) | (xoffset >> 4)
-	LDA xoffset+1
-	LSR A
-	LDA xoffset
-	ROR A
-	LSR A
-	LSR A
-	LSR A
-	STA temp
-	LDA yoffset
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	AND #&E0
-	ORA temp
-	TAY
-	BCS overflow_row
+        LDA xoffset+1
+        LSR A
+        LDA xoffset
+        ROR A
+        LSR A
+        LSR A
+        LSR A
+        STA temp
+        LDA yoffset
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        AND #&E0
+        ORA temp
+        TAY
+        BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-	PLY
-	RTS
+        PLY
+        RTS
 }
 
 .overflow_row
         LDA DELTA_BASE+256, Y
         ORA pixel_mask, X
         STA DELTA_BASE+256, Y
-	PLY
-	RTS
+        PLY
+        RTS
 
 .pixel_mask
-	EQUB &80, &40, &20, &10, &08, &04, &02, &01
+        EQUB &80, &40, &20, &10, &08, &04, &02, &01
 
 ;; xoffset in range 0..255 ==> 0..31
 ;; yoffset in range 0..8 ==> 0,32,64,96,128,160,192,224,256
 .plot_point_1x
 {
 ;; mask index = xoffset & 7
-	LDA xoffset
-	AND #&07
-	TAX
+        LDA xoffset
+        AND #&07
+        TAX
 ;; byte index = (yoffset << 5) | (xoffset >> 3)
-	LDA xoffset
-	LSR A
-	LSR A
-	LSR A
-	STA temp
-	LDA yoffset
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ORA temp
-	TAY
-	BCS overflow_row
+        LDA xoffset
+        LSR A
+        LSR A
+        LSR A
+        STA temp
+        LDA yoffset
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ORA temp
+        TAY
+        BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-	PLY
-	RTS
+        PLY
+        RTS
 }
 
 ;; xoffset in range 0..127 ==> 0..31
@@ -1100,42 +1100,42 @@
 .plot_point_2x
 {
 ;; mask index = xoffset & 3
-	LDA xoffset
-	AND #&03
-	TAX
+        LDA xoffset
+        AND #&03
+        TAX
 ;; byte index = (yoffset << 6) | (xoffset >> 2)
-	LDA xoffset
-	LSR A
-	LSR A
-	STA temp
-	LDA yoffset
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ORA temp
-	TAY
-	BCS overflow_row
+        LDA xoffset
+        LSR A
+        LSR A
+        STA temp
+        LDA yoffset
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ORA temp
+        TAY
+        BCS overflow_row
 FOR i,0,1
         LDA DELTA_BASE + i * 32, Y
         ORA pixel_mask, X
         STA DELTA_BASE + i * 32, Y
 NEXT
-	PLY
-	RTS
+        PLY
+        RTS
 .overflow_row
 FOR i,0,1
         LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-	PLY
-	RTS
+        PLY
+        RTS
 
 .pixel_mask
-	EQUB &C0, &30, &0C, &03
+        EQUB &C0, &30, &0C, &03
 }
 
 ;; xoffset in range 0..63 ==> 0..31
@@ -1143,64 +1143,64 @@ NEXT
 .plot_point_4x
 {
 ;; mask index = xoffset & 3
-	LDA xoffset
-	AND #&01
-	TAX
+        LDA xoffset
+        AND #&01
+        TAX
 ;; byte index = (yoffset << 7) | (xoffset >> 1)
-	LDA xoffset
-	LSR A
-	STA temp
-	LDA yoffset
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	ORA temp
-	TAY
-	BCS overflow_row
+        LDA xoffset
+        LSR A
+        STA temp
+        LDA yoffset
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ASL A
+        ORA temp
+        TAY
+        BCS overflow_row
 FOR i,0,3
         LDA DELTA_BASE + i * 32, Y
         ORA pixel_mask, X
         STA DELTA_BASE + i * 32, Y
 NEXT
-	PLY
-	RTS
+        PLY
+        RTS
 .overflow_row
 FOR i,0,3
         LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-	PLY
-	RTS
+        PLY
+        RTS
 
 .pixel_mask
-	EQUB &F0, &0F
-	}
+        EQUB &F0, &0F
+        }
 
 ;; xoffset in range 0..31 ==> 0..31
 ;; yoffset in range 0,1 ==> 0,256
 .plot_point_8x
 {
 ;; byte index = xoffset
-	LDY xoffset
-	LDA #&FF
-	BIT yoffset
-	BNE overflow_row
+        LDY xoffset
+        LDA #&FF
+        BIT yoffset
+        BNE overflow_row
 FOR i,0,7
         STA DELTA_BASE + i * 32, Y
 NEXT
-	PLY
-	RTS
+        PLY
+        RTS
 .overflow_row
 FOR i,0,7
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-	PLY
-	RTS
+        PLY
+        RTS
 }
 
 
@@ -1221,7 +1221,7 @@ NEXT
 
 .overflow_size
 FOR i,0,6
-	EQUB &20, &20, &20, &20, &40, &80, &00
+        EQUB &20, &20, &20, &20, &40, &80, &00
 NEXT
 
 ALIGN 256
