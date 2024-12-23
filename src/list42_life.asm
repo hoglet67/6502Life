@@ -920,13 +920,32 @@
 ;; distinguish odd (C=0) and even (C=1) lines.
 
 .plot_point
+{	
 	PHY
 	PHP
 	LDA ui_zoom
         ASL A
         TAX
+	LDA xoffset
+	CMP clamp_table, X
+	LDA xoffset+1
+	SBC clamp_table+1, X
+	BCS skip
         JMP (zoom_table, X)
-
+.skip
+	PLP
+	PLY
+	RTS
+	
+.clamp_table
+	EQUW &800
+	EQUW &400
+	EQUW &200
+	EQUW &100
+	EQUW &80
+	EQUW &40
+	EQUW &20
+	
 .zoom_table
         EQUW plot_point_1_8x
         EQUW plot_point_1_4x
@@ -935,7 +954,8 @@
         EQUW plot_point_2x
         EQUW plot_point_4x
         EQUW plot_point_8x
-
+}
+	
 ;; xoffset in range 0..2047 ==> 0..31
 ;; yoffset in range 0..63 ==> 0,32,64,...,224
 ;; byte index = (yoffset << 3) | (xoffset >> 5)
