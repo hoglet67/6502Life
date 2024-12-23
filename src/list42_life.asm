@@ -869,7 +869,7 @@
 	STA xoffset+1
 
 	M_INCREMENT yoffset	; increment Y for the lower 4 cells
-	
+
 	LDY #4
 .point_loop2
 	ASL bitmap
@@ -911,7 +911,7 @@
 ;; distinguish odd (C=0) and even (C=1) lines.
 
 .plot_point
-{	
+{
 	PHY
 	LDA ui_zoom
         ASL A
@@ -925,7 +925,7 @@
 .skip
 	PLY
 	RTS
-	
+
 .clamp_table
 	EQUW &800
 	EQUW &400
@@ -934,7 +934,7 @@
 	EQUW &80
 	EQUW &40
 	EQUW &20
-	
+
 .zoom_table
         EQUW plot_point_1_8x
         EQUW plot_point_1_4x
@@ -944,7 +944,7 @@
         EQUW plot_point_4x
         EQUW plot_point_8x
 }
-	
+
 ;; xoffset in range 0..2047 ==> 0..31
 ;; yoffset in range 0..64 ==> 0,32,64,...,224,256
 ;; byte index = (yoffset << 3) | (xoffset >> 5)
@@ -979,21 +979,12 @@
 	AND #&07
 	TAX
 	PLP
-	BCS bottom_row	
+	BCS bottom_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
 	PLY
 	RTS
-.bottom_row
-        LDA DELTA_BASE+256, Y
-        ORA pixel_mask, X
-        STA DELTA_BASE+256, Y
-	PLY
-	RTS
-
-.pixel_mask
-	EQUB &80, &40, &20, &10, &08, &04, &02, &01
 }
 
 ;; xoffset in range 0..1023 ==> 0..31
@@ -1034,15 +1025,6 @@
         STA DELTA_BASE, Y
 	PLY
 	RTS
-.bottom_row
-        LDA DELTA_BASE+256, Y
-        ORA pixel_mask, X
-        STA DELTA_BASE+256, Y
-	PLY
-	RTS
-
-.pixel_mask
-	EQUB &80, &40, &20, &10, &08, &04, &02, &01
 }
 
 ;; xoffset in range 0..511 ==> 0..31
@@ -1056,7 +1038,7 @@
 	;; 2 C=1 * *
 	;; 4 C=0
 	;; 4 C=1
-	
+
 	;; 1 C=0
 	;; 1 C=1 * *
 	;; 3 C=0 * *
@@ -1094,6 +1076,8 @@
         STA DELTA_BASE, Y
 	PLY
 	RTS
+}
+
 .bottom_row
         LDA DELTA_BASE+256, Y
         ORA pixel_mask, X
@@ -1103,8 +1087,7 @@
 
 .pixel_mask
 	EQUB &80, &40, &20, &10, &08, &04, &02, &01
-}
-
+	
 ;; xoffset in range 0..255 ==> 0..31
 ;; yoffset in range 0..7
 ;;    ==> 0,32,64,96,128,160,192,224   [ when C = 0: Even row ]
@@ -1138,15 +1121,6 @@
         STA DELTA_BASE, Y
 	PLY
 	RTS
-.bottom_row
-        LDA DELTA_BASE+256, Y
-        ORA pixel_mask, X
-        STA DELTA_BASE+256, Y
-	PLY
-	RTS
-
-.pixel_mask
-	EQUB &80, &40, &20, &10, &08, &04, &02, &01
 }
 
 ;; xoffset in range 0..127 ==> 0..31
