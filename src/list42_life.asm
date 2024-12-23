@@ -856,12 +856,23 @@
 .point_loop2
         ASL bitmap
         BCC skip_plot           ; skip if point zero
-        BIT xoffset+1
-        BMI skip_plot           ; skip if X offset is negative
 
         PHX                     ; stack col counter
-        JSR plot_point
+
+        LDA ui_zoom
+        ASL A
+        TAX
+        LDA xoffset             ; this also catches negative xoffset values
+        CMP x_limit_table, X
+        LDA xoffset+1
+        SBC x_limit_table+1, X
+        BCS plot_point_return
+        JMP (plot_point_table, X)
+
+.*plot_point_return
+
         PLX                     ; restore col counter
+
 .skip_plot
         M_INCREMENT xoffset
         DEX                     ; next col
@@ -880,7 +891,25 @@
 ;;     }
 ;; }
 
-        }
+.x_limit_table
+        EQUW &800
+        EQUW &400
+        EQUW &200
+        EQUW &100
+        EQUW &80
+        EQUW &40
+        EQUW &20
+
+.plot_point_table
+        EQUW plot_point_1_8x
+        EQUW plot_point_1_4x
+        EQUW plot_point_1_2x
+        EQUW plot_point_1x
+        EQUW plot_point_2x
+        EQUW plot_point_4x
+        EQUW plot_point_8x
+}
+
 
 ;; OR-plot the point at xoffset,yoffset in the delta buffer
 ;; scaling as per the current ui_zoom level:
@@ -899,39 +928,6 @@
 ;; yoffset is alway positive and increases in steps of one.
 ;; Exclusion of large values is not required, as an overflow
 ;; rendering area is provided.
-
-.plot_point
-{
-        LDA ui_zoom
-        ASL A
-        TAX
-        LDA xoffset
-        CMP limit_table, X
-        LDA xoffset+1
-        SBC limit_table+1, X
-        BCS skip
-        JMP (zoom_table, X)
-.skip
-        RTS
-
-.limit_table
-        EQUW &800
-        EQUW &400
-        EQUW &200
-        EQUW &100
-        EQUW &80
-        EQUW &40
-        EQUW &20
-
-.zoom_table
-        EQUW plot_point_1_8x
-        EQUW plot_point_1_4x
-        EQUW plot_point_1_2x
-        EQUW plot_point_1x
-        EQUW plot_point_2x
-        EQUW plot_point_4x
-        EQUW plot_point_8x
-}
 
 ;;
 ;; TODO - Generate point_plot_xxx varients with a MACRO
@@ -972,7 +968,7 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        RTS
+        JMP plot_point_return
 }
 
 ;; xoffset in range 0..1023 ==> 0..31
@@ -1008,7 +1004,7 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        RTS
+        JMP plot_point_return
 }
 
 ;; xoffset in range 0..511 ==> 0..31
@@ -1041,14 +1037,14 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        RTS
+        JMP plot_point_return
 }
 
 .overflow_row
         LDA DELTA_BASE+256, Y
         ORA pixel_mask, X
         STA DELTA_BASE+256, Y
-        RTS
+        JMP plot_point_return
 
 .pixel_mask
         EQUB &80, &40, &20, &10, &08, &04, &02, &01
@@ -1079,7 +1075,7 @@
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
-        RTS
+        JMP plot_point_return
 }
 
 ;; xoffset in range 0..127 ==> 0..31
@@ -1110,14 +1106,14 @@ FOR i,0,1
         ORA pixel_mask, X
         STA DELTA_BASE + i * 32, Y
 NEXT
-        RTS
+        JMP plot_point_return
 .overflow_row
 FOR i,0,1
         LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-        RTS
+        JMP plot_point_return
 
 .pixel_mask
         EQUB &C0, &30, &0C, &03
@@ -1151,14 +1147,14 @@ FOR i,0,3
         ORA pixel_mask, X
         STA DELTA_BASE + i * 32, Y
 NEXT
-        RTS
+        JMP plot_point_return
 .overflow_row
 FOR i,0,3
         LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-        RTS
+        JMP plot_point_return
 
 .pixel_mask
         EQUB &F0, &0F
@@ -1176,12 +1172,12 @@ NEXT
 FOR i,0,7
         STA DELTA_BASE + i * 32, Y
 NEXT
-        RTS
+        JMP plot_point_return
 .overflow_row
 FOR i,0,7
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
-        RTS
+        JMP plot_point_return
 }
 
 .window_size_x_lsb
