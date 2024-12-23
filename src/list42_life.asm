@@ -947,11 +947,16 @@
 
 ;; xoffset in range 0..2047 ==> 0..31
 ;; yoffset in range 0..64 ==> 0,32,64,...,224,256
-;; byte index = (yoffset << 3) | (xoffset >> 5)
-;; mask index = (xoffset >> 2) & 7
-
 .plot_point_1_8x
 {
+;; mask index = (xoffset >> 2) & 7
+	LDA xoffset
+	LSR A
+	LSR A
+	LSR A
+	AND #&07
+	TAX
+;; byte index = (yoffset << 3) | (xoffset >> 5)
 	LDA xoffset+1
 	STA temp
 	LDA xoffset
@@ -968,18 +973,10 @@
 	LDA yoffset
 	ASL A
 	ASL A
-	PHP
 	AND #&E0
 	ORA temp
 	TAY
-	LDA xoffset
-	LSR A
-	LSR A
-	LSR A
-	AND #&07
-	TAX
-	PLP
-	BCS bottom_row
+	BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
@@ -989,11 +986,15 @@
 
 ;; xoffset in range 0..1023 ==> 0..31
 ;; yoffset in range 0..32 ==> 0,32,64,...,224,256
-;; byte index = (yoffset << 3) | (xoffset >> 5)
-;; mask index = (xoffset >> 2) & 7
-
 .plot_point_1_4x
 {
+;; mask index = (xoffset >> 2) & 7
+	LDA xoffset
+	LSR A
+	LSR A
+	AND #&07
+	TAX
+;; byte index = (yoffset << 3) | (xoffset >> 5)
 	LDA xoffset+1
 	STA temp
 	LDA xoffset
@@ -1009,17 +1010,10 @@
 	ASL A
 	ASL A
 	ASL A
-	PHP
 	AND #&E0
 	ORA temp
 	TAY
-	LDA xoffset
-	LSR A
-	LSR A
-	AND #&07
-	TAX
-	PLP
-	BCS bottom_row
+	BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
@@ -1028,34 +1022,15 @@
 }
 
 ;; xoffset in range 0..511 ==> 0..31
-;; yoffset in range 0..15 ==> 0,32,64,...,224
-;; mask index = (xoffset >> 1) & 7
-;; byte index = (yoffset << 4) | (xoffset >> 4)
-
-	;; 0 C=0
-	;; 0 C=1
-	;; 2 C=0 * *
-	;; 2 C=1 * *
-	;; 4 C=0
-	;; 4 C=1
-
-	;; 1 C=0
-	;; 1 C=1 * *
-	;; 3 C=0 * *
-	;; 3 C=1
-	;; 4 C=0
-	;; 4 C=1
-
+;; yoffset in range 0..16 ==> 0,32,64,...,224,256
 .plot_point_1_2x
 {
-	LDA yoffset
-	ASL A
-	ASL A
-	ASL A
-	ASL A
-	PHP
-	AND #&E0
-	STA temp
+;; mask index = (xoffset >> 1) & 7
+	LDA xoffset
+	LSR A
+	AND #&07
+	TAX
+;; byte index = (yoffset << 4) | (xoffset >> 4)
 	LDA xoffset+1
 	LSR A
 	LDA xoffset
@@ -1063,14 +1038,16 @@
 	LSR A
 	LSR A
 	LSR A
+	STA temp
+	LDA yoffset
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	AND #&E0
 	ORA temp
 	TAY
-	LDA xoffset
-	LSR A
-	AND #&07
-	TAX
-	PLP
-	BCS bottom_row
+	BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
@@ -1078,7 +1055,7 @@
 	RTS
 }
 
-.bottom_row
+.overflow_row
         LDA DELTA_BASE+256, Y
         ORA pixel_mask, X
         STA DELTA_BASE+256, Y
@@ -1087,35 +1064,30 @@
 
 .pixel_mask
 	EQUB &80, &40, &20, &10, &08, &04, &02, &01
-	
-;; xoffset in range 0..255 ==> 0..31
-;; yoffset in range 0..7
-;;    ==> 0,32,64,96,128,160,192,224   [ when C = 0: Even row ]
-;;    ==> 32,64,96,128,160,192,224,256 [ when C = 1: Odd  row ]
-;; byte index = (yoffset << 5) | (xoffset >> 3)
-;; mask index = xoffset & 7
 
+;; xoffset in range 0..255 ==> 0..31
+;; yoffset in range 0..8 ==> 0,32,64,96,128,160,192,224,256
 .plot_point_1x
 {
+;; mask index = xoffset & 7
+	LDA xoffset
+	AND #&07
+	TAX
+;; byte index = (yoffset << 5) | (xoffset >> 3)
+	LDA xoffset
+	LSR A
+	LSR A
+	LSR A
+	STA temp
 	LDA yoffset
 	ASL A
 	ASL A
 	ASL A
 	ASL A
 	ASL A
-	PHP
-	STA temp
-	LDA xoffset
-	LSR A
-	LSR A
-	LSR A
 	ORA temp
 	TAY
-	LDA xoffset
-	AND #&07
-	TAX
-	PLP
-	BCS bottom_row
+	BCS overflow_row
         LDA DELTA_BASE, Y
         ORA pixel_mask, X
         STA DELTA_BASE, Y
@@ -1124,14 +1096,18 @@
 }
 
 ;; xoffset in range 0..127 ==> 0..31
-;; yoffset in range 0..4
-;;    ==> 0,64,128,192   [ when C = 0: Even row ]
-;;    ==> 64,128,192,256 [ when C = 1: Odd  row ]
-;; byte index = (yoffset << 6) | (xoffset >> 2)
-;; mask index = xoffset & 3
-
+;; yoffset in range 0..4 ==> 0,64,128,192,256
 .plot_point_2x
 {
+;; mask index = xoffset & 3
+	LDA xoffset
+	AND #&03
+	TAX
+;; byte index = (yoffset << 6) | (xoffset >> 2)
+	LDA xoffset
+	LSR A
+	LSR A
+	STA temp
 	LDA yoffset
 	ASL A
 	ASL A
@@ -1139,18 +1115,9 @@
 	ASL A
 	ASL A
 	ASL A
-	PHP
-	STA temp
-	LDA xoffset
-	LSR A
-	LSR A
 	ORA temp
 	TAY
-	LDA xoffset
-	AND #&03
-	TAX
-	PLP
-	BCS bottom_row
+	BCS overflow_row
 FOR i,0,1
         LDA DELTA_BASE + i * 32, Y
         ORA pixel_mask, X
@@ -1158,7 +1125,7 @@ FOR i,0,1
 NEXT
 	PLY
 	RTS
-.bottom_row
+.overflow_row
 FOR i,0,1
         LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
@@ -1172,14 +1139,17 @@ NEXT
 }
 
 ;; xoffset in range 0..63 ==> 0..31
-;; yoffset in range 0..2
-;;    ==> 0,128   [ when C = 0: Even row ]
-;;    ==> 128,256 [ when C = 1: Odd  row ]
-;; byte index = (yoffset << 7) | (xoffset >> 1)
-;; mask index = xoffset & 3
-
+;; yoffset in range 0..2 ==> 0,128,256
 .plot_point_4x
 {
+;; mask index = xoffset & 3
+	LDA xoffset
+	AND #&01
+	TAX
+;; byte index = (yoffset << 7) | (xoffset >> 1)
+	LDA xoffset
+	LSR A
+	STA temp
 	LDA yoffset
 	ASL A
 	ASL A
@@ -1188,17 +1158,9 @@ NEXT
 	ASL A
 	ASL A
 	ASL A
-	PHP
-	STA temp
-	LDA xoffset
-	LSR A
 	ORA temp
 	TAY
-	LDA xoffset
-	AND #&01
-	TAX
-	PLP
-	BCS bottom_row
+	BCS overflow_row
 FOR i,0,3
         LDA DELTA_BASE + i * 32, Y
         ORA pixel_mask, X
@@ -1206,7 +1168,7 @@ FOR i,0,3
 NEXT
 	PLY
 	RTS
-.bottom_row
+.overflow_row
 FOR i,0,3
         LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
@@ -1220,23 +1182,20 @@ NEXT
 	}
 
 ;; xoffset in range 0..31 ==> 0..31
-;; yoffset in range 0..0
-;;    ==> 0       [ when C = 0: Even row ]
-;;    ==> 256     [ when C = 1: Odd  row ]
-;; byte index = xoffset
-
+;; yoffset in range 0,1 ==> 0,256
 .plot_point_8x
 {
+;; byte index = xoffset
 	LDY xoffset
 	LDA #&FF
 	BIT yoffset
-	BNE bottom_row
+	BNE overflow_row
 FOR i,0,7
         STA DELTA_BASE + i * 32, Y
 NEXT
 	PLY
 	RTS
-.bottom_row
+.overflow_row
 FOR i,0,7
         STA DELTA_BASE + 256 + i * 32, Y
 NEXT
