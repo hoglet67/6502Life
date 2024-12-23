@@ -110,7 +110,7 @@
 
 ;; always send the data for X=0
         LDY #0
-        LDA (delta), Y
+        LDA (scrn), Y
 
 .wait_for_space1
         BIT &FEF8

@@ -24,6 +24,8 @@ mode4_linelen  = 320
         STY ptr
         LDA #>mode4_base
         STA ptr + 1
+        LDY #0
+
 .idle1
         BIT &FEE0
         BPL idle1
