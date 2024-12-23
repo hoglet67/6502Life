@@ -494,6 +494,14 @@
         ADC zoom_correction_hi, X
         STA ystart + 1
 
+        SEC
+        LDA xstart
+        SBC #3
+        STA xblock
+        LDA xstart + 1
+        SBC #0
+        STA xblock + 1
+
         ;; Clear the delta "overflow" line used by list42 rendering
         LDX #&00
 .loop
@@ -806,9 +814,9 @@
 
         ;; xx and xstart and xend can only be negative, so we can use 16-bit unsigned comparison
         LDA xx
-        CMP xstart
+        CMP xblock
         LDA xx + 1
-        SBC xstart + 1
+        SBC xblock + 1
         BCC while_level2
 
         LDA xx

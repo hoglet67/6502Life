@@ -51,7 +51,7 @@ lower           = &49
 t               = &4A
 mask            = &4B
 outcome         = &4C
-	
+
 ;; Utils
 
 tmp             = &70
@@ -61,7 +61,8 @@ delta           = &72           ; pointer to 8-line block storing
 
 xoffset         = &74
 yoffset         = &76
-		
+xblock          = &78
+
 ;; Patterns
 
 src             = &60
