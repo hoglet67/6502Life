@@ -854,7 +854,6 @@
 	BCC skip_plot1		; skip if point zero
 	BIT xoffset+1
 	BMI skip_plot1		; skip if X offset is negative
-	CLC
 	JSR plot_point
 .skip_plot1
 	M_INCREMENT xoffset
@@ -869,13 +868,14 @@
 	SBC xstart+1
 	STA xoffset+1
 
+	M_INCREMENT yoffset	; increment Y for the lower 4 cells
+	
 	LDY #4
 .point_loop2
 	ASL bitmap
 	BCC skip_plot2		; skip if point zero
 	BIT xoffset+1
 	BMI skip_plot2		; skip if X offset is negative
-	SEC
 	JSR plot_point
 .skip_plot2
 	M_INCREMENT xoffset
@@ -913,7 +913,6 @@
 .plot_point
 {	
 	PHY
-	PHP
 	LDA ui_zoom
         ASL A
         TAX
@@ -924,7 +923,6 @@
 	BCS skip
         JMP (zoom_table, X)
 .skip
-	PLP
 	PLY
 	RTS
 	
@@ -948,7 +946,7 @@
 }
 	
 ;; xoffset in range 0..2047 ==> 0..31
-;; yoffset in range 0..63 ==> 0,32,64,...,224
+;; yoffset in range 0..64 ==> 0,32,64,...,224,256
 ;; byte index = (yoffset << 3) | (xoffset >> 5)
 ;; mask index = (xoffset >> 2) & 7
 
@@ -968,8 +966,6 @@
 	LSR A
 	STA temp
 	LDA yoffset
-	PLP
-	ADC #0
 	ASL A
 	ASL A
 	PHP
@@ -1001,7 +997,7 @@
 }
 
 ;; xoffset in range 0..1023 ==> 0..31
-;; yoffset in range 0..31 ==> 0,32,64,...,224
+;; yoffset in range 0..32 ==> 0,32,64,...,224,256
 ;; byte index = (yoffset << 3) | (xoffset >> 5)
 ;; mask index = (xoffset >> 2) & 7
 
@@ -1018,9 +1014,7 @@
 	LSR A
 	LSR A
 	STA temp
-	PLP
 	LDA yoffset
-	ADC #0
 	ASL A
 	ASL A
 	ASL A
@@ -1072,9 +1066,7 @@
 
 .plot_point_1_2x
 {
-	PLP
 	LDA yoffset
-	ADC #0
 	ASL A
 	ASL A
 	ASL A
@@ -1128,6 +1120,7 @@
 	ASL A
 	ASL A
 	ASL A
+	PHP
 	STA temp
 	LDA xoffset
 	LSR A
@@ -1146,9 +1139,9 @@
 	PLY
 	RTS
 .bottom_row
-        LDA DELTA_BASE+32, Y
+        LDA DELTA_BASE+256, Y
         ORA pixel_mask, X
-        STA DELTA_BASE+32, Y
+        STA DELTA_BASE+256, Y
 	PLY
 	RTS
 
@@ -1157,7 +1150,7 @@
 }
 
 ;; xoffset in range 0..127 ==> 0..31
-;; yoffset in range 0..3
+;; yoffset in range 0..4
 ;;    ==> 0,64,128,192   [ when C = 0: Even row ]
 ;;    ==> 64,128,192,256 [ when C = 1: Odd  row ]
 ;; byte index = (yoffset << 6) | (xoffset >> 2)
@@ -1172,6 +1165,7 @@
 	ASL A
 	ASL A
 	ASL A
+	PHP
 	STA temp
 	LDA xoffset
 	LSR A
@@ -1192,9 +1186,9 @@ NEXT
 	RTS
 .bottom_row
 FOR i,0,1
-        LDA DELTA_BASE + 64 + i * 32, Y
+        LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
-        STA DELTA_BASE + 64 + i * 32, Y
+        STA DELTA_BASE + 256 + i * 32, Y
 NEXT
 	PLY
 	RTS
@@ -1204,7 +1198,7 @@ NEXT
 }
 
 ;; xoffset in range 0..63 ==> 0..31
-;; yoffset in range 0..1
+;; yoffset in range 0..2
 ;;    ==> 0,128   [ when C = 0: Even row ]
 ;;    ==> 128,256 [ when C = 1: Odd  row ]
 ;; byte index = (yoffset << 7) | (xoffset >> 1)
@@ -1220,6 +1214,7 @@ NEXT
 	ASL A
 	ASL A
 	ASL A
+	PHP
 	STA temp
 	LDA xoffset
 	LSR A
@@ -1239,9 +1234,9 @@ NEXT
 	RTS
 .bottom_row
 FOR i,0,3
-        LDA DELTA_BASE + 128 + i * 32, Y
+        LDA DELTA_BASE + 256 + i * 32, Y
         ORA pixel_mask, X
-        STA DELTA_BASE + 128 + i * 32, Y
+        STA DELTA_BASE + 256 + i * 32, Y
 NEXT
 	PLY
 	RTS
@@ -1260,8 +1255,8 @@ NEXT
 {
 	LDY xoffset
 	LDA #&FF
-	PLP
-	BCS bottom_row
+	BIT yoffset
+	BNE bottom_row
 FOR i,0,7
         STA DELTA_BASE + i * 32, Y
 NEXT
