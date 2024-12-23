@@ -904,11 +904,11 @@
 ;; ui_zoom=6:   8x   1 cell maps to to 8x8 rendered point
 ;;
 ;; xoffset is always positive and increases in steps of one.
-;; Clamping of large values is required.
+;; Exclusion of large values is required.
 ;;
-;; yoffset is alway positive and increases in steps of two.
-;; Clamping of large values is not required. C is used to
-;; distinguish odd (C=0) and even (C=1) lines.
+;; yoffset is alway positive and increases in steps of one.
+;; Exclusion of large values is not required, as an overflow
+;; rendering area is provided.
 
 .plot_point
 {
@@ -917,16 +917,16 @@
         ASL A
         TAX
         LDA xoffset
-        CMP clamp_table, X
+        CMP limit_table, X
         LDA xoffset+1
-        SBC clamp_table+1, X
+        SBC limit_table+1, X
         BCS skip
         JMP (zoom_table, X)
 .skip
         PLY
         RTS
 
-.clamp_table
+.limit_table
         EQUW &800
         EQUW &400
         EQUW &200
@@ -944,6 +944,10 @@
         EQUW plot_point_4x
         EQUW plot_point_8x
 }
+
+;;
+;; TODO - Generate point_plot_xxx varients with a MACRO
+;;
 
 ;; xoffset in range 0..2047 ==> 0..31
 ;; yoffset in range 0..64 ==> 0,32,64,...,224,256
@@ -1142,7 +1146,7 @@ NEXT
 ;; yoffset in range 0..2 ==> 0,128,256
 .plot_point_4x
 {
-;; mask index = xoffset & 3
+;; mask index = xoffset & 1
         LDA xoffset
         AND #&01
         TAX
@@ -1202,7 +1206,6 @@ NEXT
         PLY
         RTS
 }
-
 
 .window_size_x_lsb
 FOR i, 0, 6
