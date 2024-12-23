@@ -51,13 +51,17 @@ lower           = &49
 t               = &4A
 mask            = &4B
 outcome         = &4C
-
+	
 ;; Utils
 
 tmp             = &70
 delta           = &72           ; pointer to 8-line block storing
                                 ; difference between this and next
+;; list42_life rendering
 
+xoffset         = &74
+yoffset         = &76
+		
 ;; Patterns
 
 src             = &60

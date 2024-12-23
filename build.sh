@@ -72,7 +72,7 @@ cd ..
 
 
 # Create the !boot file
-echo -e -n "*RUN BLIFE\r" > ${build}/\!BOOT
+echo -e -n "*RUN BLIFE42\r" > ${build}/\!BOOT
 
 # Add into the SSD
 tools/mmb_utils/putfile.pl ${build}/${ssd} ${build}/\!BOOT

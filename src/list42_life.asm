@@ -478,28 +478,40 @@
 ;; as list42 life doesn't support zooming, the offset is fixed
 .list_life_offset_top_left
 {
+        LDX ui_zoom
         LDA xstart
         SEC
-        SBC #&80
+        SBC zoom_correction_lo, X
         STA xstart
         LDA xstart + 1
-        SBC #0
+        SBC zoom_correction_hi, X
         STA xstart + 1
         LDA ystart
         CLC
-        ADC #&80
+        ADC zoom_correction_lo, X
         STA ystart
         LDA ystart + 1
-        ADC #0
+        ADC zoom_correction_hi, X
         STA ystart + 1
+
+        LDX ui_zoom
+	CPX #&03
+	BCC no_straddle
         ;; Clear the delta "overflow" line used by list42 rendering
         ;; !! This is wipes MOS reset code at &F800-&F81F !!
-        LDX #&1F
+        LDX #&00
 .loop
         STZ DELTA_BASE+&100,X
         DEX
-        BPL loop
+        BNE loop
+.no_straddle
         RTS
+
+.zoom_correction_lo
+        EQUB &00, &00, &00, &80, &40, &20, &10
+
+.zoom_correction_hi
+        EQUB &04, &02, &01, &00, &00, &00, &00
 }
 
 ;; ************************************************************
@@ -668,35 +680,41 @@
 
 .list_life_update_delta
 {
+	LDX ui_zoom
+	CPX #&03
+	BCC no_straddle
+
         ;; test for 4x2 straddling the delta buffer last time
         LDA (list)              ; Load the LSB of the first Y coordinate
         EOR ystart              ; Compare to the LSB of the ystart
         AND #&01                ; If the bit 0s are the same
         BEQ no_straddle         ; then things are nicely aligned
-        LDX #&1F                ; otherwise copy the line that overflowed the delta buffer
+	LDY overflow_size, X
+	LDX #0
 .copy_loop
         LDA DELTA_BASE + 256, X
         STA DELTA_BASE, X
         STZ DELTA_BASE + 256, X ; and clear the buffer, for the overflow this time
-        DEX
-        BPL copy_loop
-.no_straddle
+        INX
+	DEY
+        BNE copy_loop
+	LDX ui_zoom
 
-;; xend = xstart + 256;
+.no_straddle
 
         CLC
         LDA xstart
-        ADC #&FD                ; only render 253 pixels, so overflow of the 4x2 pixel
-        STA xend                ; block cannot happen
+        ADC window_size_x_lsb, X
+        STA xend
         LDA xstart + 1
-        ADC #&00
+        ADC window_size_x_msb, X
         STA xend + 1
 
 ;; yend = ystart - 8;
 
         LDA ystart
         SEC
-        SBC #8
+        SBC window_size_y_lsb, X
         STA yend
         LDA ystart + 1
         SBC #0
@@ -761,19 +779,6 @@
 ;;         list += 2
         M_INCREMENT_BY_2 list  ;; skip over y
 
-;;         temp = 32 * (ystart - yy);
-
-        ;; 8 bits is sufficient here, as the Y strip is 8 pixels high
-        LDA ystart
-        SEC
-        SBC yy
-        ASL A
-        ASL A
-        ASL A
-        ASL A
-        ASL A
-        STA temp
-
 ;;         while(1) {
 
 .while_level2
@@ -821,6 +826,8 @@
         SBC xend + 1
         BCS while_level2
 
+
+
 ;;              X_reg = temp + (xx - xstart) >> 3;
 ;;              ul = bmp & 0xF0
 ;;              ll = (bmp & 0x0F) << 4
@@ -832,61 +839,58 @@
 ;;                  {ll, lr} >>= 1
 ;;                  Y_reg--;
 ;;              }
-;;              ;; a chunk is 4 bits wide, and can align with a byte in 8 possible ways
+	;;              ;; a chunk is 4 bits wide, and can align with a byte in 8 possible ways
+
+	LDA ystart
+	SEC
+	SBC yy
+	STA yoffset
+	LDA ystart+1
+	SBC yy+1
+	STA yoffset+1
 
         LDA xx
         SEC
         SBC xstart
-        TAY
-        LSR A
-        LSR A
-        LSR A
-        CLC
-        ADC temp
-        TAX
+	STA xoffset
+	LDA xx+1
+	SBC xstart+1
+	STA xoffset+1
 
-        LDA bitmap
-        AND #&F0
-        STA ul
-        LDA bitmap
-        ASL A
-        ASL A
-        ASL A
-        ASL A
-        STA ll
-        STZ ur
-        STZ lr
+	LDY #4
+.point_loop1
+	ASL bitmap
+	BCC skip_plot1		; skip if point zero
+	BIT xoffset+1
+	BMI skip_plot1		; skip if X offset is negative
+	CLC
+	JSR plot_point
+.skip_plot1
+	M_INCREMENT xoffset
+	DEY
+	BNE point_loop1
 
-        TYA
-        AND #&07
-        TAY
-        BEQ skip_shift_bitmap
-.shift_bitmap_loop
-        LSR ul
-        ROR ur
-        LSR ll
-        ROR lr
-        DEY
-        BNE shift_bitmap_loop
-.skip_shift_bitmap
+        LDA xx
+        SEC
+        SBC xstart
+	STA xoffset
+	LDA xx+1
+	SBC xstart+1
+	STA xoffset+1
 
-;;              *(delta_base +      X_reg) |= ul;
-;;              *(delta_base +  1 + X_reg) |= ur;
-;;              *(delta_base + 32 + X_reg) |= ll;
-;;              *(delta_base + 33 + X_reg) |= lr;
+	LDY #4
+.point_loop2
+	ASL bitmap
+	BCC skip_plot2		; skip if point zero
+	BIT xoffset+1
+	BMI skip_plot2		; skip if X offset is negative
+	SEC
+	JSR plot_point
+.skip_plot2
+	M_INCREMENT xoffset
+	DEY
+	BNE point_loop2
 
-        LDA DELTA_BASE, X
-        ORA ul
-        STA DELTA_BASE, X
-        LDA DELTA_BASE + 1, X
-        ORA ur
-        STA DELTA_BASE + 1, X
-        LDA DELTA_BASE + 32, X
-        ORA ll
-        STA DELTA_BASE + 32, X
-        LDA DELTA_BASE + 33, X
-        ORA lr
-        STA DELTA_BASE + 33, X
 
         JMP while_level2
 
@@ -895,8 +899,347 @@
 ;;     }
 ;; }
 
+	}
+
+;; OR-plot the point at xoffset,yoffset in the delta buffer
+;; scaling as per the current ui_zoom level:
+;;
+;; ui_zoom=0: 1/8x 8x8 cells alias to each rendered point
+;; ui_zoom=1: 1/4x 4x4 cells alias to each rendered point
+;; ui_zoom=2: 1/2x 2x2 cells alias to each rendered point
+;; ui_zoom=3:   1x   1 cell maps to to 1 rendered point
+;; ui_zoom=4:   2x   1 cell maps to to 2x2 rendered points
+;; ui_zoom=5:   4x   1 cell maps to to 4x4 rendered points
+;; ui_zoom=6:   8x   1 cell maps to to 8x8 rendered point
+;;
+;; xoffset is always positive and increases in steps of one.
+;; Clamping of large values is required.
+;;
+;; yoffset is alway positive and increases in steps of two.
+;; Clamping of large values is not required. C is used to
+;; distinguish odd (C=0) and even (C=1) lines.
+
+.plot_point
+	PHY
+	PHP
+	LDA ui_zoom
+        ASL A
+        TAX
+        JMP (zoom_table, X)
+
+.zoom_table
+        EQUW plot_point_1_8x
+        EQUW plot_point_1_4x
+        EQUW plot_point_1_2x
+        EQUW plot_point_1x
+        EQUW plot_point_2x
+        EQUW plot_point_4x
+        EQUW plot_point_8x
+
+;; xoffset in range 0..2047 ==> 0..31
+;; yoffset in range 0..63 ==> 0,32,64,...,224
+;; byte index = (yoffset << 3) | (xoffset >> 5)
+;; mask index = (xoffset >> 2) & 7
+
+.plot_point_1_8x
+{
+	LDA xoffset+1
+	STA temp
+	LDA xoffset
+	LSR temp
+	ROR A
+	LSR temp
+	ROR A
+	LSR temp
+	ROR A
+	LSR A
+	LSR A
+	LSR A
+	STA temp
+	LDA yoffset
+	ASL A
+	ASL A
+	AND #&E0
+	ORA temp
+	TAY
+	LDA xoffset
+	LSR A
+	LSR A
+	LSR A
+	AND #&07
+	TAX
+	PLP
+        LDA DELTA_BASE, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE, Y
+	PLY
+	RTS
+
+.pixel_mask
+	EQUB &80, &40, &20, &10, &08, &04, &02, &01
 }
 
+;; xoffset in range 0..1023 ==> 0..31
+;; yoffset in range 0..31 ==> 0,32,64,...,224
+;; byte index = (yoffset << 3) | (xoffset >> 5)
+;; mask index = (xoffset >> 2) & 7
+
+.plot_point_1_4x
+{
+	LDA xoffset+1
+	STA temp
+	LDA xoffset
+	LSR temp
+	ROR A
+	LSR temp
+	ROR A
+	LSR A
+	LSR A
+	LSR A
+	STA temp
+	LDA yoffset
+	ASL A
+	ASL A
+	ASL A
+	AND #&E0
+	ORA temp
+	TAY
+	LDA xoffset
+	LSR A
+	LSR A
+	AND #&07
+	TAX
+	PLP
+        LDA DELTA_BASE, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE, Y
+	PLY
+	RTS
+
+.pixel_mask
+	EQUB &80, &40, &20, &10, &08, &04, &02, &01
+}
+
+;; xoffset in range 0..511 ==> 0..31
+;; yoffset in range 0..15 ==> 0,32,64,...,224
+;; mask index = (xoffset >> 1) & 7
+;; byte index = (yoffset << 4) | (xoffset >> 4)
+
+.plot_point_1_2x
+{
+	LDA yoffset
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	AND #&E0
+	STA temp
+	LDA xoffset+1
+	LSR A
+	LDA xoffset
+	ROR A
+	LSR A
+	LSR A
+	LSR A
+	ORA temp
+	TAY
+	LDA xoffset
+	LSR A
+	AND #&07
+	TAX
+	PLP
+        LDA DELTA_BASE, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE, Y
+	PLY
+	RTS
+
+.pixel_mask
+	EQUB &80, &40, &20, &10, &08, &04, &02, &01
+}
+
+;; xoffset in range 0..255 ==> 0..31
+;; yoffset in range 0..7
+;;    ==> 0,32,64,96,128,160,192,224   [ when C = 0: Even row ]
+;;    ==> 32,64,96,128,160,192,224,256 [ when C = 1: Odd  row ]
+;; byte index = (yoffset << 5) | (xoffset >> 3)
+;; mask index = xoffset & 7
+
+.plot_point_1x
+{
+	LDA yoffset
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	STA temp
+	LDA xoffset
+	LSR A
+	LSR A
+	LSR A
+	ORA temp
+	TAY
+	LDA xoffset
+	AND #&07
+	TAX
+	PLP
+	BCS bottom_row
+        LDA DELTA_BASE, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE, Y
+	PLY
+	RTS
+.bottom_row
+        LDA DELTA_BASE+32, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE+32, Y
+	PLY
+	RTS
+
+.pixel_mask
+	EQUB &80, &40, &20, &10, &08, &04, &02, &01
+}
+
+;; xoffset in range 0..127 ==> 0..31
+;; yoffset in range 0..3
+;;    ==> 0,64,128,192   [ when C = 0: Even row ]
+;;    ==> 64,128,192,256 [ when C = 1: Odd  row ]
+;; byte index = (yoffset << 6) | (xoffset >> 2)
+;; mask index = xoffset & 3
+
+.plot_point_2x
+{
+	LDA yoffset
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	STA temp
+	LDA xoffset
+	LSR A
+	LSR A
+	ORA temp
+	TAY
+	LDA xoffset
+	AND #&03
+	TAX
+	PLP
+	BCS bottom_row
+FOR i,0,1
+        LDA DELTA_BASE + i * 32, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE + i * 32, Y
+NEXT
+	PLY
+	RTS
+.bottom_row
+FOR i,0,1
+        LDA DELTA_BASE + 64 + i * 32, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE + 64 + i * 32, Y
+NEXT
+	PLY
+	RTS
+
+.pixel_mask
+	EQUB &C0, &30, &0C, &03
+}
+
+;; xoffset in range 0..63 ==> 0..31
+;; yoffset in range 0..1
+;;    ==> 0,128   [ when C = 0: Even row ]
+;;    ==> 128,256 [ when C = 1: Odd  row ]
+;; byte index = (yoffset << 7) | (xoffset >> 1)
+;; mask index = xoffset & 3
+
+.plot_point_4x
+{
+	LDA yoffset
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	ASL A
+	STA temp
+	LDA xoffset
+	LSR A
+	ORA temp
+	TAY
+	LDA xoffset
+	AND #&01
+	TAX
+	PLP
+	BCS bottom_row
+FOR i,0,3
+        LDA DELTA_BASE + i * 32, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE + i * 32, Y
+NEXT
+	PLY
+	RTS
+.bottom_row
+FOR i,0,3
+        LDA DELTA_BASE + 128 + i * 32, Y
+        ORA pixel_mask, X
+        STA DELTA_BASE + 128 + i * 32, Y
+NEXT
+	PLY
+	RTS
+
+.pixel_mask
+	EQUB &F0, &0F
+	}
+
+;; xoffset in range 0..31 ==> 0..31
+;; yoffset in range 0..0
+;;    ==> 0       [ when C = 0: Even row ]
+;;    ==> 256     [ when C = 1: Odd  row ]
+;; byte index = xoffset
+
+.plot_point_8x
+{
+	LDY xoffset
+	LDA #&FF
+	PLP
+	BCS bottom_row
+FOR i,0,7
+        STA DELTA_BASE + i * 32, Y
+NEXT
+	PLY
+	RTS
+.bottom_row
+FOR i,0,7
+        STA DELTA_BASE + 256 + i * 32, Y
+NEXT
+	PLY
+	RTS
+}
+
+
+.window_size_x_lsb
+FOR i, 0, 6
+    EQUB <(2048 >> i)
+NEXT
+
+.window_size_x_msb
+FOR i, 0, 6
+    EQUB >(2048 >> i)
+NEXT
+
+.window_size_y_lsb
+FOR i, 0, 6
+    EQUB <(64 >> i)
+NEXT
+
+.overflow_size
+FOR i,0,6
+	EQUB &20, &20, &20, &20, &40, &80, &00
+NEXT
 
 ALIGN 256
 

@@ -26,7 +26,7 @@ GUARD             SCRN_BASE - 1
 
 ELSE
 
-DELTA_BASE      = &F700         ; 8 row buffer for accumulating delta
+DELTA_BASE      = &F000         ; 8 row buffer for accumulating delta
 
 IF _MATCHBOX
 
@@ -40,7 +40,7 @@ GUARD             BUFFER1 - 1
 
 ELSE
 BUFFER          = &5000
-BUFFER_END      = &F600
+BUFFER_END      = &EFFF
 RLE_BUF         = (BUFFER + BUFFER_END) DIV 2
 RLE_DST         = BUFFER
 SCRN_BASE       = &3000         ; base address of screen memory
