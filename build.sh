@@ -10,6 +10,10 @@ BEEBASM=beebasm.exe
 if (uname -s | egrep -q "Linux|Darwin" ); then
     BEEBASM=beebasm
 fi
+MD5SUM=md5sum
+if (uname -s | egrep -q "Darwin" ); then
+    MD5SUM=md5
+fi
 
 ssd=life.ssd
 
@@ -50,7 +54,7 @@ do
     grep "code ends at" ../${build}/${name}.log
 
     # Report build checksum
-    echo "    mdsum is "`md5sum <../${build}/${name}`
+    echo "    mdsum is "`$MD5SUM <../${build}/${name}`
 done
 cd ..
 
