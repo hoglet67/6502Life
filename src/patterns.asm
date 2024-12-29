@@ -316,6 +316,7 @@
         EQUW patternV
         EQUW patternW
         EQUW patternX
+        EQUW patternY
 .pattern_table_terminator
         EQUW 0
 
@@ -557,4 +558,14 @@
         EQUS "R.4GUNS", 13
 .name
         EQUS "4GUNS", 0
+}
+
+.patternY
+{
+.start
+        EQUB TYPE_RLE
+        EQUB name - start
+        EQUS "R.PRIMES", 13
+.name
+        EQUS "PRIME SIEVE", 0
 }
