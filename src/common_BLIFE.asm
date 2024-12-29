@@ -40,7 +40,7 @@ GUARD             BUFFER1 - 1
 
 ELSE
 BUFFER          = &5000
-BUFFER_END      = &F500
+BUFFER_END      = &F400         ; a multiple of &200 or RLE reader breaks
 RLE_BUF         = (BUFFER + BUFFER_END) DIV 2
 RLE_DST         = BUFFER
 SCRN_BASE       = &3000         ; base address of screen memory
