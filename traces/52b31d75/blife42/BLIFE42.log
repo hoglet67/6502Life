@@ -1,0 +1,8584 @@
+Including file common_BLIFE.asm
+Including file constants.asm
+Processed file 'constants.asm' ok
+Including file variables.asm
+Processed file 'variables.asm' ok
+Including file macros_common.asm
+Processed file 'macros_common.asm' ok
+.start
+     0400   4C 82 29   JMP &2982
+Including file utils.asm
+.print_string
+     0403   68         PLA
+     0404   85 70      STA &70
+     0406   68         PLA
+     0407   85 71      STA &71
+     0409   A0 00      LDY #&00
+.loop
+     040B   E6 70      INC &70
+     040D   D0 02      BNE &0411
+     040F   E6 71      INC &71
+.nocarry
+     0411   B1 70      LDA (&70),Y
+     0413   30 06      BMI &041B
+     0415   20 EE FF   JSR &FFEE
+     0418   4C 0B 04   JMP &040B
+.done
+     041B   6C 70 00   JMP (&0070)
+.clear_delta
+     041E   A0 00      LDY #&00
+     0420   98         TYA
+.clear_delta_loop
+     0421   91 72      STA (&72),Y
+     0423   88         DEY
+     0424   D0 FB      BNE &0421
+     0426   60         RTS
+.clear_screen
+     0427   A9 00      LDA #&00
+     0429   85 91      STA &91
+     042B   A9 30      LDA #&30
+     042D   85 92      STA &92
+     042F   A2 20      LDX #&20
+     0431   A0 00      LDY #&00
+     0433   98         TYA
+.clear_loop
+     0434   91 91      STA (&91),Y
+     0436   C8         INY
+     0437   D0 FB      BNE &0434
+     0439   E6 92      INC &92
+     043B   CA         DEX
+     043C   D0 F6      BNE &0434
+     043E   60         RTS
+.eor_screen_to_delta
+     043F   A0 00      LDY #&00
+.loop
+     0441   B1 72      LDA (&72),Y
+     0443   51 91      EOR (&91),Y
+     0445   91 72      STA (&72),Y
+     0447   C8         INY
+     0448   D0 F7      BNE &0441
+     044A   60         RTS
+.eor_delta_to_screen
+     044B   A0 00      LDY #&00
+.loop
+     044D   B1 91      LDA (&91),Y
+     044F   51 72      EOR (&72),Y
+     0451   91 91      STA (&91),Y
+     0453   C8         INY
+     0454   D0 F7      BNE &044D
+     0456   60         RTS
+.send_screen_delta
+     0457   A9 FF      LDA #&FF
+     0459   20 EE FF   JSR &FFEE
+     045C   A9 00      LDA #&00
+     045E   85 72      STA &72
+     0460   A9 30      LDA #&30
+     0462   85 73      STA &73
+     0464   A2 20      LDX #&20
+.send_loop
+     0466   20 6F 04   JSR &046F
+     0469   E6 73      INC &73
+     046B   CA         DEX
+     046C   D0 F8      BNE &0466
+     046E   60         RTS
+.send_delta
+     046F   8A         TXA
+     0470   48         PHA
+     0471   A2 00      LDX #&00
+     0473   A0 00      LDY #&00
+     0475   B1 91      LDA (&91),Y
+.wait_for_space1
+     0477   2C F8 FE   BIT &FEF8
+     047A   50 FB      BVC &0477
+     047C   8D F9 FE   STA &FEF9
+.skip_blank
+     047F   E8         INX
+     0480   F0 0A      BEQ &048C
+     0482   BD 9B 04   LDA &049B,X
+     0485   A8         TAY
+     0486   B1 72      LDA (&72),Y
+     0488   F0 F5      BEQ &047F
+     048A   B1 91      LDA (&91),Y
+.wait_for_space2
+     048C   2C F8 FE   BIT &FEF8
+     048F   50 FB      BVC &048C
+     0491   8E F9 FE   STX &FEF9
+     0494   E0 00      CPX #&00
+     0496   D0 DF      BNE &0477
+     0498   68         PLA
+     0499   AA         TAX
+     049A   60         RTS
+.char_to_linear_map
+     049B   00
+     049C   20
+     049D   40
+     049E   60
+     049F   80
+     04A0   A0
+     04A1   C0
+     04A2   E0
+     04A3   01
+     04A4   21
+     04A5   41
+     04A6   61
+     04A7   81
+     04A8   A1
+     04A9   C1
+     04AA   E1
+     04AB   02
+     04AC   22
+     04AD   42
+     04AE   62
+     04AF   82
+     04B0   A2
+     04B1   C2
+     04B2   E2
+     04B3   03
+     04B4   23
+     04B5   43
+     04B6   63
+     04B7   83
+     04B8   A3
+     04B9   C3
+     04BA   E3
+     04BB   04
+     04BC   24
+     04BD   44
+     04BE   64
+     04BF   84
+     04C0   A4
+     04C1   C4
+     04C2   E4
+     04C3   05
+     04C4   25
+     04C5   45
+     04C6   65
+     04C7   85
+     04C8   A5
+     04C9   C5
+     04CA   E5
+     04CB   06
+     04CC   26
+     04CD   46
+     04CE   66
+     04CF   86
+     04D0   A6
+     04D1   C6
+     04D2   E6
+     04D3   07
+     04D4   27
+     04D5   47
+     04D6   67
+     04D7   87
+     04D8   A7
+     04D9   C7
+     04DA   E7
+     04DB   08
+     04DC   28
+     04DD   48
+     04DE   68
+     04DF   88
+     04E0   A8
+     04E1   C8
+     04E2   E8
+     04E3   09
+     04E4   29
+     04E5   49
+     04E6   69
+     04E7   89
+     04E8   A9
+     04E9   C9
+     04EA   E9
+     04EB   0A
+     04EC   2A
+     04ED   4A
+     04EE   6A
+     04EF   8A
+     04F0   AA
+     04F1   CA
+     04F2   EA
+     04F3   0B
+     04F4   2B
+     04F5   4B
+     04F6   6B
+     04F7   8B
+     04F8   AB
+     04F9   CB
+     04FA   EB
+     04FB   0C
+     04FC   2C
+     04FD   4C
+     04FE   6C
+     04FF   8C
+     0500   AC
+     0501   CC
+     0502   EC
+     0503   0D
+     0504   2D
+     0505   4D
+     0506   6D
+     0507   8D
+     0508   AD
+     0509   CD
+     050A   ED
+     050B   0E
+     050C   2E
+     050D   4E
+     050E   6E
+     050F   8E
+     0510   AE
+     0511   CE
+     0512   EE
+     0513   0F
+     0514   2F
+     0515   4F
+     0516   6F
+     0517   8F
+     0518   AF
+     0519   CF
+     051A   EF
+     051B   10
+     051C   30
+     051D   50
+     051E   70
+     051F   90
+     0520   B0
+     0521   D0
+     0522   F0
+     0523   11
+     0524   31
+     0525   51
+     0526   71
+     0527   91
+     0528   B1
+     0529   D1
+     052A   F1
+     052B   12
+     052C   32
+     052D   52
+     052E   72
+     052F   92
+     0530   B2
+     0531   D2
+     0532   F2
+     0533   13
+     0534   33
+     0535   53
+     0536   73
+     0537   93
+     0538   B3
+     0539   D3
+     053A   F3
+     053B   14
+     053C   34
+     053D   54
+     053E   74
+     053F   94
+     0540   B4
+     0541   D4
+     0542   F4
+     0543   15
+     0544   35
+     0545   55
+     0546   75
+     0547   95
+     0548   B5
+     0549   D5
+     054A   F5
+     054B   16
+     054C   36
+     054D   56
+     054E   76
+     054F   96
+     0550   B6
+     0551   D6
+     0552   F6
+     0553   17
+     0554   37
+     0555   57
+     0556   77
+     0557   97
+     0558   B7
+     0559   D7
+     055A   F7
+     055B   18
+     055C   38
+     055D   58
+     055E   78
+     055F   98
+     0560   B8
+     0561   D8
+     0562   F8
+     0563   19
+     0564   39
+     0565   59
+     0566   79
+     0567   99
+     0568   B9
+     0569   D9
+     056A   F9
+     056B   1A
+     056C   3A
+     056D   5A
+     056E   7A
+     056F   9A
+     0570   BA
+     0571   DA
+     0572   FA
+     0573   1B
+     0574   3B
+     0575   5B
+     0576   7B
+     0577   9B
+     0578   BB
+     0579   DB
+     057A   FB
+     057B   1C
+     057C   3C
+     057D   5C
+     057E   7C
+     057F   9C
+     0580   BC
+     0581   DC
+     0582   FC
+     0583   1D
+     0584   3D
+     0585   5D
+     0586   7D
+     0587   9D
+     0588   BD
+     0589   DD
+     058A   FD
+     058B   1E
+     058C   3E
+     058D   5E
+     058E   7E
+     058F   9E
+     0590   BE
+     0591   DE
+     0592   FE
+     0593   1F
+     0594   3F
+     0595   5F
+     0596   7F
+     0597   9F
+     0598   BF
+     0599   DF
+     059A   FF
+.count_base
+.gen_count
+     059B   00
+     059C   00
+     059D   00
+     059E   00
+.cell_count
+     059F   00
+     05A0   00
+     05A1   00
+     05A2   00
+.bcd_count
+     05A3   00
+     05A4   00
+     05A5   00
+     05A6   00
+.clear_count
+     05A7   9E 9B 05   STZ &059B,X
+     05AA   9E 9C 05   STZ &059C,X
+     05AD   9E 9D 05   STZ &059D,X
+     05B0   60         RTS
+.add_to_count
+     05B1   F8         SED
+     05B2   18         CLC
+     05B3   7D 9B 05   ADC &059B,X
+     05B6   9D 9B 05   STA &059B,X
+     05B9   90 12      BCC &05CD
+     05BB   BD 9C 05   LDA &059C,X
+     05BE   69 00      ADC #&00
+     05C0   9D 9C 05   STA &059C,X
+     05C3   90 08      BCC &05CD
+     05C5   BD 9D 05   LDA &059D,X
+     05C8   69 00      ADC #&00
+     05CA   9D 9D 05   STA &059D,X
+.done
+     05CD   D8         CLD
+     05CE   60         RTS
+.print_as_signed
+     05CF   34 01      BIT &01,X
+     05D1   10 14      BPL &05E7
+     05D3   A9 2D      LDA #&2D
+     05D5   20 EE FF   JSR &FFEE
+     05D8   A9 00      LDA #&00
+     05DA   38         SEC
+     05DB   F5 00      SBC &00,X
+     05DD   85 70      STA &70
+     05DF   A9 00      LDA #&00
+     05E1   F5 01      SBC &01,X
+     05E3   85 71      STA &71
+     05E5   80 08      BRA &05EF
+.print_as_unsigned
+     05E7   B5 00      LDA &00,X
+     05E9   85 70      STA &70
+     05EB   B5 01      LDA &01,X
+     05ED   85 71      STA &71
+.print_tmp
+     05EF   20 17 06   JSR &0617
+     05F2   A2 0A      LDX #&0A
+     05F4   A0 02      LDY #&02
+     05F6   80 04      BRA &05FC
+.print_count
+     05F8   A0 02      LDY #&02
+     05FA   E8         INX
+     05FB   E8         INX
+.print_count_inner
+.loop
+     05FC   BD 9B 05   LDA &059B,X
+     05FF   20 07 06   JSR &0607
+     0602   CA         DEX
+     0603   88         DEY
+     0604   10 F6      BPL &05FC
+     0606   60         RTS
+.print_bcd
+     0607   48         PHA
+     0608   4A         LSR A
+     0609   4A         LSR A
+     060A   4A         LSR A
+     060B   4A         LSR A
+     060C   20 10 06   JSR &0610
+     060F   68         PLA
+.print_bcd_digit
+     0610   29 0F      AND #&0F
+     0612   09 30      ORA #&30
+     0614   4C EE FF   JMP &FFEE
+.bin_to_bcd
+     0617   F8         SED
+     0618   9C A3 05   STZ &05A3
+     061B   9C A4 05   STZ &05A4
+     061E   9C A5 05   STZ &05A5
+     0621   A2 10      LDX #&10
+.CNVBIT
+     0623   06 70      ASL &70
+     0625   26 71      ROL &71
+     0627   AD A3 05   LDA &05A3
+     062A   6D A3 05   ADC &05A3
+     062D   8D A3 05   STA &05A3
+     0630   AD A4 05   LDA &05A4
+     0633   6D A4 05   ADC &05A4
+     0636   8D A4 05   STA &05A4
+     0639   AD A5 05   LDA &05A5
+     063C   6D A5 05   ADC &05A5
+     063F   8D A5 05   STA &05A5
+     0642   CA         DEX
+     0643   D0 DE      BNE &0623
+     0645   D8         CLD
+     0646   60         RTS
+Processed file 'utils.asm' ok
+Including file rle_utils.asm
+.skip_line
+     0647   A5 6B      LDA &6B
+     0649   C9 0A      CMP #&0A
+     064B   F0 09      BEQ &0656
+     064D   C9 0D      CMP #&0D
+     064F   F0 05      BEQ &0656
+     0651   20 1E 07   JSR &071E
+     0654   80 F1      BRA &0647
+.skip_whitespace
+     0656   A5 6B      LDA &6B
+     0658   C9 09      CMP #&09
+     065A   F0 11      BEQ &066D
+     065C   C9 0A      CMP #&0A
+     065E   F0 0D      BEQ &066D
+     0660   C9 0D      CMP #&0D
+     0662   F0 09      BEQ &066D
+     0664   C9 20      CMP #&20
+     0666   F0 05      BEQ &066D
+     0668   C9 2C      CMP #&2C
+     066A   F0 01      BEQ &066D
+     066C   60         RTS
+.skip
+     066D   20 1E 07   JSR &071E
+     0670   80 E4      BRA &0656
+.parse_rle_header
+     0672   20 56 06   JSR &0656
+.skip_comments
+     0675   A5 6B      LDA &6B
+     0677   C9 23      CMP #&23
+     0679   D0 05      BNE &0680
+     067B   20 47 06   JSR &0647
+     067E   80 F5      BRA &0675
+.process
+     0680   20 56 06   JSR &0656
+     0683   A5 6B      LDA &6B
+     0685   C9 78      CMP #&78
+     0687   D0 09      BNE &0692
+     0689   20 A2 06   JSR &06A2
+     068C   86 64      STX &64
+     068E   84 65      STY &65
+     0690   80 EE      BRA &0680
+.not_x
+     0692   C9 79      CMP #&79
+     0694   D0 09      BNE &069F
+     0696   20 A2 06   JSR &06A2
+     0699   86 66      STX &66
+     069B   84 67      STY &67
+     069D   80 E1      BRA &0680
+.not_y
+     069F   4C 47 06   JMP &0647
+.parse_size
+     06A2   64 68      STZ &68
+     06A4   64 69      STZ &69
+     06A6   20 1E 07   JSR &071E
+     06A9   20 56 06   JSR &0656
+     06AC   A5 6B      LDA &6B
+     06AE   C9 3D      CMP #&3D
+     06B0   D0 25      BNE &06D7
+     06B2   20 1E 07   JSR &071E
+     06B5   20 56 06   JSR &0656
+.digit_loop
+     06B8   A5 6B      LDA &6B
+     06BA   C9 30      CMP #&30
+     06BC   90 19      BCC &06D7
+     06BE   C9 3A      CMP #&3A
+     06C0   B0 15      BCS &06D7
+     06C2   20 1E 07   JSR &071E
+     06C5   AA         TAX
+     06C6   20 DC 06   JSR &06DC
+     06C9   8A         TXA
+     06CA   29 0F      AND #&0F
+     06CC   18         CLC
+     06CD   65 68      ADC &68
+     06CF   85 68      STA &68
+     06D1   90 E5      BCC &06B8
+     06D3   E6 69      INC &69
+     06D5   80 E1      BRA &06B8
+.return
+     06D7   A6 68      LDX &68
+     06D9   A4 69      LDY &69
+     06DB   60         RTS
+.count_times_10
+     06DC   06 68      ASL &68
+     06DE   26 69      ROL &69
+     06E0   A5 68      LDA &68
+     06E2   85 84      STA &84
+     06E4   A5 69      LDA &69
+     06E6   85 85      STA &85
+     06E8   06 68      ASL &68
+     06EA   26 69      ROL &69
+     06EC   06 68      ASL &68
+     06EE   26 69      ROL &69
+     06F0   A5 68      LDA &68
+     06F2   18         CLC
+     06F3   65 84      ADC &84
+     06F5   85 68      STA &68
+     06F7   A5 69      LDA &69
+     06F9   65 85      ADC &85
+     06FB   85 69      STA &69
+     06FD   60         RTS
+.rle_open_file
+     06FE   A9 40      LDA #&40
+     0700   A6 60      LDX &60
+     0702   A4 61      LDY &61
+     0704   20 CE FF   JSR &FFCE
+     0707   C9 00      CMP #&00
+     0709   F0 0A      BEQ &0715
+     070B   85 6A      STA &6A
+     070D   A9 FF      LDA #&FF
+     070F   85 60      STA &60
+     0711   85 61      STA &61
+     0713   18         CLC
+     0714   60         RTS
+.not_found
+     0715   38         SEC
+     0716   60         RTS
+.rle_close_file
+     0717   A9 00      LDA #&00
+     0719   A4 6A      LDY &6A
+     071B   4C CE FF   JMP &FFCE
+.rle_next_byte
+     071E   48         PHA
+     071F   A5 61      LDA &61
+     0721   C9 B2      CMP #&B2
+     0723   90 3C      BCC &0761
+     0725   A5 6A      LDA &6A
+     0727   8D 6F 07   STA &076F
+     072A   A9 00      LDA #&00
+     072C   8D 70 07   STA &0770
+     072F   A9 A2      LDA #&A2
+     0731   8D 71 07   STA &0771
+     0734   A9 00      LDA #&00
+     0736   8D 74 07   STA &0774
+     0739   A9 10      LDA #&10
+     073B   8D 75 07   STA &0775
+     073E   DA         PHX
+     073F   5A         PHY
+     0740   A9 04      LDA #&04
+     0742   A2 6F      LDX #&6F
+     0744   A0 07      LDY #&07
+     0746   20 D1 FF   JSR &FFD1
+     0749   AD 70 07   LDA &0770
+     074C   85 60      STA &60
+     074E   AD 71 07   LDA &0771
+     0751   85 61      STA &61
+     0753   A9 00      LDA #&00
+     0755   92 60      STA (&60)
+     0757   A9 00      LDA #&00
+     0759   85 60      STA &60
+     075B   A9 A2      LDA #&A2
+     075D   85 61      STA &61
+     075F   7A         PLY
+     0760   FA         PLX
+.skip_read_block
+     0761   B2 60      LDA (&60)
+     0763   85 6B      STA &6B
+     0765   F0 06      BEQ &076D
+Macro M_INCREMENT:
+     0767   E6 60      INC &60
+     0769   D0 02      BNE &076D
+     076B   E6 61      INC &61
+.nocarry
+End macro M_INCREMENT
+.skip_increment
+     076D   68         PLA
+     076E   60         RTS
+.control_block
+.file_handle
+     076F   00
+.address
+     0770   00 00 00 00
+.length
+     0774   00 00 00 00
+.ptr
+     0778   00 00 00 00
+Processed file 'rle_utils.asm' ok
+Including file patterns.asm
+.draw_pattern
+     077C   C9 41      CMP #&41
+     077E   90 31      BCC &07B1
+     0780   C9 5A      CMP #&5A
+     0782   B0 2D      BCS &07B1
+     0784   38         SEC
+     0785   E9 41      SBC #&41
+     0787   0A         ASL A
+     0788   AA         TAX
+     0789   BD 40 09   LDA &0940,X
+     078C   85 60      STA &60
+     078E   BD 41 09   LDA &0941,X
+     0791   85 61      STA &61
+     0793   A0 00      LDY #&00
+     0795   B1 60      LDA (&60),Y
+     0797   20 F7 08   JSR &08F7
+     079A   20 F7 08   JSR &08F7
+     079D   C9 01      CMP #&01
+     079F   F0 15      BEQ &07B6
+     07A1   C9 04      CMP #&04
+     07A3   F0 09      BEQ &07AE
+     07A5   C9 02      CMP #&02
+     07A7   F0 6B      BEQ &0814
+.type_random
+     07A9   B1 60      LDA (&60),Y
+     07AB   4C 72 08   JMP &0872
+.type_l42
+     07AE   4C 2D 08   JMP &082D
+.default_random
+     07B1   A9 02      LDA #&02
+     07B3   4C 72 08   JMP &0872
+.type_pattern
+     07B6   B1 60      LDA (&60),Y
+     07B8   85 66      STA &66
+     07BA   20 F7 08   JSR &08F7
+     07BD   B1 60      LDA (&60),Y
+     07BF   85 64      STA &64
+     07C1   20 F7 08   JSR &08F7
+     07C4   A9 10      LDA #&10
+     07C6   85 62      STA &62
+     07C8   A9 40      LDA #&40
+     07CA   85 63      STA &63
+.pattern_loop1
+     07CC   A6 64      LDX &64
+     07CE   A0 00      LDY #&00
+.pattern_loop2
+     07D0   B1 60      LDA (&60),Y
+     07D2   91 62      STA (&62),Y
+     07D4   C8         INY
+     07D5   CA         DEX
+     07D6   D0 F8      BNE &07D0
+     07D8   18         CLC
+     07D9   A5 62      LDA &62
+     07DB   69 20      ADC #&20
+     07DD   85 62      STA &62
+     07DF   A5 63      LDA &63
+     07E1   69 00      ADC #&00
+     07E3   85 63      STA &63
+     07E5   18         CLC
+     07E6   A5 60      LDA &60
+     07E8   65 64      ADC &64
+     07EA   85 60      STA &60
+     07EC   A5 61      LDA &61
+     07EE   69 00      ADC #&00
+     07F0   85 61      STA &61
+     07F2   C6 66      DEC &66
+     07F4   D0 D6      BNE &07CC
+     07F6   A9 01      LDA #&01
+     07F8   60         RTS
+.not_found_error
+     07F9   20 03 04   JSR &0403
+     07FC   4E 6F 74 ...
+     0807   A0 FF      LDY #&FF
+.name_loop
+     0809   C8         INY
+     080A   B1 60      LDA (&60),Y
+     080C   20 E3 FF   JSR &FFE3
+     080F   C9 0D      CMP #&0D
+     0811   D0 F6      BNE &0809
+     0813   60         RTS
+.type_rle
+     0814   20 FE 06   JSR &06FE
+     0817   B0 E0      BCS &07F9
+     0819   20 1E 07   JSR &071E
+     081C   A9 00      LDA #&00
+     081E   85 80      STA &80
+     0820   A9 50      LDA #&50
+     0822   85 81      STA &81
+     0824   20 00 26   JSR &2600
+     0827   20 17 07   JSR &0717
+     082A   A9 02      LDA #&02
+     082C   60         RTS
+.l42_pattern
+     082D   A9 00      LDA #&00
+     082F   85 80      STA &80
+     0831   A9 50      LDA #&50
+     0833   85 81      STA &81
+     0835   A0 01      LDY #&01
+.l42_copy
+     0837   B1 60      LDA (&60),Y
+     0839   48         PHA
+     083A   10 10      BPL &084C
+     083C   B2 60      LDA (&60)
+     083E   92 80      STA (&80)
+Macro M_INCREMENT:
+     0840   E6 60      INC &60
+     0842   D0 02      BNE &0846
+     0844   E6 61      INC &61
+.nocarry
+End macro M_INCREMENT
+Macro M_INCREMENT:
+     0846   E6 80      INC &80
+     0848   D0 02      BNE &084C
+     084A   E6 81      INC &81
+.nocarry
+End macro M_INCREMENT
+.l42_copy_y
+     084C   B2 60      LDA (&60)
+     084E   92 80      STA (&80)
+Macro M_INCREMENT:
+     0850   E6 60      INC &60
+     0852   D0 02      BNE &0856
+     0854   E6 61      INC &61
+.nocarry
+End macro M_INCREMENT
+Macro M_INCREMENT:
+     0856   E6 80      INC &80
+     0858   D0 02      BNE &085C
+     085A   E6 81      INC &81
+.nocarry
+End macro M_INCREMENT
+     085C   B2 60      LDA (&60)
+     085E   92 80      STA (&80)
+Macro M_INCREMENT:
+     0860   E6 60      INC &60
+     0862   D0 02      BNE &0866
+     0864   E6 61      INC &61
+.nocarry
+End macro M_INCREMENT
+Macro M_INCREMENT:
+     0866   E6 80      INC &80
+     0868   D0 02      BNE &086C
+     086A   E6 81      INC &81
+.nocarry
+End macro M_INCREMENT
+     086C   68         PLA
+     086D   D0 C8      BNE &0837
+     086F   A9 02      LDA #&02
+     0871   60         RTS
+.random_pattern
+     0872   48         PHA
+     0873   A2 04      LDX #&04
+.seed_loop
+     0875   DA         PHX
+     0876   A9 96      LDA #&96
+     0878   A2 44      LDX #&44
+     087A   20 F4 FF   JSR &FFF4
+     087D   98         TYA
+     087E   FA         PLX
+     087F   9D 3B 09   STA &093B,X
+     0882   CA         DEX
+     0883   10 F0      BPL &0875
+     0885   FA         PLX
+     0886   A9 00      LDA #&00
+     0888   85 62      STA &62
+     088A   A9 30      LDA #&30
+     088C   85 63      STA &63
+     088E   A0 00      LDY #&00
+.random_loop
+     0890   A9 FF      LDA #&FF
+     0892   91 62      STA (&62),Y
+     0894   20 D1 08   JSR &08D1
+     0897   31 62      AND (&62),Y
+     0899   91 62      STA (&62),Y
+     089B   20 D1 08   JSR &08D1
+     089E   31 62      AND (&62),Y
+     08A0   91 62      STA (&62),Y
+     08A2   E0 03      CPX #&03
+     08A4   B0 12      BCS &08B8
+     08A6   20 D1 08   JSR &08D1
+     08A9   31 62      AND (&62),Y
+     08AB   91 62      STA (&62),Y
+     08AD   E0 02      CPX #&02
+     08AF   B0 07      BCS &08B8
+     08B1   20 D1 08   JSR &08D1
+     08B4   31 62      AND (&62),Y
+     08B6   91 62      STA (&62),Y
+.random_next
+     08B8   C8         INY
+     08B9   D0 D5      BNE &0890
+     08BB   E6 63      INC &63
+     08BD   A5 63      LDA &63
+     08BF   C9 50      CMP #&50
+     08C1   D0 CD      BNE &0890
+     08C3   A0 1F      LDY #&1F
+     08C5   A9 00      LDA #&00
+.clear_loop
+     08C7   99 00 30   STA &3000,Y
+     08CA   99 E0 4F   STA &4FE0,Y
+     08CD   88         DEY
+     08CE   10 F7      BPL &08C7
+     08D0   60         RTS
+.random
+     08D1   8A         TXA
+     08D2   48         PHA
+     08D3   A2 08      LDX #&08
+.loop
+     08D5   AD 3D 09   LDA &093D
+     08D8   4A         LSR A
+     08D9   4A         LSR A
+     08DA   4A         LSR A
+     08DB   4D 3F 09   EOR &093F
+     08DE   6A         ROR A
+     08DF   2E 3B 09   ROL &093B
+     08E2   2E 3C 09   ROL &093C
+     08E5   2E 3D 09   ROL &093D
+     08E8   2E 3E 09   ROL &093E
+     08EB   2E 3F 09   ROL &093F
+     08EE   CA         DEX
+     08EF   D0 E4      BNE &08D5
+     08F1   68         PLA
+     08F2   AA         TAX
+     08F3   AD 3B 09   LDA &093B
+     08F6   60         RTS
+.inc_src
+     08F7   E6 60      INC &60
+     08F9   D0 02      BNE &08FD
+     08FB   E6 61      INC &61
+.nocarry
+     08FD   60         RTS
+.list_patterns
+     08FE   A2 00      LDX #&00
+.pattern_loop
+     0900   8A         TXA
+     0901   0A         ASL A
+     0902   A8         TAY
+     0903   B9 40 09   LDA &0940,Y
+     0906   85 60      STA &60
+     0908   B9 41 09   LDA &0941,Y
+     090B   85 61      STA &61
+     090D   F0 28      BEQ &0937
+     090F   8A         TXA
+     0910   18         CLC
+     0911   69 41      ADC #&41
+     0913   20 EE FF   JSR &FFEE
+     0916   A9 20      LDA #&20
+     0918   20 EE FF   JSR &FFEE
+     091B   A0 01      LDY #&01
+     091D   B1 60      LDA (&60),Y
+     091F   A8         TAY
+.name_loop
+     0920   B1 60      LDA (&60),Y
+     0922   F0 06      BEQ &092A
+     0924   20 EE FF   JSR &FFEE
+     0927   C8         INY
+     0928   D0 F6      BNE &0920
+.name_done
+     092A   A9 0A      LDA #&0A
+     092C   20 EE FF   JSR &FFEE
+     092F   A9 0D      LDA #&0D
+     0931   20 EE FF   JSR &FFEE
+     0934   E8         INX
+     0935   D0 C9      BNE &0900
+.list_done
+     0937   8A         TXA
+     0938   69 40      ADC #&40
+     093A   60         RTS
+.seed
+     093B   11
+     093C   22
+     093D   33
+     093E   44
+     093F   55
+.pattern_table
+     0940   74 09
+     0942   8B 09
+     0944   9B 09
+     0946   AF 09
+     0948   C3 09
+     094A   D8 09
+     094C   EC 09
+     094E   05 0A
+     0950   19 0A
+     0952   2B 0A
+     0954   48 0A
+     0956   63 0A
+     0958   7B 0A
+     095A   91 0A
+     095C   9F 0A
+     095E   B1 0A
+     0960   C3 0A
+     0962   D8 0A
+     0964   ED 0A
+     0966   04 0B
+     0968   2D 0B
+     096A   43 0B
+     096C   59 0B
+     096E   6F 0B
+     0970   7F 0B
+.pattern_table_terminator
+     0972   00 00
+.patternA
+.start
+     0974   02
+     0975   0B
+     0976   52 2E 52 ...
+     097E   0D
+.name
+     097F   52 2D 50 ...
+     098A   00
+.patternB
+.start
+     098B   02
+     098C   0A
+     098D   52 2E 41 ...
+     0994   0D
+.name
+     0995   41 63 6F ...
+     099A   00
+.patternC
+.start
+     099B   02
+     099C   0C
+     099D   52 2E 44 ...
+     09A6   0D
+.name
+     09A7   44 69 65 ...
+     09AE   00
+.patternD
+.start
+     09AF   02
+     09B0   0C
+     09B1   52 2E 52 ...
+     09BA   0D
+.name
+     09BB   52 61 62 ...
+     09C2   00
+.patternE
+.start
+     09C3   02
+     09C4   0B
+     09C5   52 2E 51 ...
+     09CD   0D
+.name
+     09CE   51 75 65 ...
+     09D7   00
+.patternF
+.start
+     09D8   02
+     09D9   0A
+     09DA   52 2E 42 ...
+     09E1   0D
+.name
+     09E2   42 75 6E ...
+     09EB   00
+.patternG
+.start
+     09EC   02
+     09ED   09
+     09EE   52 2E 50 ...
+     09F4   0D
+.name
+     09F5   50 75 66 ...
+     0A04   00
+.patternH
+.start
+     0A05   02
+     0A06   0A
+     0A07   52 2E 53 ...
+     0A0E   0D
+.name
+     0A0F   53 70 61 ...
+     0A18   00
+.patternI
+.start
+     0A19   02
+     0A1A   0B
+     0A1B   52 2E 47 ...
+     0A23   0D
+.name
+     0A24   47 6C 69 ...
+     0A2A   00
+.patternJ
+.start
+     0A2B   02
+     0A2C   0C
+     0A2D   52 2E 42 ...
+     0A36   0D
+.name
+     0A37   47 6F 73 ...
+     0A47   00
+.patternK
+.start
+     0A48   02
+     0A49   0C
+     0A4A   52 2E 42 ...
+     0A53   0D
+.name
+     0A54   42 6C 69 ...
+     0A62   00
+.patternL
+.start
+     0A63   02
+     0A64   0C
+     0A65   52 2E 46 ...
+     0A6E   0D
+.name
+     0A6F   46 6C 79 ...
+     0A7A   00
+.patternM
+.start
+     0A7B   02
+     0A7C   0C
+     0A7D   52 2E 50 ...
+     0A86   0D
+.name
+     0A87   50 69 20 ...
+     0A90   00
+.patternN
+.start
+     0A91   02
+     0A92   09
+     0A93   52 2E 45 ...
+     0A99   0D
+.name
+     0A9A   45 64 6E ...
+     0A9E   00
+.patternO
+.start
+     0A9F   02
+     0AA0   0B
+     0AA1   52 2E 32 ...
+     0AA9   0D
+.name
+     0AAA   32 33 33 ...
+     0AB0   00
+.patternP
+.start
+     0AB1   02
+     0AB2   0B
+     0AB3   52 2E 34 ...
+     0ABB   0D
+.name
+     0ABC   34 30 35 ...
+     0AC2   00
+.patternQ
+.start
+     0AC3   02
+     0AC4   0C
+     0AC5   52 2E 48 ...
+     0ACE   0D
+.name
+     0ACF   48 61 6C ...
+     0AD7   00
+.patternR
+.start
+     0AD8   02
+     0AD9   0C
+     0ADA   52 2E 53 ...
+     0AE3   0D
+.name
+     0AE4   53 74 61 ...
+     0AEC   00
+.patternS
+.start
+     0AED   02
+     0AEE   0C
+     0AEF   52 2E 4E ...
+     0AF8   0D
+.name
+     0AF9   4E 6F 61 ...
+     0B03   00
+.patternT
+.start
+     0B04   02
+     0B05   0B
+     0B06   52 2E 54 ...
+     0B0E   0D
+.name
+     0B0F   54 75 72 ...
+     0B2C   00
+.patternU
+.start
+     0B2D   03
+     0B2E   03
+     0B2F   01
+.name
+     0B30   52 61 6E ...
+     0B42   00
+.patternV
+.start
+     0B43   03
+     0B44   03
+     0B45   02
+.name
+     0B46   52 61 6E ...
+     0B58   00
+.patternW
+.start
+     0B59   03
+     0B5A   03
+     0B5B   03
+.name
+     0B5C   52 61 6E ...
+     0B6E   00
+.patternX
+.start
+     0B6F   02
+     0B70   0A
+     0B71   52 2E 34 ...
+     0B78   0D
+.name
+     0B79   34 47 55 ...
+     0B7E   00
+.patternY
+.start
+     0B7F   02
+     0B80   0B
+     0B81   52 2E 50 ...
+     0B89   0D
+.name
+     0B8A   50 52 49 ...
+     0B95   00
+Processed file 'patterns.asm' ok
+Including file macros_l42.asm
+Including file macros_l8_l42.asm
+Processed file 'macros_l8_l42.asm' ok
+Processed file 'macros_l42.asm' ok
+Including file list42_life.asm
+.list_life
+     0B96   A0 01      LDY #&01
+     0B98   64 46      STZ &46
+     0B9A   A5 80      LDA &80
+     0B9C   85 8A      STA &8A
+     0B9E   A5 81      LDA &81
+     0BA0   85 8B      STA &8B
+     0BA2   64 40      STZ &40
+     0BA4   64 44      STZ &44
+     0BA6   64 42      STZ &42
+     0BA8   64 45      STZ &45
+     0BAA   A9 00      LDA #&00
+     0BAC   92 82      STA (&82)
+     0BAE   91 82      STA (&82),Y
+.level1
+     0BB0   B1 82      LDA (&82),Y
+     0BB2   10 19      BPL &0BCD
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0BB4   A5 82      LDA &82
+     0BB6   18         CLC
+     0BB7   69 03      ADC #&03
+     0BB9   85 82      STA &82
+     0BBB   90 10      BCC &0BCD
+     0BBD   E6 83      INC &83
+     0BBF   A5 83      LDA &83
+     0BC1   C9 F4      CMP #&F4
+     0BC3   D0 08      BNE &0BCD
+     0BC5   A9 00      LDA #&00
+     0BC7   85 82      STA &82
+     0BC9   A9 50      LDA #&50
+     0BCB   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+.skip_inc_new
+     0BCD   A5 8A      LDA &8A
+     0BCF   C5 80      CMP &80
+     0BD1   D0 4F      BNE &0C22
+     0BD3   A5 8B      LDA &8B
+     0BD5   C5 81      CMP &81
+     0BD7   D0 49      BNE &0C22
+     0BD9   B2 80      LDA (&80)
+     0BDB   11 80      ORA (&80),Y
+     0BDD   D0 20      BNE &0BFF
+     0BDF   A9 00      LDA #&00
+     0BE1   92 82      STA (&82)
+     0BE3   91 82      STA (&82),Y
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0BE5   A5 82      LDA &82
+     0BE7   18         CLC
+     0BE8   69 02      ADC #&02
+     0BEA   85 82      STA &82
+     0BEC   90 10      BCC &0BFE
+     0BEE   E6 83      INC &83
+     0BF0   A5 83      LDA &83
+     0BF2   C9 F4      CMP #&F4
+     0BF4   D0 08      BNE &0BFE
+     0BF6   A9 00      LDA #&00
+     0BF8   85 82      STA &82
+     0BFA   A9 50      LDA #&50
+     0BFC   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     0BFE   60         RTS
+.this_not_zero
+     0BFF   B2 80      LDA (&80)
+     0C01   85 88      STA &88
+     0C03   B1 80      LDA (&80),Y
+     0C05   85 89      STA &89
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0C07   A5 80      LDA &80
+     0C09   18         CLC
+     0C0A   69 02      ADC #&02
+     0C0C   85 80      STA &80
+     0C0E   90 10      BCC &0C20
+     0C10   E6 81      INC &81
+     0C12   A5 81      LDA &81
+     0C14   C9 F4      CMP #&F4
+     0C16   D0 08      BNE &0C20
+     0C18   A9 00      LDA #&00
+     0C1A   85 80      STA &80
+     0C1C   A9 50      LDA #&50
+     0C1E   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     0C20   80 55      BRA &0C77
+.else1
+     0C22   B2 8A      LDA (&8A)
+     0C24   C5 88      CMP &88
+     0C26   D0 1F      BNE &0C47
+     0C28   B1 8A      LDA (&8A),Y
+     0C2A   C5 89      CMP &89
+     0C2C   D0 19      BNE &0C47
+Macro M_INCREMENT_BY_2_NOSWITCH:
+Macro M_INCREMENT_BY_N:
+     0C2E   A5 8A      LDA &8A
+     0C30   18         CLC
+     0C31   69 02      ADC #&02
+     0C33   85 8A      STA &8A
+     0C35   90 10      BCC &0C47
+     0C37   E6 8B      INC &8B
+     0C39   A5 8B      LDA &8B
+     0C3B   C9 F4      CMP #&F4
+     0C3D   D0 08      BNE &0C47
+     0C3F   A9 00      LDA #&00
+     0C41   85 8A      STA &8A
+     0C43   A9 50      LDA #&50
+     0C45   85 8B      STA &8B
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2_NOSWITCH
+.skip_inc_prev
+     0C47   A5 88      LDA &88
+     0C49   38         SEC
+     0C4A   E9 02      SBC #&02
+     0C4C   85 88      STA &88
+     0C4E   B0 02      BCS &0C52
+     0C50   C6 89      DEC &89
+.no_carry
+     0C52   B2 80      LDA (&80)
+     0C54   C5 88      CMP &88
+     0C56   D0 1F      BNE &0C77
+     0C58   B1 80      LDA (&80),Y
+     0C5A   C5 89      CMP &89
+     0C5C   D0 19      BNE &0C77
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0C5E   A5 80      LDA &80
+     0C60   18         CLC
+     0C61   69 02      ADC #&02
+     0C63   85 80      STA &80
+     0C65   90 10      BCC &0C77
+     0C67   E6 81      INC &81
+     0C69   A5 81      LDA &81
+     0C6B   C9 F4      CMP #&F4
+     0C6D   D0 08      BNE &0C77
+     0C6F   A9 00      LDA #&00
+     0C71   85 80      STA &80
+     0C73   A9 50      LDA #&50
+     0C75   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+.skip_inc_this
+.endif1
+     0C77   A5 88      LDA &88
+     0C79   18         CLC
+     0C7A   69 01      ADC #&01
+     0C7C   92 82      STA (&82)
+     0C7E   A5 89      LDA &89
+     0C80   69 00      ADC #&00
+     0C82   91 82      STA (&82),Y
+.level2
+     0C84   B2 8A      LDA (&8A)
+     0C86   85 86      STA &86
+     0C88   B1 8A      LDA (&8A),Y
+     0C8A   85 87      STA &87
+Macro M_ASSIGN_IF_GREATER:
+     0C8C   A5 86      LDA &86
+     0C8E   D2 80      CMP (&80)
+     0C90   A5 87      LDA &87
+     0C92   F1 80      SBC (&80),Y
+     0C94   50 02      BVC &0C98
+     0C96   49 80      EOR #&80
+.label
+     0C98   30 08      BMI &0CA2
+     0C9A   B2 80      LDA (&80)
+     0C9C   85 86      STA &86
+     0C9E   B1 80      LDA (&80),Y
+     0CA0   85 87      STA &87
+.skip_assign_val
+End macro M_ASSIGN_IF_GREATER
+     0CA2   A5 87      LDA &87
+     0CA4   30 03      BMI &0CA9
+     0CA6   4C B0 0B   JMP &0BB0
+.x_negative
+.level3
+     0CA9   64 44      STZ &44
+     0CAB   64 45      STZ &45
+Macro M_UPDATE_CHUNK_IF_EQUAL_TO_X:
+     0CAD   B2 8A      LDA (&8A)
+     0CAF   C5 86      CMP &86
+     0CB1   D0 25      BNE &0CD8
+     0CB3   B1 8A      LDA (&8A),Y
+     0CB5   C5 87      CMP &87
+     0CB7   D0 1F      BNE &0CD8
+     0CB9   C8         INY
+     0CBA   B1 8A      LDA (&8A),Y
+     0CBC   85 44      STA &44
+     0CBE   88         DEY
+Macro M_INCREMENT_BY_3_NOSWITCH:
+Macro M_INCREMENT_BY_N:
+     0CBF   A5 8A      LDA &8A
+     0CC1   18         CLC
+     0CC2   69 03      ADC #&03
+     0CC4   85 8A      STA &8A
+     0CC6   90 10      BCC &0CD8
+     0CC8   E6 8B      INC &8B
+     0CCA   A5 8B      LDA &8B
+     0CCC   C9 F4      CMP #&F4
+     0CCE   D0 08      BNE &0CD8
+     0CD0   A9 00      LDA #&00
+     0CD2   85 8A      STA &8A
+     0CD4   A9 50      LDA #&50
+     0CD6   85 8B      STA &8B
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3_NOSWITCH
+.skip_inc
+End macro M_UPDATE_CHUNK_IF_EQUAL_TO_X
+Macro M_UPDATE_CHUNK_IF_EQUAL_TO_X:
+     0CD8   B2 80      LDA (&80)
+     0CDA   C5 86      CMP &86
+     0CDC   D0 25      BNE &0D03
+     0CDE   B1 80      LDA (&80),Y
+     0CE0   C5 87      CMP &87
+     0CE2   D0 1F      BNE &0D03
+     0CE4   C8         INY
+     0CE5   B1 80      LDA (&80),Y
+     0CE7   85 45      STA &45
+     0CE9   88         DEY
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0CEA   A5 80      LDA &80
+     0CEC   18         CLC
+     0CED   69 03      ADC #&03
+     0CEF   85 80      STA &80
+     0CF1   90 10      BCC &0D03
+     0CF3   E6 81      INC &81
+     0CF5   A5 81      LDA &81
+     0CF7   C9 F4      CMP #&F4
+     0CF9   D0 08      BNE &0D03
+     0CFB   A9 00      LDA #&00
+     0CFD   85 80      STA &80
+     0CFF   A9 50      LDA #&50
+     0D01   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+.skip_inc
+End macro M_UPDATE_CHUNK_IF_EQUAL_TO_X
+     0D03   A5 40      LDA &40
+     0D05   05 44      ORA &44
+     0D07   05 42      ORA &42
+     0D09   05 45      ORA &45
+     0D0B   D0 03      BNE &0D10
+     0D0D   4C 84 0C   JMP &0C84
+.not_break
+     0D10   64 4C      STZ &4C
+     0D12   A5 40      LDA &40
+     0D14   05 42      ORA &42
+     0D16   F0 1C      BEQ &0D34
+     0D18   A6 42      LDX &42
+     0D1A   BD 00 14   LDA &1400,X
+     0D1D   85 41      STA &41
+     0D1F   B2 40      LDA (&40)
+     0D21   29 C0      AND #&C0
+     0D23   85 4C      STA &4C
+     0D25   A6 40      LDX &40
+     0D27   BD 00 15   LDA &1500,X
+     0D2A   85 43      STA &43
+     0D2C   B2 42      LDA (&42)
+     0D2E   29 0C      AND #&0C
+     0D30   05 4C      ORA &4C
+     0D32   85 4C      STA &4C
+.left_zero
+     0D34   A5 42      LDA &42
+     0D36   29 30      AND #&30
+     0D38   85 4A      STA &4A
+     0D3A   A5 45      LDA &45
+     0D3C   29 C0      AND #&C0
+     0D3E   05 4A      ORA &4A
+     0D40   AA         TAX
+     0D41   BD 00 14   LDA &1400,X
+     0D44   85 47      STA &47
+     0D46   A5 40      LDA &40
+     0D48   29 33      AND #&33
+     0D4A   85 4A      STA &4A
+     0D4C   A5 44      LDA &44
+     0D4E   29 CC      AND #&CC
+     0D50   05 4A      ORA &4A
+     0D52   A8         TAY
+     0D53   B1 46      LDA (&46),Y
+     0D55   29 30      AND #&30
+     0D57   05 4C      ORA &4C
+     0D59   85 4C      STA &4C
+     0D5B   A5 40      LDA &40
+     0D5D   29 03      AND #&03
+     0D5F   85 4A      STA &4A
+     0D61   A5 44      LDA &44
+     0D63   29 0C      AND #&0C
+     0D65   05 4A      ORA &4A
+     0D67   18         CLC
+     0D68   69 16      ADC #&16
+     0D6A   85 47      STA &47
+     0D6C   A5 42      LDA &42
+     0D6E   29 33      AND #&33
+     0D70   85 4A      STA &4A
+     0D72   A5 45      LDA &45
+     0D74   29 CC      AND #&CC
+     0D76   05 4A      ORA &4A
+     0D78   A8         TAY
+     0D79   B1 46      LDA (&46),Y
+     0D7B   29 03      AND #&03
+     0D7D   A0 01      LDY #&01
+     0D7F   05 4C      ORA &4C
+     0D81   F0 4D      BEQ &0DD0
+     0D83   85 4C      STA &4C
+     0D85   B1 82      LDA (&82),Y
+     0D87   30 1B      BMI &0DA4
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0D89   A5 82      LDA &82
+     0D8B   18         CLC
+     0D8C   69 02      ADC #&02
+     0D8E   85 82      STA &82
+     0D90   90 10      BCC &0DA2
+     0D92   E6 83      INC &83
+     0D94   A5 83      LDA &83
+     0D96   C9 F4      CMP #&F4
+     0D98   D0 08      BNE &0DA2
+     0D9A   A9 00      LDA #&00
+     0D9C   85 82      STA &82
+     0D9E   A9 50      LDA #&50
+     0DA0   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     0DA2   80 19      BRA &0DBD
+.last_was_x
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0DA4   A5 82      LDA &82
+     0DA6   18         CLC
+     0DA7   69 03      ADC #&03
+     0DA9   85 82      STA &82
+     0DAB   90 10      BCC &0DBD
+     0DAD   E6 83      INC &83
+     0DAF   A5 83      LDA &83
+     0DB1   C9 F4      CMP #&F4
+     0DB3   D0 08      BNE &0DBD
+     0DB5   A9 00      LDA #&00
+     0DB7   85 82      STA &82
+     0DB9   A9 50      LDA #&50
+     0DBB   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+.store_x
+     0DBD   A5 86      LDA &86
+     0DBF   38         SEC
+     0DC0   E9 03      SBC #&03
+     0DC2   92 82      STA (&82)
+     0DC4   A5 87      LDA &87
+     0DC6   E9 00      SBC #&00
+     0DC8   91 82      STA (&82),Y
+     0DCA   C8         INY
+     0DCB   A5 4C      LDA &4C
+     0DCD   91 82      STA (&82),Y
+     0DCF   88         DEY
+.endif2
+     0DD0   A5 44      LDA &44
+     0DD2   85 40      STA &40
+     0DD4   A5 45      LDA &45
+     0DD6   85 42      STA &42
+     0DD8   A5 86      LDA &86
+     0DDA   18         CLC
+     0DDB   69 04      ADC #&04
+     0DDD   85 86      STA &86
+     0DDF   90 02      BCC &0DE3
+     0DE1   E6 87      INC &87
+.jmp_level3
+     0DE3   4C A9 0C   JMP &0CA9
+.list_life_offset_top_left
+     0DE6   A6 54      LDX &54
+     0DE8   A5 62      LDA &62
+     0DEA   38         SEC
+     0DEB   FD 1C 0E   SBC &0E1C,X
+     0DEE   85 62      STA &62
+     0DF0   A5 63      LDA &63
+     0DF2   FD 23 0E   SBC &0E23,X
+     0DF5   85 63      STA &63
+     0DF7   A5 64      LDA &64
+     0DF9   18         CLC
+     0DFA   7D 1C 0E   ADC &0E1C,X
+     0DFD   85 64      STA &64
+     0DFF   A5 65      LDA &65
+     0E01   7D 23 0E   ADC &0E23,X
+     0E04   85 65      STA &65
+     0E06   38         SEC
+     0E07   A5 62      LDA &62
+     0E09   E9 03      SBC #&03
+     0E0B   85 78      STA &78
+     0E0D   A5 63      LDA &63
+     0E0F   E9 00      SBC #&00
+     0E11   85 79      STA &79
+     0E13   A2 00      LDX #&00
+.loop
+     0E15   9E 00 F7   STZ &F700,X
+     0E18   CA         DEX
+     0E19   D0 FA      BNE &0E15
+     0E1B   60         RTS
+.zoom_correction_lo
+     0E1C   00
+     0E1D   00
+     0E1E   00
+     0E1F   80
+     0E20   40
+     0E21   20
+     0E22   10
+.zoom_correction_hi
+     0E23   04
+     0E24   02
+     0E25   01
+     0E26   00
+     0E27   00
+     0E28   00
+     0E29   00
+.list_life_count_cells
+     0E2A   A2 04      LDX #&04
+     0E2C   20 A7 05   JSR &05A7
+     0E2F   A0 01      LDY #&01
+.loop
+     0E31   B1 60      LDA (&60),Y
+     0E33   10 28      BPL &0E5D
+     0E35   C8         INY
+     0E36   B1 60      LDA (&60),Y
+     0E38   88         DEY
+     0E39   AA         TAX
+     0E3A   BD 00 13   LDA &1300,X
+     0E3D   A2 04      LDX #&04
+     0E3F   20 B1 05   JSR &05B1
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0E42   A5 60      LDA &60
+     0E44   18         CLC
+     0E45   69 03      ADC #&03
+     0E47   85 60      STA &60
+     0E49   90 10      BCC &0E5B
+     0E4B   E6 61      INC &61
+     0E4D   A5 61      LDA &61
+     0E4F   C9 F4      CMP #&F4
+     0E51   D0 08      BNE &0E5B
+     0E53   A9 00      LDA #&00
+     0E55   85 60      STA &60
+     0E57   A9 50      LDA #&50
+     0E59   85 61      STA &61
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+     0E5B   80 D4      BRA &0E31
+.y_or_termiator
+     0E5D   12 60      ORA (&60)
+     0E5F   F0 1B      BEQ &0E7C
+.inc_by_2
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0E61   A5 60      LDA &60
+     0E63   18         CLC
+     0E64   69 02      ADC #&02
+     0E66   85 60      STA &60
+     0E68   90 10      BCC &0E7A
+     0E6A   E6 61      INC &61
+     0E6C   A5 61      LDA &61
+     0E6E   C9 F4      CMP #&F4
+     0E70   D0 08      BNE &0E7A
+     0E72   A9 00      LDA #&00
+     0E74   85 60      STA &60
+     0E76   A9 50      LDA #&50
+     0E78   85 61      STA &61
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     0E7A   80 B5      BRA &0E31
+.exit
+     0E7C   60         RTS
+.list_life_prune_cells
+     0E7D   A0 01      LDY #&01
+.loop
+     0E7F   B1 80      LDA (&80),Y
+     0E81   10 4A      BPL &0ECD
+     0E83   C9 80      CMP #&80
+     0E85   F0 2B      BEQ &0EB2
+     0E87   C9 FF      CMP #&FF
+     0E89   F0 27      BEQ &0EB2
+     0E8B   C8         INY
+     0E8C   B1 80      LDA (&80),Y
+     0E8E   91 82      STA (&82),Y
+     0E90   88         DEY
+     0E91   B1 80      LDA (&80),Y
+     0E93   91 82      STA (&82),Y
+     0E95   B2 80      LDA (&80)
+     0E97   92 82      STA (&82)
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0E99   A5 82      LDA &82
+     0E9B   18         CLC
+     0E9C   69 03      ADC #&03
+     0E9E   85 82      STA &82
+     0EA0   90 10      BCC &0EB2
+     0EA2   E6 83      INC &83
+     0EA4   A5 83      LDA &83
+     0EA6   C9 F4      CMP #&F4
+     0EA8   D0 08      BNE &0EB2
+     0EAA   A9 00      LDA #&00
+     0EAC   85 82      STA &82
+     0EAE   A9 50      LDA #&50
+     0EB0   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+.skip_copy_x
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0EB2   A5 80      LDA &80
+     0EB4   18         CLC
+     0EB5   69 03      ADC #&03
+     0EB7   85 80      STA &80
+     0EB9   90 10      BCC &0ECB
+     0EBB   E6 81      INC &81
+     0EBD   A5 81      LDA &81
+     0EBF   C9 F4      CMP #&F4
+     0EC1   D0 08      BNE &0ECB
+     0EC3   A9 00      LDA #&00
+     0EC5   85 80      STA &80
+     0EC7   A9 50      LDA #&50
+     0EC9   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+     0ECB   80 B2      BRA &0E7F
+.is_y_or_terminator
+     0ECD   AA         TAX
+     0ECE   12 80      ORA (&80)
+     0ED0   F0 7E      BEQ &0F50
+     0ED2   8A         TXA
+     0ED3   C9 7F      CMP #&7F
+     0ED5   F0 41      BEQ &0F18
+     0ED7   C9 00      CMP #&00
+     0ED9   F0 3D      BEQ &0F18
+     0EDB   B1 80      LDA (&80),Y
+     0EDD   91 82      STA (&82),Y
+     0EDF   B2 80      LDA (&80)
+     0EE1   92 82      STA (&82)
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0EE3   A5 82      LDA &82
+     0EE5   18         CLC
+     0EE6   69 02      ADC #&02
+     0EE8   85 82      STA &82
+     0EEA   90 10      BCC &0EFC
+     0EEC   E6 83      INC &83
+     0EEE   A5 83      LDA &83
+     0EF0   C9 F4      CMP #&F4
+     0EF2   D0 08      BNE &0EFC
+     0EF4   A9 00      LDA #&00
+     0EF6   85 82      STA &82
+     0EF8   A9 50      LDA #&50
+     0EFA   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0EFC   A5 80      LDA &80
+     0EFE   18         CLC
+     0EFF   69 02      ADC #&02
+     0F01   85 80      STA &80
+     0F03   90 10      BCC &0F15
+     0F05   E6 81      INC &81
+     0F07   A5 81      LDA &81
+     0F09   C9 F4      CMP #&F4
+     0F0B   D0 08      BNE &0F15
+     0F0D   A9 00      LDA #&00
+     0F0F   85 80      STA &80
+     0F11   A9 50      LDA #&50
+     0F13   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     0F15   4C 7F 0E   JMP &0E7F
+.skip_row
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0F18   A5 80      LDA &80
+     0F1A   18         CLC
+     0F1B   69 02      ADC #&02
+     0F1D   85 80      STA &80
+     0F1F   90 10      BCC &0F31
+     0F21   E6 81      INC &81
+     0F23   A5 81      LDA &81
+     0F25   C9 F4      CMP #&F4
+     0F27   D0 08      BNE &0F31
+     0F29   A9 00      LDA #&00
+     0F2B   85 80      STA &80
+     0F2D   A9 50      LDA #&50
+     0F2F   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+.skip_row_loop
+     0F31   B1 80      LDA (&80),Y
+     0F33   10 98      BPL &0ECD
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0F35   A5 80      LDA &80
+     0F37   18         CLC
+     0F38   69 03      ADC #&03
+     0F3A   85 80      STA &80
+     0F3C   90 10      BCC &0F4E
+     0F3E   E6 81      INC &81
+     0F40   A5 81      LDA &81
+     0F42   C9 F4      CMP #&F4
+     0F44   D0 08      BNE &0F4E
+     0F46   A9 00      LDA #&00
+     0F48   85 80      STA &80
+     0F4A   A9 50      LDA #&50
+     0F4C   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+     0F4E   80 E1      BRA &0F31
+.terminator
+     0F50   A9 00      LDA #&00
+     0F52   92 82      STA (&82)
+     0F54   91 82      STA (&82),Y
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0F56   A5 82      LDA &82
+     0F58   18         CLC
+     0F59   69 02      ADC #&02
+     0F5B   85 82      STA &82
+     0F5D   90 10      BCC &0F6F
+     0F5F   E6 83      INC &83
+     0F61   A5 83      LDA &83
+     0F63   C9 F4      CMP #&F4
+     0F65   D0 08      BNE &0F6F
+     0F67   A9 00      LDA #&00
+     0F69   85 82      STA &82
+     0F6B   A9 50      LDA #&50
+     0F6D   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     0F6F   60         RTS
+.list_life_load_buffer
+     0F70   60         RTS
+.list_life_update_delta
+     0F71   A6 54      LDX &54
+     0F73   B2 60      LDA (&60)
+     0F75   45 64      EOR &64
+     0F77   29 01      AND #&01
+     0F79   F0 14      BEQ &0F8F
+     0F7B   BC A2 12   LDY &12A2,X
+     0F7E   A2 00      LDX #&00
+.copy_loop
+     0F80   BD 00 F7   LDA &F700,X
+     0F83   9D 00 F6   STA &F600,X
+     0F86   9E 00 F7   STZ &F700,X
+     0F89   E8         INX
+     0F8A   88         DEY
+     0F8B   D0 F3      BNE &0F80
+     0F8D   A6 54      LDX &54
+.no_straddle
+     0F8F   18         CLC
+     0F90   A5 62      LDA &62
+     0F92   7D 8D 12   ADC &128D,X
+     0F95   85 66      STA &66
+     0F97   A5 63      LDA &63
+     0F99   7D 94 12   ADC &1294,X
+     0F9C   85 67      STA &67
+     0F9E   A5 64      LDA &64
+     0FA0   38         SEC
+     0FA1   FD 9B 12   SBC &129B,X
+     0FA4   85 68      STA &68
+     0FA6   A5 65      LDA &65
+     0FA8   E9 00      SBC #&00
+     0FAA   85 69      STA &69
+     0FAC   A5 64      LDA &64
+     0FAE   18         CLC
+     0FAF   69 01      ADC #&01
+     0FB1   85 7A      STA &7A
+     0FB3   A5 65      LDA &65
+     0FB5   69 00      ADC #&00
+     0FB7   85 7B      STA &7B
+.while_level1
+     0FB9   A0 00      LDY #&00
+     0FBB   B1 60      LDA (&60),Y
+     0FBD   85 88      STA &88
+     0FBF   C8         INY
+     0FC0   B1 60      LDA (&60),Y
+     0FC2   85 89      STA &89
+     0FC4   A5 7A      LDA &7A
+     0FC6   C5 88      CMP &88
+     0FC8   A5 7B      LDA &7B
+     0FCA   E5 89      SBC &89
+     0FCC   B0 3A      BCS &1008
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     0FCE   A5 60      LDA &60
+     0FD0   18         CLC
+     0FD1   69 02      ADC #&02
+     0FD3   85 60      STA &60
+     0FD5   90 10      BCC &0FE7
+     0FD7   E6 61      INC &61
+     0FD9   A5 61      LDA &61
+     0FDB   C9 F4      CMP #&F4
+     0FDD   D0 08      BNE &0FE7
+     0FDF   A9 00      LDA #&00
+     0FE1   85 60      STA &60
+     0FE3   A9 50      LDA #&50
+     0FE5   85 61      STA &61
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     0FE7   A0 01      LDY #&01
+.skip_over_x
+     0FE9   B1 60      LDA (&60),Y
+     0FEB   10 CC      BPL &0FB9
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     0FED   A5 60      LDA &60
+     0FEF   18         CLC
+     0FF0   69 03      ADC #&03
+     0FF2   85 60      STA &60
+     0FF4   90 10      BCC &1006
+     0FF6   E6 61      INC &61
+     0FF8   A5 61      LDA &61
+     0FFA   C9 F4      CMP #&F4
+     0FFC   D0 08      BNE &1006
+     0FFE   A9 00      LDA #&00
+     1000   85 60      STA &60
+     1002   A9 50      LDA #&50
+     1004   85 61      STA &61
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+     1006   80 E1      BRA &0FE9
+.else1
+     1008   A5 68      LDA &68
+     100A   C5 88      CMP &88
+     100C   A5 69      LDA &69
+     100E   E5 89      SBC &89
+     1010   90 01      BCC &1013
+     1012   60         RTS
+.not_else2
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     1013   A5 60      LDA &60
+     1015   18         CLC
+     1016   69 02      ADC #&02
+     1018   85 60      STA &60
+     101A   90 10      BCC &102C
+     101C   E6 61      INC &61
+     101E   A5 61      LDA &61
+     1020   C9 F4      CMP #&F4
+     1022   D0 08      BNE &102C
+     1024   A9 00      LDA #&00
+     1026   85 60      STA &60
+     1028   A9 50      LDA #&50
+     102A   85 61      STA &61
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+.while_level2
+     102C   A0 00      LDY #&00
+     102E   B1 60      LDA (&60),Y
+     1030   85 86      STA &86
+     1032   C8         INY
+     1033   B1 60      LDA (&60),Y
+     1035   85 87      STA &87
+     1037   30 03      BMI &103C
+     1039   4C B9 0F   JMP &0FB9
+.less_than_zero
+     103C   C8         INY
+     103D   B1 60      LDA (&60),Y
+     103F   85 8E      STA &8E
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     1041   A5 60      LDA &60
+     1043   18         CLC
+     1044   69 03      ADC #&03
+     1046   85 60      STA &60
+     1048   90 10      BCC &105A
+     104A   E6 61      INC &61
+     104C   A5 61      LDA &61
+     104E   C9 F4      CMP #&F4
+     1050   D0 08      BNE &105A
+     1052   A9 00      LDA #&00
+     1054   85 60      STA &60
+     1056   A9 50      LDA #&50
+     1058   85 61      STA &61
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+     105A   A5 86      LDA &86
+     105C   C5 78      CMP &78
+     105E   A5 87      LDA &87
+     1060   E5 79      SBC &79
+     1062   90 C8      BCC &102C
+     1064   A5 86      LDA &86
+     1066   C5 66      CMP &66
+     1068   A5 87      LDA &87
+     106A   E5 67      SBC &67
+     106C   B0 BE      BCS &102C
+     106E   A5 64      LDA &64
+     1070   38         SEC
+     1071   E5 88      SBC &88
+     1073   85 76      STA &76
+     1075   A5 65      LDA &65
+     1077   E5 89      SBC &89
+     1079   85 77      STA &77
+     107B   A0 02      LDY #&02
+.point_loop1
+     107D   5A         PHY
+     107E   A5 86      LDA &86
+     1080   38         SEC
+     1081   E5 62      SBC &62
+     1083   85 74      STA &74
+     1085   A5 87      LDA &87
+     1087   E5 63      SBC &63
+     1089   85 75      STA &75
+     108B   A2 04      LDX #&04
+.point_loop2
+     108D   06 8E      ASL &8E
+     108F   90 19      BCC &10AA
+     1091   A5 77      LDA &77
+     1093   30 15      BMI &10AA
+     1095   DA         PHX
+     1096   A5 54      LDA &54
+     1098   0A         ASL A
+     1099   AA         TAX
+     109A   A5 74      LDA &74
+     109C   DD C0 10   CMP &10C0,X
+     109F   A5 75      LDA &75
+     10A1   FD C1 10   SBC &10C1,X
+     10A4   B0 03      BCS &10A9
+     10A6   7C CE 10   JMP (&10CE,X)
+.plot_point_return
+     10A9   FA         PLX
+.skip_plot
+Macro M_INCREMENT:
+     10AA   E6 74      INC &74
+     10AC   D0 02      BNE &10B0
+     10AE   E6 75      INC &75
+.nocarry
+End macro M_INCREMENT
+     10B0   CA         DEX
+     10B1   D0 DA      BNE &108D
+Macro M_INCREMENT:
+     10B3   E6 76      INC &76
+     10B5   D0 02      BNE &10B9
+     10B7   E6 77      INC &77
+.nocarry
+End macro M_INCREMENT
+     10B9   7A         PLY
+     10BA   88         DEY
+     10BB   D0 C0      BNE &107D
+     10BD   4C 2C 10   JMP &102C
+.x_limit_table
+     10C0   00 08
+     10C2   00 04
+     10C4   00 02
+     10C6   00 01
+     10C8   80 00
+     10CA   40 00
+     10CC   20 00
+.plot_point_table
+     10CE   DC 10
+     10D0   0F 11
+     10D2   3F 11
+     10D4   7D 11
+     10D6   A1 11
+     10D8   E7 11
+     10DA   4F 12
+.plot_point_1_8x
+     10DC   A5 74      LDA &74
+     10DE   4A         LSR A
+     10DF   4A         LSR A
+     10E0   4A         LSR A
+     10E1   29 07      AND #&07
+     10E3   AA         TAX
+     10E4   A5 75      LDA &75
+     10E6   85 84      STA &84
+     10E8   A5 74      LDA &74
+     10EA   46 84      LSR &84
+     10EC   6A         ROR A
+     10ED   46 84      LSR &84
+     10EF   6A         ROR A
+     10F0   46 84      LSR &84
+     10F2   6A         ROR A
+     10F3   4A         LSR A
+     10F4   4A         LSR A
+     10F5   4A         LSR A
+     10F6   85 84      STA &84
+     10F8   A5 76      LDA &76
+     10FA   0A         ASL A
+     10FB   0A         ASL A
+     10FC   29 E0      AND #&E0
+     10FE   05 84      ORA &84
+     1100   A8         TAY
+     1101   B0 66      BCS &1169
+     1103   B9 00 F6   LDA &F600,Y
+     1106   1D 75 11   ORA &1175,X
+     1109   99 00 F6   STA &F600,Y
+     110C   4C A9 10   JMP &10A9
+.plot_point_1_4x
+     110F   A5 74      LDA &74
+     1111   4A         LSR A
+     1112   4A         LSR A
+     1113   29 07      AND #&07
+     1115   AA         TAX
+     1116   A5 75      LDA &75
+     1118   85 84      STA &84
+     111A   A5 74      LDA &74
+     111C   46 84      LSR &84
+     111E   6A         ROR A
+     111F   46 84      LSR &84
+     1121   6A         ROR A
+     1122   4A         LSR A
+     1123   4A         LSR A
+     1124   4A         LSR A
+     1125   85 84      STA &84
+     1127   A5 76      LDA &76
+     1129   0A         ASL A
+     112A   0A         ASL A
+     112B   0A         ASL A
+     112C   29 E0      AND #&E0
+     112E   05 84      ORA &84
+     1130   A8         TAY
+     1131   B0 36      BCS &1169
+     1133   B9 00 F6   LDA &F600,Y
+     1136   1D 75 11   ORA &1175,X
+     1139   99 00 F6   STA &F600,Y
+     113C   4C A9 10   JMP &10A9
+.plot_point_1_2x
+     113F   A5 74      LDA &74
+     1141   4A         LSR A
+     1142   29 07      AND #&07
+     1144   AA         TAX
+     1145   A5 75      LDA &75
+     1147   4A         LSR A
+     1148   A5 74      LDA &74
+     114A   6A         ROR A
+     114B   4A         LSR A
+     114C   4A         LSR A
+     114D   4A         LSR A
+     114E   85 84      STA &84
+     1150   A5 76      LDA &76
+     1152   0A         ASL A
+     1153   0A         ASL A
+     1154   0A         ASL A
+     1155   0A         ASL A
+     1156   29 E0      AND #&E0
+     1158   05 84      ORA &84
+     115A   A8         TAY
+     115B   B0 0C      BCS &1169
+     115D   B9 00 F6   LDA &F600,Y
+     1160   1D 75 11   ORA &1175,X
+     1163   99 00 F6   STA &F600,Y
+     1166   4C A9 10   JMP &10A9
+.overflow_row
+     1169   B9 00 F7   LDA &F700,Y
+     116C   1D 75 11   ORA &1175,X
+     116F   99 00 F7   STA &F700,Y
+     1172   4C A9 10   JMP &10A9
+.pixel_mask
+     1175   80
+     1176   40
+     1177   20
+     1178   10
+     1179   08
+     117A   04
+     117B   02
+     117C   01
+.plot_point_1x
+     117D   A5 74      LDA &74
+     117F   29 07      AND #&07
+     1181   AA         TAX
+     1182   A5 74      LDA &74
+     1184   4A         LSR A
+     1185   4A         LSR A
+     1186   4A         LSR A
+     1187   85 84      STA &84
+     1189   A5 76      LDA &76
+     118B   0A         ASL A
+     118C   0A         ASL A
+     118D   0A         ASL A
+     118E   0A         ASL A
+     118F   0A         ASL A
+     1190   05 84      ORA &84
+     1192   A8         TAY
+     1193   B0 D4      BCS &1169
+     1195   B9 00 F6   LDA &F600,Y
+     1198   1D 75 11   ORA &1175,X
+     119B   99 00 F6   STA &F600,Y
+     119E   4C A9 10   JMP &10A9
+.plot_point_2x
+     11A1   A5 74      LDA &74
+     11A3   29 03      AND #&03
+     11A5   AA         TAX
+     11A6   A5 74      LDA &74
+     11A8   4A         LSR A
+     11A9   4A         LSR A
+     11AA   85 84      STA &84
+     11AC   A5 76      LDA &76
+     11AE   0A         ASL A
+     11AF   0A         ASL A
+     11B0   0A         ASL A
+     11B1   0A         ASL A
+     11B2   0A         ASL A
+     11B3   0A         ASL A
+     11B4   05 84      ORA &84
+     11B6   A8         TAY
+     11B7   B0 15      BCS &11CE
+     11B9   B9 00 F6   LDA &F600,Y
+     11BC   1D E3 11   ORA &11E3,X
+     11BF   99 00 F6   STA &F600,Y
+     11C2   B9 20 F6   LDA &F620,Y
+     11C5   1D E3 11   ORA &11E3,X
+     11C8   99 20 F6   STA &F620,Y
+     11CB   4C A9 10   JMP &10A9
+.overflow_row
+     11CE   B9 00 F7   LDA &F700,Y
+     11D1   1D E3 11   ORA &11E3,X
+     11D4   99 00 F7   STA &F700,Y
+     11D7   B9 20 F7   LDA &F720,Y
+     11DA   1D E3 11   ORA &11E3,X
+     11DD   99 20 F7   STA &F720,Y
+     11E0   4C A9 10   JMP &10A9
+.pixel_mask
+     11E3   C0
+     11E4   30
+     11E5   0C
+     11E6   03
+.plot_point_4x
+     11E7   A5 74      LDA &74
+     11E9   29 01      AND #&01
+     11EB   AA         TAX
+     11EC   A5 74      LDA &74
+     11EE   4A         LSR A
+     11EF   85 84      STA &84
+     11F1   A5 76      LDA &76
+     11F3   0A         ASL A
+     11F4   0A         ASL A
+     11F5   0A         ASL A
+     11F6   0A         ASL A
+     11F7   0A         ASL A
+     11F8   0A         ASL A
+     11F9   0A         ASL A
+     11FA   05 84      ORA &84
+     11FC   A8         TAY
+     11FD   B0 27      BCS &1226
+     11FF   B9 00 F6   LDA &F600,Y
+     1202   1D 4D 12   ORA &124D,X
+     1205   99 00 F6   STA &F600,Y
+     1208   B9 20 F6   LDA &F620,Y
+     120B   1D 4D 12   ORA &124D,X
+     120E   99 20 F6   STA &F620,Y
+     1211   B9 40 F6   LDA &F640,Y
+     1214   1D 4D 12   ORA &124D,X
+     1217   99 40 F6   STA &F640,Y
+     121A   B9 60 F6   LDA &F660,Y
+     121D   1D 4D 12   ORA &124D,X
+     1220   99 60 F6   STA &F660,Y
+     1223   4C A9 10   JMP &10A9
+.overflow_row
+     1226   B9 00 F7   LDA &F700,Y
+     1229   1D 4D 12   ORA &124D,X
+     122C   99 00 F7   STA &F700,Y
+     122F   B9 20 F7   LDA &F720,Y
+     1232   1D 4D 12   ORA &124D,X
+     1235   99 20 F7   STA &F720,Y
+     1238   B9 40 F7   LDA &F740,Y
+     123B   1D 4D 12   ORA &124D,X
+     123E   99 40 F7   STA &F740,Y
+     1241   B9 60 F7   LDA &F760,Y
+     1244   1D 4D 12   ORA &124D,X
+     1247   99 60 F7   STA &F760,Y
+     124A   4C A9 10   JMP &10A9
+.pixel_mask
+     124D   F0
+     124E   0F
+.plot_point_8x
+     124F   A4 74      LDY &74
+     1251   A9 FF      LDA #&FF
+     1253   24 76      BIT &76
+     1255   D0 1B      BNE &1272
+     1257   99 00 F6   STA &F600,Y
+     125A   99 20 F6   STA &F620,Y
+     125D   99 40 F6   STA &F640,Y
+     1260   99 60 F6   STA &F660,Y
+     1263   99 80 F6   STA &F680,Y
+     1266   99 A0 F6   STA &F6A0,Y
+     1269   99 C0 F6   STA &F6C0,Y
+     126C   99 E0 F6   STA &F6E0,Y
+     126F   4C A9 10   JMP &10A9
+.overflow_row
+     1272   99 00 F7   STA &F700,Y
+     1275   99 20 F7   STA &F720,Y
+     1278   99 40 F7   STA &F740,Y
+     127B   99 60 F7   STA &F760,Y
+     127E   99 80 F7   STA &F780,Y
+     1281   99 A0 F7   STA &F7A0,Y
+     1284   99 C0 F7   STA &F7C0,Y
+     1287   99 E0 F7   STA &F7E0,Y
+     128A   4C A9 10   JMP &10A9
+.window_size_x_lsb
+     128D   00
+     128E   00
+     128F   00
+     1290   00
+     1291   80
+     1292   40
+     1293   20
+.window_size_x_msb
+     1294   08
+     1295   04
+     1296   02
+     1297   01
+     1298   00
+     1299   00
+     129A   00
+.window_size_y_lsb
+     129B   40
+     129C   20
+     129D   10
+     129E   08
+     129F   04
+     12A0   02
+     12A1   01
+.overflow_size
+     12A2   20
+     12A3   20
+     12A4   20
+     12A5   20
+     12A6   40
+     12A7   80
+     12A8   00
+     12A9   20
+     12AA   20
+     12AB   20
+     12AC   20
+     12AD   40
+     12AE   80
+     12AF   00
+     12B0   20
+     12B1   20
+     12B2   20
+     12B3   20
+     12B4   40
+     12B5   80
+     12B6   00
+     12B7   20
+     12B8   20
+     12B9   20
+     12BA   20
+     12BB   40
+     12BC   80
+     12BD   00
+     12BE   20
+     12BF   20
+     12C0   20
+     12C1   20
+     12C2   40
+     12C3   80
+     12C4   00
+     12C5   20
+     12C6   20
+     12C7   20
+     12C8   20
+     12C9   40
+     12CA   80
+     12CB   00
+     12CC   20
+     12CD   20
+     12CE   20
+     12CF   20
+     12D0   40
+     12D1   80
+     12D2   00
+.bitcnt
+     1300   00
+     1301   01
+     1302   01
+     1303   02
+     1304   01
+     1305   02
+     1306   02
+     1307   03
+     1308   01
+     1309   02
+     130A   02
+     130B   03
+     130C   02
+     130D   03
+     130E   03
+     130F   04
+     1310   01
+     1311   02
+     1312   02
+     1313   03
+     1314   02
+     1315   03
+     1316   03
+     1317   04
+     1318   02
+     1319   03
+     131A   03
+     131B   04
+     131C   03
+     131D   04
+     131E   04
+     131F   05
+     1320   01
+     1321   02
+     1322   02
+     1323   03
+     1324   02
+     1325   03
+     1326   03
+     1327   04
+     1328   02
+     1329   03
+     132A   03
+     132B   04
+     132C   03
+     132D   04
+     132E   04
+     132F   05
+     1330   02
+     1331   03
+     1332   03
+     1333   04
+     1334   03
+     1335   04
+     1336   04
+     1337   05
+     1338   03
+     1339   04
+     133A   04
+     133B   05
+     133C   04
+     133D   05
+     133E   05
+     133F   06
+     1340   01
+     1341   02
+     1342   02
+     1343   03
+     1344   02
+     1345   03
+     1346   03
+     1347   04
+     1348   02
+     1349   03
+     134A   03
+     134B   04
+     134C   03
+     134D   04
+     134E   04
+     134F   05
+     1350   02
+     1351   03
+     1352   03
+     1353   04
+     1354   03
+     1355   04
+     1356   04
+     1357   05
+     1358   03
+     1359   04
+     135A   04
+     135B   05
+     135C   04
+     135D   05
+     135E   05
+     135F   06
+     1360   02
+     1361   03
+     1362   03
+     1363   04
+     1364   03
+     1365   04
+     1366   04
+     1367   05
+     1368   03
+     1369   04
+     136A   04
+     136B   05
+     136C   04
+     136D   05
+     136E   05
+     136F   06
+     1370   03
+     1371   04
+     1372   04
+     1373   05
+     1374   04
+     1375   05
+     1376   05
+     1377   06
+     1378   04
+     1379   05
+     137A   05
+     137B   06
+     137C   05
+     137D   06
+     137E   06
+     137F   07
+     1380   01
+     1381   02
+     1382   02
+     1383   03
+     1384   02
+     1385   03
+     1386   03
+     1387   04
+     1388   02
+     1389   03
+     138A   03
+     138B   04
+     138C   03
+     138D   04
+     138E   04
+     138F   05
+     1390   02
+     1391   03
+     1392   03
+     1393   04
+     1394   03
+     1395   04
+     1396   04
+     1397   05
+     1398   03
+     1399   04
+     139A   04
+     139B   05
+     139C   04
+     139D   05
+     139E   05
+     139F   06
+     13A0   02
+     13A1   03
+     13A2   03
+     13A3   04
+     13A4   03
+     13A5   04
+     13A6   04
+     13A7   05
+     13A8   03
+     13A9   04
+     13AA   04
+     13AB   05
+     13AC   04
+     13AD   05
+     13AE   05
+     13AF   06
+     13B0   03
+     13B1   04
+     13B2   04
+     13B3   05
+     13B4   04
+     13B5   05
+     13B6   05
+     13B7   06
+     13B8   04
+     13B9   05
+     13BA   05
+     13BB   06
+     13BC   05
+     13BD   06
+     13BE   06
+     13BF   07
+     13C0   02
+     13C1   03
+     13C2   03
+     13C3   04
+     13C4   03
+     13C5   04
+     13C6   04
+     13C7   05
+     13C8   03
+     13C9   04
+     13CA   04
+     13CB   05
+     13CC   04
+     13CD   05
+     13CE   05
+     13CF   06
+     13D0   03
+     13D1   04
+     13D2   04
+     13D3   05
+     13D4   04
+     13D5   05
+     13D6   05
+     13D7   06
+     13D8   04
+     13D9   05
+     13DA   05
+     13DB   06
+     13DC   05
+     13DD   06
+     13DE   06
+     13DF   07
+     13E0   03
+     13E1   04
+     13E2   04
+     13E3   05
+     13E4   04
+     13E5   05
+     13E6   05
+     13E7   06
+     13E8   04
+     13E9   05
+     13EA   05
+     13EB   06
+     13EC   05
+     13ED   06
+     13EE   06
+     13EF   07
+     13F0   04
+     13F1   05
+     13F2   05
+     13F3   06
+     13F4   05
+     13F5   06
+     13F6   06
+     13F7   07
+     13F8   05
+     13F9   06
+     13FA   06
+     13FB   07
+     13FC   06
+     13FD   07
+     13FE   07
+     13FF   08
+.bp1_convert
+.bp3_convert
+     1400   16
+     1401   16
+     1402   16
+     1403   16
+     1404   16
+     1405   16
+     1406   16
+     1407   16
+     1408   16
+     1409   16
+     140A   16
+     140B   16
+     140C   16
+     140D   16
+     140E   16
+     140F   16
+     1410   17
+     1411   17
+     1412   17
+     1413   17
+     1414   17
+     1415   17
+     1416   17
+     1417   17
+     1418   17
+     1419   17
+     141A   17
+     141B   17
+     141C   17
+     141D   17
+     141E   17
+     141F   17
+     1420   18
+     1421   18
+     1422   18
+     1423   18
+     1424   18
+     1425   18
+     1426   18
+     1427   18
+     1428   18
+     1429   18
+     142A   18
+     142B   18
+     142C   18
+     142D   18
+     142E   18
+     142F   18
+     1430   19
+     1431   19
+     1432   19
+     1433   19
+     1434   19
+     1435   19
+     1436   19
+     1437   19
+     1438   19
+     1439   19
+     143A   19
+     143B   19
+     143C   19
+     143D   19
+     143E   19
+     143F   19
+     1440   1A
+     1441   1A
+     1442   1A
+     1443   1A
+     1444   1A
+     1445   1A
+     1446   1A
+     1447   1A
+     1448   1A
+     1449   1A
+     144A   1A
+     144B   1A
+     144C   1A
+     144D   1A
+     144E   1A
+     144F   1A
+     1450   1B
+     1451   1B
+     1452   1B
+     1453   1B
+     1454   1B
+     1455   1B
+     1456   1B
+     1457   1B
+     1458   1B
+     1459   1B
+     145A   1B
+     145B   1B
+     145C   1B
+     145D   1B
+     145E   1B
+     145F   1B
+     1460   1C
+     1461   1C
+     1462   1C
+     1463   1C
+     1464   1C
+     1465   1C
+     1466   1C
+     1467   1C
+     1468   1C
+     1469   1C
+     146A   1C
+     146B   1C
+     146C   1C
+     146D   1C
+     146E   1C
+     146F   1C
+     1470   1D
+     1471   1D
+     1472   1D
+     1473   1D
+     1474   1D
+     1475   1D
+     1476   1D
+     1477   1D
+     1478   1D
+     1479   1D
+     147A   1D
+     147B   1D
+     147C   1D
+     147D   1D
+     147E   1D
+     147F   1D
+     1480   1E
+     1481   1E
+     1482   1E
+     1483   1E
+     1484   1E
+     1485   1E
+     1486   1E
+     1487   1E
+     1488   1E
+     1489   1E
+     148A   1E
+     148B   1E
+     148C   1E
+     148D   1E
+     148E   1E
+     148F   1E
+     1490   1F
+     1491   1F
+     1492   1F
+     1493   1F
+     1494   1F
+     1495   1F
+     1496   1F
+     1497   1F
+     1498   1F
+     1499   1F
+     149A   1F
+     149B   1F
+     149C   1F
+     149D   1F
+     149E   1F
+     149F   1F
+     14A0   20
+     14A1   20
+     14A2   20
+     14A3   20
+     14A4   20
+     14A5   20
+     14A6   20
+     14A7   20
+     14A8   20
+     14A9   20
+     14AA   20
+     14AB   20
+     14AC   20
+     14AD   20
+     14AE   20
+     14AF   20
+     14B0   21
+     14B1   21
+     14B2   21
+     14B3   21
+     14B4   21
+     14B5   21
+     14B6   21
+     14B7   21
+     14B8   21
+     14B9   21
+     14BA   21
+     14BB   21
+     14BC   21
+     14BD   21
+     14BE   21
+     14BF   21
+     14C0   22
+     14C1   22
+     14C2   22
+     14C3   22
+     14C4   22
+     14C5   22
+     14C6   22
+     14C7   22
+     14C8   22
+     14C9   22
+     14CA   22
+     14CB   22
+     14CC   22
+     14CD   22
+     14CE   22
+     14CF   22
+     14D0   23
+     14D1   23
+     14D2   23
+     14D3   23
+     14D4   23
+     14D5   23
+     14D6   23
+     14D7   23
+     14D8   23
+     14D9   23
+     14DA   23
+     14DB   23
+     14DC   23
+     14DD   23
+     14DE   23
+     14DF   23
+     14E0   24
+     14E1   24
+     14E2   24
+     14E3   24
+     14E4   24
+     14E5   24
+     14E6   24
+     14E7   24
+     14E8   24
+     14E9   24
+     14EA   24
+     14EB   24
+     14EC   24
+     14ED   24
+     14EE   24
+     14EF   24
+     14F0   25
+     14F1   25
+     14F2   25
+     14F3   25
+     14F4   25
+     14F5   25
+     14F6   25
+     14F7   25
+     14F8   25
+     14F9   25
+     14FA   25
+     14FB   25
+     14FC   25
+     14FD   25
+     14FE   25
+     14FF   25
+.bp2_convert
+.bp4_convert
+     1500   16
+     1501   17
+     1502   18
+     1503   19
+     1504   1A
+     1505   1B
+     1506   1C
+     1507   1D
+     1508   1E
+     1509   1F
+     150A   20
+     150B   21
+     150C   22
+     150D   23
+     150E   24
+     150F   25
+     1510   16
+     1511   17
+     1512   18
+     1513   19
+     1514   1A
+     1515   1B
+     1516   1C
+     1517   1D
+     1518   1E
+     1519   1F
+     151A   20
+     151B   21
+     151C   22
+     151D   23
+     151E   24
+     151F   25
+     1520   16
+     1521   17
+     1522   18
+     1523   19
+     1524   1A
+     1525   1B
+     1526   1C
+     1527   1D
+     1528   1E
+     1529   1F
+     152A   20
+     152B   21
+     152C   22
+     152D   23
+     152E   24
+     152F   25
+     1530   16
+     1531   17
+     1532   18
+     1533   19
+     1534   1A
+     1535   1B
+     1536   1C
+     1537   1D
+     1538   1E
+     1539   1F
+     153A   20
+     153B   21
+     153C   22
+     153D   23
+     153E   24
+     153F   25
+     1540   16
+     1541   17
+     1542   18
+     1543   19
+     1544   1A
+     1545   1B
+     1546   1C
+     1547   1D
+     1548   1E
+     1549   1F
+     154A   20
+     154B   21
+     154C   22
+     154D   23
+     154E   24
+     154F   25
+     1550   16
+     1551   17
+     1552   18
+     1553   19
+     1554   1A
+     1555   1B
+     1556   1C
+     1557   1D
+     1558   1E
+     1559   1F
+     155A   20
+     155B   21
+     155C   22
+     155D   23
+     155E   24
+     155F   25
+     1560   16
+     1561   17
+     1562   18
+     1563   19
+     1564   1A
+     1565   1B
+     1566   1C
+     1567   1D
+     1568   1E
+     1569   1F
+     156A   20
+     156B   21
+     156C   22
+     156D   23
+     156E   24
+     156F   25
+     1570   16
+     1571   17
+     1572   18
+     1573   19
+     1574   1A
+     1575   1B
+     1576   1C
+     1577   1D
+     1578   1E
+     1579   1F
+     157A   20
+     157B   21
+     157C   22
+     157D   23
+     157E   24
+     157F   25
+     1580   16
+     1581   17
+     1582   18
+     1583   19
+     1584   1A
+     1585   1B
+     1586   1C
+     1587   1D
+     1588   1E
+     1589   1F
+     158A   20
+     158B   21
+     158C   22
+     158D   23
+     158E   24
+     158F   25
+     1590   16
+     1591   17
+     1592   18
+     1593   19
+     1594   1A
+     1595   1B
+     1596   1C
+     1597   1D
+     1598   1E
+     1599   1F
+     159A   20
+     159B   21
+     159C   22
+     159D   23
+     159E   24
+     159F   25
+     15A0   16
+     15A1   17
+     15A2   18
+     15A3   19
+     15A4   1A
+     15A5   1B
+     15A6   1C
+     15A7   1D
+     15A8   1E
+     15A9   1F
+     15AA   20
+     15AB   21
+     15AC   22
+     15AD   23
+     15AE   24
+     15AF   25
+     15B0   16
+     15B1   17
+     15B2   18
+     15B3   19
+     15B4   1A
+     15B5   1B
+     15B6   1C
+     15B7   1D
+     15B8   1E
+     15B9   1F
+     15BA   20
+     15BB   21
+     15BC   22
+     15BD   23
+     15BE   24
+     15BF   25
+     15C0   16
+     15C1   17
+     15C2   18
+     15C3   19
+     15C4   1A
+     15C5   1B
+     15C6   1C
+     15C7   1D
+     15C8   1E
+     15C9   1F
+     15CA   20
+     15CB   21
+     15CC   22
+     15CD   23
+     15CE   24
+     15CF   25
+     15D0   16
+     15D1   17
+     15D2   18
+     15D3   19
+     15D4   1A
+     15D5   1B
+     15D6   1C
+     15D7   1D
+     15D8   1E
+     15D9   1F
+     15DA   20
+     15DB   21
+     15DC   22
+     15DD   23
+     15DE   24
+     15DF   25
+     15E0   16
+     15E1   17
+     15E2   18
+     15E3   19
+     15E4   1A
+     15E5   1B
+     15E6   1C
+     15E7   1D
+     15E8   1E
+     15E9   1F
+     15EA   20
+     15EB   21
+     15EC   22
+     15ED   23
+     15EE   24
+     15EF   25
+     15F0   16
+     15F1   17
+     15F2   18
+     15F3   19
+     15F4   1A
+     15F5   1B
+     15F6   1C
+     15F7   1D
+     15F8   1E
+     15F9   1F
+     15FA   20
+     15FB   21
+     15FC   22
+     15FD   23
+     15FE   24
+     15FF   25
+.table_base
+     1600   00
+     1601   00
+     1602   00
+     1603   00
+     1604   00
+     1605   00
+     1606   00
+     1607   44
+     1608   00
+     1609   00
+     160A   00
+     160B   22
+     160C   00
+     160D   11
+     160E   88
+     160F   FF
+     1610   00
+     1611   00
+     1612   00
+     1613   66
+     1614   00
+     1615   55
+     1616   44
+     1617   73
+     1618   00
+     1619   33
+     161A   22
+     161B   77
+     161C   11
+     161D   76
+     161E   FF
+     161F   FA
+     1620   00
+     1621   00
+     1622   00
+     1623   66
+     1624   00
+     1625   44
+     1626   CC
+     1627   EE
+     1628   00
+     1629   22
+     162A   AA
+     162B   EC
+     162C   88
+     162D   FF
+     162E   E6
+     162F   F5
+     1630   00
+     1631   66
+     1632   66
+     1633   66
+     1634   44
+     1635   37
+     1636   EE
+     1637   BB
+     1638   22
+     1639   77
+     163A   CE
+     163B   DD
+     163C   FF
+     163D   BE
+     163E   D7
+     163F   90
+     1640   00
+     1641   00
+     1642   00
+     1643   44
+     1644   00
+     1645   55
+     1646   CC
+     1647   D9
+     1648   00
+     1649   11
+     164A   88
+     164B   FF
+     164C   99
+     164D   DC
+     164E   DD
+     164F   FA
+     1650   00
+     1651   55
+     1652   44
+     1653   73
+     1654   55
+     1655   00
+     1656   D9
+     1657   AA
+     1658   11
+     1659   76
+     165A   FF
+     165B   FA
+     165C   DC
+     165D   AA
+     165E   FA
+     165F   AA
+     1660   00
+     1661   44
+     1662   CC
+     1663   EE
+     1664   CC
+     1665   9D
+     1666   CC
+     1667   BB
+     1668   88
+     1669   FF
+     166A   6E
+     166B   7D
+     166C   DD
+     166D   BE
+     166E   77
+     166F   30
+     1670   44
+     1671   37
+     1672   EE
+     1673   BB
+     1674   9D
+     1675   AA
+     1676   BB
+     1677   AA
+     1678   FF
+     1679   BE
+     167A   5F
+     167B   18
+     167C   BE
+     167D   AA
+     167E   12
+     167F   00
+     1680   00
+     1681   00
+     1682   00
+     1683   22
+     1684   00
+     1685   11
+     1686   88
+     1687   FF
+     1688   00
+     1689   33
+     168A   AA
+     168B   B9
+     168C   99
+     168D   BB
+     168E   B3
+     168F   F5
+     1690   00
+     1691   33
+     1692   22
+     1693   77
+     1694   11
+     1695   67
+     1696   FF
+     1697   EB
+     1698   33
+     1699   33
+     169A   9B
+     169B   DD
+     169C   BB
+     169D   EE
+     169E   D7
+     169F   C0
+     16A0   00
+     16A1   22
+     16A2   AA
+     16A3   EC
+     16A4   88
+     16A5   FF
+     16A6   E6
+     16A7   F5
+     16A8   AA
+     16A9   B9
+     16AA   00
+     16AB   55
+     16AC   B3
+     16AD   F5
+     16AE   55
+     16AF   55
+     16B0   22
+     16B1   77
+     16B2   CE
+     16B3   DD
+     16B4   FF
+     16B5   AF
+     16B6   D7
+     16B7   81
+     16B8   9B
+     16B9   DD
+     16BA   55
+     16BB   55
+     16BC   D7
+     16BD   84
+     16BE   55
+     16BF   00
+     16C0   00
+     16C1   11
+     16C2   88
+     16C3   FF
+     16C4   99
+     16C5   CD
+     16C6   DD
+     16C7   EB
+     16C8   99
+     16C9   BB
+     16CA   3B
+     16CB   7D
+     16CC   99
+     16CD   EE
+     16CE   77
+     16CF   60
+     16D0   11
+     16D1   67
+     16D2   FF
+     16D3   EB
+     16D4   CD
+     16D5   AA
+     16D6   EB
+     16D7   AA
+     16D8   BB
+     16D9   EE
+     16DA   5F
+     16DB   48
+     16DC   EE
+     16DD   AA
+     16DE   42
+     16DF   00
+     16E0   88
+     16E1   FF
+     16E2   6E
+     16E3   7D
+     16E4   DD
+     16E5   AF
+     16E6   77
+     16E7   21
+     16E8   3B
+     16E9   7D
+     16EA   55
+     16EB   55
+     16EC   77
+     16ED   24
+     16EE   55
+     16EF   00
+     16F0   FF
+     16F1   AF
+     16F2   5F
+     16F3   09
+     16F4   AF
+     16F5   AA
+     16F6   03
+     16F7   00
+     16F8   5F
+     16F9   0C
+     16FA   55
+     16FB   00
+     16FC   06
+     16FD   00
+     16FE   00
+     16FF   00
+     1700   00
+     1701   00
+     1702   00
+     1703   66
+     1704   00
+     1705   55
+     1706   44
+     1707   73
+     1708   00
+     1709   33
+     170A   22
+     170B   75
+     170C   11
+     170D   76
+     170E   FF
+     170F   F8
+     1710   00
+     1711   77
+     1712   66
+     1713   73
+     1714   55
+     1715   22
+     1716   73
+     1717   22
+     1718   33
+     1719   76
+     171A   57
+     171B   50
+     171C   76
+     171D   22
+     171E   DA
+     171F   88
+     1720   00
+     1721   66
+     1722   66
+     1723   64
+     1724   44
+     1725   37
+     1726   EE
+     1727   B9
+     1728   22
+     1729   75
+     172A   CC
+     172B   DD
+     172C   FF
+     172D   BC
+     172E   D5
+     172F   90
+     1730   66
+     1731   37
+     1732   46
+     1733   11
+     1734   37
+     1735   22
+     1736   9B
+     1737   88
+     1738   57
+     1739   14
+     173A   DD
+     173B   98
+     173C   9E
+     173D   88
+     173E   90
+     173F   80
+     1740   00
+     1741   55
+     1742   44
+     1743   73
+     1744   55
+     1745   00
+     1746   D9
+     1747   AA
+     1748   11
+     1749   76
+     174A   FF
+     174B   F8
+     174C   DC
+     174D   AA
+     174E   FA
+     174F   A8
+     1750   55
+     1751   22
+     1752   73
+     1753   22
+     1754   00
+     1755   22
+     1756   AA
+     1757   AA
+     1758   76
+     1759   22
+     175A   DA
+     175B   88
+     175C   AA
+     175D   AA
+     175E   8A
+     175F   88
+     1760   44
+     1761   37
+     1762   EE
+     1763   B9
+     1764   9D
+     1765   AA
+     1766   BB
+     1767   A8
+     1768   FF
+     1769   BC
+     176A   5D
+     176B   18
+     176C   BE
+     176D   A8
+     176E   10
+     176F   00
+     1770   37
+     1771   22
+     1772   9B
+     1773   88
+     1774   AA
+     1775   AA
+     1776   8A
+     1777   88
+     1778   9E
+     1779   88
+     177A   18
+     177B   08
+     177C   8A
+     177D   88
+     177E   00
+     177F   00
+     1780   00
+     1781   33
+     1782   22
+     1783   75
+     1784   11
+     1785   67
+     1786   FF
+     1787   E9
+     1788   33
+     1789   31
+     178A   99
+     178B   DD
+     178C   BB
+     178D   EC
+     178E   D5
+     178F   C0
+     1790   33
+     1791   67
+     1792   57
+     1793   41
+     1794   67
+     1795   22
+     1796   CB
+     1797   88
+     1798   13
+     1799   44
+     179A   DD
+     179B   C8
+     179C   CE
+     179D   88
+     179E   C0
+     179F   80
+     17A0   22
+     17A1   75
+     17A2   CC
+     17A3   DD
+     17A4   FF
+     17A5   AD
+     17A6   D5
+     17A7   81
+     17A8   99
+     17A9   DD
+     17AA   55
+     17AB   55
+     17AC   D5
+     17AD   84
+     17AE   55
+     17AF   00
+     17B0   57
+     17B1   05
+     17B2   DD
+     17B3   89
+     17B4   8F
+     17B5   88
+     17B6   81
+     17B7   80
+     17B8   DD
+     17B9   8C
+     17BA   55
+     17BB   00
+     17BC   84
+     17BD   80
+     17BE   00
+     17BF   00
+     17C0   11
+     17C1   67
+     17C2   FF
+     17C3   E9
+     17C4   CD
+     17C5   AA
+     17C6   EB
+     17C7   A8
+     17C8   BB
+     17C9   EC
+     17CA   5D
+     17CB   48
+     17CC   EE
+     17CD   A8
+     17CE   40
+     17CF   00
+     17D0   67
+     17D1   22
+     17D2   CB
+     17D3   88
+     17D4   AA
+     17D5   AA
+     17D6   8A
+     17D7   88
+     17D8   CE
+     17D9   88
+     17DA   48
+     17DB   08
+     17DC   8A
+     17DD   88
+     17DE   00
+     17DF   00
+     17E0   FF
+     17E1   AD
+     17E2   5D
+     17E3   09
+     17E4   AF
+     17E5   A8
+     17E6   01
+     17E7   00
+     17E8   5D
+     17E9   0C
+     17EA   55
+     17EB   00
+     17EC   04
+     17ED   00
+     17EE   00
+     17EF   00
+     17F0   8F
+     17F1   88
+     17F2   09
+     17F3   08
+     17F4   8A
+     17F5   88
+     17F6   00
+     17F7   00
+     17F8   0C
+     17F9   08
+     17FA   00
+     17FB   00
+     17FC   00
+     17FD   00
+     17FE   00
+     17FF   00
+     1800   00
+     1801   00
+     1802   00
+     1803   66
+     1804   00
+     1805   44
+     1806   CC
+     1807   EA
+     1808   00
+     1809   22
+     180A   AA
+     180B   EC
+     180C   88
+     180D   FF
+     180E   E6
+     180F   F1
+     1810   00
+     1811   66
+     1812   66
+     1813   62
+     1814   44
+     1815   33
+     1816   EA
+     1817   BB
+     1818   22
+     1819   77
+     181A   CE
+     181B   D9
+     181C   FF
+     181D   BA
+     181E   D3
+     181F   90
+     1820   00
+     1821   66
+     1822   EE
+     1823   EC
+     1824   CC
+     1825   AE
+     1826   E6
+     1827   A0
+     1828   AA
+     1829   EC
+     182A   44
+     182B   44
+     182C   E6
+     182D   B5
+     182E   44
+     182F   11
+     1830   66
+     1831   26
+     1832   CE
+     1833   88
+     1834   AE
+     1835   BB
+     1836   82
+     1837   91
+     1838   CE
+     1839   9D
+     183A   44
+     183B   11
+     183C   97
+     183D   90
+     183E   11
+     183F   10
+     1840   00
+     1841   44
+     1842   CC
+     1843   EA
+     1844   CC
+     1845   99
+     1846   C8
+     1847   BB
+     1848   88
+     1849   FF
+     184A   6E
+     184B   79
+     184C   DD
+     184D   BA
+     184E   73
+     184F   30
+     1850   44
+     1851   33
+     1852   EA
+     1853   BB
+     1854   99
+     1855   AA
+     1856   BB
+     1857   AA
+     1858   FF
+     1859   BA
+     185A   5B
+     185B   18
+     185C   BA
+     185D   AA
+     185E   12
+     185F   00
+     1860   CC
+     1861   AE
+     1862   6E
+     1863   28
+     1864   8C
+     1865   BB
+     1866   22
+     1867   31
+     1868   6E
+     1869   3D
+     186A   44
+     186B   11
+     186C   37
+     186D   30
+     186E   11
+     186F   10
+     1870   AE
+     1871   BB
+     1872   0A
+     1873   19
+     1874   BB
+     1875   AA
+     1876   13
+     1877   00
+     1878   1F
+     1879   18
+     187A   11
+     187B   10
+     187C   12
+     187D   00
+     187E   10
+     187F   00
+     1880   00
+     1881   22
+     1882   AA
+     1883   EC
+     1884   88
+     1885   FF
+     1886   E6
+     1887   F1
+     1888   AA
+     1889   B9
+     188A   00
+     188B   55
+     188C   B3
+     188D   F5
+     188E   55
+     188F   51
+     1890   22
+     1891   77
+     1892   CE
+     1893   D9
+     1894   FF
+     1895   AB
+     1896   D3
+     1897   81
+     1898   9B
+     1899   DD
+     189A   55
+     189B   51
+     189C   D7
+     189D   80
+     189E   51
+     189F   00
+     18A0   AA
+     18A1   EC
+     18A2   44
+     18A3   44
+     18A4   E6
+     18A5   B5
+     18A6   44
+     18A7   11
+     18A8   00
+     18A9   55
+     18AA   44
+     18AB   55
+     18AC   55
+     18AD   15
+     18AE   55
+     18AF   11
+     18B0   CE
+     18B1   9D
+     18B2   44
+     18B3   11
+     18B4   97
+     18B5   81
+     18B6   11
+     18B7   01
+     18B8   55
+     18B9   15
+     18BA   55
+     18BB   11
+     18BC   15
+     18BD   00
+     18BE   11
+     18BF   00
+     18C0   88
+     18C1   FF
+     18C2   6E
+     18C3   79
+     18C4   DD
+     18C5   AB
+     18C6   73
+     18C7   21
+     18C8   3B
+     18C9   7D
+     18CA   55
+     18CB   51
+     18CC   77
+     18CD   20
+     18CE   51
+     18CF   00
+     18D0   FF
+     18D1   AB
+     18D2   5B
+     18D3   09
+     18D4   AB
+     18D5   AA
+     18D6   03
+     18D7   00
+     18D8   5F
+     18D9   08
+     18DA   51
+     18DB   00
+     18DC   02
+     18DD   00
+     18DE   00
+     18DF   00
+     18E0   6E
+     18E1   3D
+     18E2   44
+     18E3   11
+     18E4   37
+     18E5   21
+     18E6   11
+     18E7   01
+     18E8   55
+     18E9   15
+     18EA   55
+     18EB   11
+     18EC   15
+     18ED   00
+     18EE   11
+     18EF   00
+     18F0   1F
+     18F1   09
+     18F2   11
+     18F3   01
+     18F4   03
+     18F5   00
+     18F6   01
+     18F7   00
+     18F8   15
+     18F9   00
+     18FA   11
+     18FB   00
+     18FC   00
+     18FD   00
+     18FE   00
+     18FF   00
+     1900   00
+     1901   66
+     1902   66
+     1903   60
+     1904   44
+     1905   33
+     1906   EA
+     1907   B9
+     1908   22
+     1909   75
+     190A   CC
+     190B   D9
+     190C   FF
+     190D   B8
+     190E   D1
+     190F   90
+     1910   66
+     1911   33
+     1912   42
+     1913   11
+     1914   33
+     1915   22
+     1916   9B
+     1917   88
+     1918   57
+     1919   10
+     191A   D9
+     191B   98
+     191C   9A
+     191D   88
+     191E   90
+     191F   80
+     1920   66
+     1921   24
+     1922   CC
+     1923   88
+     1924   AE
+     1925   B9
+     1926   80
+     1927   91
+     1928   CC
+     1929   9D
+     192A   44
+     192B   11
+     192C   95
+     192D   90
+     192E   11
+     192F   10
+     1930   06
+     1931   11
+     1932   88
+     1933   99
+     1934   9B
+     1935   88
+     1936   91
+     1937   80
+     1938   9D
+     1939   98
+     193A   11
+     193B   10
+     193C   90
+     193D   80
+     193E   10
+     193F   00
+     1940   44
+     1941   33
+     1942   EA
+     1943   B9
+     1944   99
+     1945   AA
+     1946   BB
+     1947   A8
+     1948   FF
+     1949   B8
+     194A   59
+     194B   18
+     194C   BA
+     194D   A8
+     194E   10
+     194F   00
+     1950   33
+     1951   22
+     1952   9B
+     1953   88
+     1954   AA
+     1955   AA
+     1956   8A
+     1957   88
+     1958   9A
+     1959   88
+     195A   18
+     195B   08
+     195C   8A
+     195D   88
+     195E   00
+     195F   00
+     1960   AE
+     1961   B9
+     1962   08
+     1963   19
+     1964   BB
+     1965   A8
+     1966   11
+     1967   00
+     1968   1D
+     1969   18
+     196A   11
+     196B   10
+     196C   10
+     196D   00
+     196E   10
+     196F   00
+     1970   9B
+     1971   88
+     1972   19
+     1973   08
+     1974   8A
+     1975   88
+     1976   00
+     1977   00
+     1978   18
+     1979   08
+     197A   10
+     197B   00
+     197C   00
+     197D   00
+     197E   00
+     197F   00
+     1980   22
+     1981   75
+     1982   CC
+     1983   D9
+     1984   FF
+     1985   A9
+     1986   D1
+     1987   81
+     1988   99
+     1989   DD
+     198A   55
+     198B   51
+     198C   D5
+     198D   80
+     198E   51
+     198F   00
+     1990   57
+     1991   01
+     1992   D9
+     1993   89
+     1994   8B
+     1995   88
+     1996   81
+     1997   80
+     1998   DD
+     1999   88
+     199A   51
+     199B   00
+     199C   80
+     199D   80
+     199E   00
+     199F   00
+     19A0   CC
+     19A1   9D
+     19A2   44
+     19A3   11
+     19A4   95
+     19A5   81
+     19A6   11
+     19A7   01
+     19A8   55
+     19A9   15
+     19AA   55
+     19AB   11
+     19AC   15
+     19AD   00
+     19AE   11
+     19AF   00
+     19B0   9D
+     19B1   89
+     19B2   11
+     19B3   01
+     19B4   81
+     19B5   80
+     19B6   01
+     19B7   00
+     19B8   15
+     19B9   00
+     19BA   11
+     19BB   00
+     19BC   00
+     19BD   00
+     19BE   00
+     19BF   00
+     19C0   FF
+     19C1   A9
+     19C2   59
+     19C3   09
+     19C4   AB
+     19C5   A8
+     19C6   01
+     19C7   00
+     19C8   5D
+     19C9   08
+     19CA   51
+     19CB   00
+     19CC   00
+     19CD   00
+     19CE   00
+     19CF   00
+     19D0   8B
+     19D1   88
+     19D2   09
+     19D3   08
+     19D4   8A
+     19D5   88
+     19D6   00
+     19D7   00
+     19D8   08
+     19D9   08
+     19DA   00
+     19DB   00
+     19DC   00
+     19DD   00
+     19DE   00
+     19DF   00
+     19E0   1D
+     19E1   09
+     19E2   11
+     19E3   01
+     19E4   01
+     19E5   00
+     19E6   01
+     19E7   00
+     19E8   15
+     19E9   00
+     19EA   11
+     19EB   00
+     19EC   00
+     19ED   00
+     19EE   00
+     19EF   00
+     19F0   09
+     19F1   08
+     19F2   01
+     19F3   00
+     19F4   00
+     19F5   00
+     19F6   00
+     19F7   00
+     19F8   00
+     19F9   00
+     19FA   00
+     19FB   00
+     19FC   00
+     19FD   00
+     19FE   00
+     19FF   00
+     1A00   00
+     1A01   00
+     1A02   00
+     1A03   44
+     1A04   00
+     1A05   55
+     1A06   CC
+     1A07   D9
+     1A08   00
+     1A09   11
+     1A0A   88
+     1A0B   FF
+     1A0C   99
+     1A0D   DC
+     1A0E   D5
+     1A0F   F2
+     1A10   00
+     1A11   55
+     1A12   44
+     1A13   73
+     1A14   55
+     1A15   00
+     1A16   D9
+     1A17   AA
+     1A18   11
+     1A19   76
+     1A1A   FF
+     1A1B   FA
+     1A1C   DC
+     1A1D   AA
+     1A1E   F2
+     1A1F   A2
+     1A20   00
+     1A21   44
+     1A22   CC
+     1A23   EE
+     1A24   CC
+     1A25   9D
+     1A26   C4
+     1A27   B3
+     1A28   88
+     1A29   FF
+     1A2A   66
+     1A2B   75
+     1A2C   D5
+     1A2D   B6
+     1A2E   77
+     1A2F   30
+     1A30   44
+     1A31   37
+     1A32   EE
+     1A33   BB
+     1A34   9D
+     1A35   AA
+     1A36   B3
+     1A37   A2
+     1A38   FF
+     1A39   BE
+     1A3A   57
+     1A3B   10
+     1A3C   B6
+     1A3D   A2
+     1A3E   12
+     1A3F   00
+     1A40   00
+     1A41   55
+     1A42   CC
+     1A43   D9
+     1A44   DD
+     1A45   88
+     1A46   D9
+     1A47   88
+     1A48   99
+     1A49   DC
+     1A4A   5D
+     1A4B   7A
+     1A4C   DC
+     1A4D   88
+     1A4E   50
+     1A4F   22
+     1A50   55
+     1A51   00
+     1A52   D9
+     1A53   AA
+     1A54   88
+     1A55   88
+     1A56   88
+     1A57   AA
+     1A58   DC
+     1A59   AA
+     1A5A   7A
+     1A5B   2A
+     1A5C   88
+     1A5D   AA
+     1A5E   22
+     1A5F   22
+     1A60   CC
+     1A61   9D
+     1A62   4C
+     1A63   3B
+     1A64   9D
+     1A65   88
+     1A66   11
+     1A67   22
+     1A68   5D
+     1A69   3E
+     1A6A   77
+     1A6B   30
+     1A6C   14
+     1A6D   22
+     1A6E   32
+     1A6F   20
+     1A70   9D
+     1A71   AA
+     1A72   3B
+     1A73   2A
+     1A74   88
+     1A75   AA
+     1A76   22
+     1A77   22
+     1A78   3E
+     1A79   2A
+     1A7A   12
+     1A7B   00
+     1A7C   22
+     1A7D   22
+     1A7E   02
+     1A7F   00
+     1A80   00
+     1A81   11
+     1A82   88
+     1A83   FF
+     1A84   99
+     1A85   CD
+     1A86   D5
+     1A87   E3
+     1A88   99
+     1A89   BB
+     1A8A   33
+     1A8B   75
+     1A8C   91
+     1A8D   E6
+     1A8E   77
+     1A8F   60
+     1A90   11
+     1A91   67
+     1A92   FF
+     1A93   EB
+     1A94   CD
+     1A95   AA
+     1A96   E3
+     1A97   A2
+     1A98   BB
+     1A99   EE
+     1A9A   57
+     1A9B   40
+     1A9C   E6
+     1A9D   A2
+     1A9E   42
+     1A9F   00
+     1AA0   88
+     1AA1   FF
+     1AA2   66
+     1AA3   75
+     1AA4   D5
+     1AA5   A7
+     1AA6   77
+     1AA7   21
+     1AA8   33
+     1AA9   75
+     1AAA   55
+     1AAB   55
+     1AAC   77
+     1AAD   24
+     1AAE   55
+     1AAF   00
+     1AB0   FF
+     1AB1   AF
+     1AB2   57
+     1AB3   01
+     1AB4   A7
+     1AB5   A2
+     1AB6   03
+     1AB7   00
+     1AB8   57
+     1AB9   04
+     1ABA   55
+     1ABB   00
+     1ABC   06
+     1ABD   00
+     1ABE   00
+     1ABF   00
+     1AC0   99
+     1AC1   CD
+     1AC2   5D
+     1AC3   6B
+     1AC4   CD
+     1AC5   88
+     1AC6   41
+     1AC7   22
+     1AC8   19
+     1AC9   6E
+     1ACA   77
+     1ACB   60
+     1ACC   44
+     1ACD   22
+     1ACE   62
+     1ACF   20
+     1AD0   CD
+     1AD1   AA
+     1AD2   6B
+     1AD3   2A
+     1AD4   88
+     1AD5   AA
+     1AD6   22
+     1AD7   22
+     1AD8   6E
+     1AD9   2A
+     1ADA   42
+     1ADB   00
+     1ADC   22
+     1ADD   22
+     1ADE   02
+     1ADF   00
+     1AE0   5D
+     1AE1   2F
+     1AE2   77
+     1AE3   21
+     1AE4   05
+     1AE5   22
+     1AE6   23
+     1AE7   20
+     1AE8   77
+     1AE9   24
+     1AEA   55
+     1AEB   00
+     1AEC   26
+     1AED   20
+     1AEE   00
+     1AEF   00
+     1AF0   2F
+     1AF1   2A
+     1AF2   03
+     1AF3   00
+     1AF4   22
+     1AF5   22
+     1AF6   02
+     1AF7   00
+     1AF8   06
+     1AF9   00
+     1AFA   00
+     1AFB   00
+     1AFC   02
+     1AFD   00
+     1AFE   00
+     1AFF   00
+     1B00   00
+     1B01   55
+     1B02   44
+     1B03   73
+     1B04   55
+     1B05   00
+     1B06   D9
+     1B07   AA
+     1B08   11
+     1B09   76
+     1B0A   FF
+     1B0B   F8
+     1B0C   DC
+     1B0D   AA
+     1B0E   F2
+     1B0F   A0
+     1B10   55
+     1B11   22
+     1B12   73
+     1B13   22
+     1B14   00
+     1B15   22
+     1B16   AA
+     1B17   AA
+     1B18   76
+     1B19   22
+     1B1A   DA
+     1B1B   88
+     1B1C   AA
+     1B1D   AA
+     1B1E   82
+     1B1F   80
+     1B20   44
+     1B21   37
+     1B22   EE
+     1B23   B9
+     1B24   9D
+     1B25   AA
+     1B26   B3
+     1B27   A0
+     1B28   FF
+     1B29   BC
+     1B2A   55
+     1B2B   10
+     1B2C   B6
+     1B2D   A0
+     1B2E   10
+     1B2F   00
+     1B30   37
+     1B31   22
+     1B32   9B
+     1B33   88
+     1B34   AA
+     1B35   AA
+     1B36   82
+     1B37   80
+     1B38   9E
+     1B39   88
+     1B3A   10
+     1B3B   00
+     1B3C   82
+     1B3D   80
+     1B3E   00
+     1B3F   00
+     1B40   55
+     1B41   00
+     1B42   D9
+     1B43   AA
+     1B44   88
+     1B45   88
+     1B46   88
+     1B47   AA
+     1B48   DC
+     1B49   AA
+     1B4A   7A
+     1B4B   28
+     1B4C   88
+     1B4D   AA
+     1B4E   22
+     1B4F   20
+     1B50   00
+     1B51   22
+     1B52   AA
+     1B53   AA
+     1B54   88
+     1B55   AA
+     1B56   AA
+     1B57   AA
+     1B58   AA
+     1B59   AA
+     1B5A   0A
+     1B5B   08
+     1B5C   AA
+     1B5D   AA
+     1B5E   02
+     1B5F   00
+     1B60   9D
+     1B61   AA
+     1B62   3B
+     1B63   28
+     1B64   88
+     1B65   AA
+     1B66   22
+     1B67   20
+     1B68   3E
+     1B69   28
+     1B6A   10
+     1B6B   00
+     1B6C   22
+     1B6D   20
+     1B6E   00
+     1B6F   00
+     1B70   AA
+     1B71   AA
+     1B72   0A
+     1B73   08
+     1B74   AA
+     1B75   AA
+     1B76   02
+     1B77   00
+     1B78   0A
+     1B79   08
+     1B7A   00
+     1B7B   00
+     1B7C   02
+     1B7D   00
+     1B7E   00
+     1B7F   00
+     1B80   11
+     1B81   67
+     1B82   FF
+     1B83   E9
+     1B84   CD
+     1B85   AA
+     1B86   E3
+     1B87   A0
+     1B88   BB
+     1B89   EC
+     1B8A   55
+     1B8B   40
+     1B8C   E6
+     1B8D   A0
+     1B8E   40
+     1B8F   00
+     1B90   67
+     1B91   22
+     1B92   CB
+     1B93   88
+     1B94   AA
+     1B95   AA
+     1B96   82
+     1B97   80
+     1B98   CE
+     1B99   88
+     1B9A   40
+     1B9B   00
+     1B9C   82
+     1B9D   80
+     1B9E   00
+     1B9F   00
+     1BA0   FF
+     1BA1   AD
+     1BA2   55
+     1BA3   01
+     1BA4   A7
+     1BA5   A0
+     1BA6   01
+     1BA7   00
+     1BA8   55
+     1BA9   04
+     1BAA   55
+     1BAB   00
+     1BAC   04
+     1BAD   00
+     1BAE   00
+     1BAF   00
+     1BB0   8F
+     1BB1   88
+     1BB2   01
+     1BB3   00
+     1BB4   82
+     1BB5   80
+     1BB6   00
+     1BB7   00
+     1BB8   04
+     1BB9   00
+     1BBA   00
+     1BBB   00
+     1BBC   00
+     1BBD   00
+     1BBE   00
+     1BBF   00
+     1BC0   CD
+     1BC1   AA
+     1BC2   6B
+     1BC3   28
+     1BC4   88
+     1BC5   AA
+     1BC6   22
+     1BC7   20
+     1BC8   6E
+     1BC9   28
+     1BCA   40
+     1BCB   00
+     1BCC   22
+     1BCD   20
+     1BCE   00
+     1BCF   00
+     1BD0   AA
+     1BD1   AA
+     1BD2   0A
+     1BD3   08
+     1BD4   AA
+     1BD5   AA
+     1BD6   02
+     1BD7   00
+     1BD8   0A
+     1BD9   08
+     1BDA   00
+     1BDB   00
+     1BDC   02
+     1BDD   00
+     1BDE   00
+     1BDF   00
+     1BE0   2F
+     1BE1   28
+     1BE2   01
+     1BE3   00
+     1BE4   22
+     1BE5   20
+     1BE6   00
+     1BE7   00
+     1BE8   04
+     1BE9   00
+     1BEA   00
+     1BEB   00
+     1BEC   00
+     1BED   00
+     1BEE   00
+     1BEF   00
+     1BF0   0A
+     1BF1   08
+     1BF2   00
+     1BF3   00
+     1BF4   02
+     1BF5   00
+     1BF6   00
+     1BF7   00
+     1BF8   00
+     1BF9   00
+     1BFA   00
+     1BFB   00
+     1BFC   00
+     1BFD   00
+     1BFE   00
+     1BFF   00
+     1C00   00
+     1C01   44
+     1C02   CC
+     1C03   EA
+     1C04   CC
+     1C05   99
+     1C06   C0
+     1C07   B3
+     1C08   88
+     1C09   FF
+     1C0A   66
+     1C0B   71
+     1C0C   D5
+     1C0D   B2
+     1C0E   73
+     1C0F   30
+     1C10   44
+     1C11   33
+     1C12   EA
+     1C13   BB
+     1C14   99
+     1C15   AA
+     1C16   B3
+     1C17   A2
+     1C18   FF
+     1C19   BA
+     1C1A   53
+     1C1B   10
+     1C1C   B2
+     1C1D   A2
+     1C1E   12
+     1C1F   00
+     1C20   CC
+     1C21   AE
+     1C22   66
+     1C23   20
+     1C24   84
+     1C25   B3
+     1C26   22
+     1C27   31
+     1C28   66
+     1C29   35
+     1C2A   44
+     1C2B   11
+     1C2C   37
+     1C2D   30
+     1C2E   11
+     1C2F   10
+     1C30   AE
+     1C31   BB
+     1C32   02
+     1C33   11
+     1C34   B3
+     1C35   A2
+     1C36   13
+     1C37   00
+     1C38   17
+     1C39   10
+     1C3A   11
+     1C3B   10
+     1C3C   12
+     1C3D   00
+     1C3E   10
+     1C3F   00
+     1C40   CC
+     1C41   99
+     1C42   48
+     1C43   3B
+     1C44   99
+     1C45   88
+     1C46   11
+     1C47   22
+     1C48   5D
+     1C49   3A
+     1C4A   73
+     1C4B   30
+     1C4C   10
+     1C4D   22
+     1C4E   32
+     1C4F   20
+     1C50   99
+     1C51   AA
+     1C52   3B
+     1C53   2A
+     1C54   88
+     1C55   AA
+     1C56   22
+     1C57   22
+     1C58   3A
+     1C59   2A
+     1C5A   12
+     1C5B   00
+     1C5C   22
+     1C5D   22
+     1C5E   02
+     1C5F   00
+     1C60   0C
+     1C61   3B
+     1C62   22
+     1C63   31
+     1C64   11
+     1C65   22
+     1C66   33
+     1C67   20
+     1C68   37
+     1C69   30
+     1C6A   11
+     1C6B   10
+     1C6C   32
+     1C6D   20
+     1C6E   10
+     1C6F   00
+     1C70   3B
+     1C71   2A
+     1C72   13
+     1C73   00
+     1C74   22
+     1C75   22
+     1C76   02
+     1C77   00
+     1C78   12
+     1C79   00
+     1C7A   10
+     1C7B   00
+     1C7C   02
+     1C7D   00
+     1C7E   00
+     1C7F   00
+     1C80   88
+     1C81   FF
+     1C82   66
+     1C83   71
+     1C84   D5
+     1C85   A3
+     1C86   73
+     1C87   21
+     1C88   33
+     1C89   75
+     1C8A   55
+     1C8B   51
+     1C8C   77
+     1C8D   20
+     1C8E   51
+     1C8F   00
+     1C90   FF
+     1C91   AB
+     1C92   53
+     1C93   01
+     1C94   A3
+     1C95   A2
+     1C96   03
+     1C97   00
+     1C98   57
+     1C99   00
+     1C9A   51
+     1C9B   00
+     1C9C   02
+     1C9D   00
+     1C9E   00
+     1C9F   00
+     1CA0   66
+     1CA1   35
+     1CA2   44
+     1CA3   11
+     1CA4   37
+     1CA5   21
+     1CA6   11
+     1CA7   01
+     1CA8   55
+     1CA9   15
+     1CAA   55
+     1CAB   11
+     1CAC   15
+     1CAD   00
+     1CAE   11
+     1CAF   00
+     1CB0   17
+     1CB1   01
+     1CB2   11
+     1CB3   01
+     1CB4   03
+     1CB5   00
+     1CB6   01
+     1CB7   00
+     1CB8   15
+     1CB9   00
+     1CBA   11
+     1CBB   00
+     1CBC   00
+     1CBD   00
+     1CBE   00
+     1CBF   00
+     1CC0   5D
+     1CC1   2B
+     1CC2   73
+     1CC3   21
+     1CC4   01
+     1CC5   22
+     1CC6   23
+     1CC7   20
+     1CC8   77
+     1CC9   20
+     1CCA   51
+     1CCB   00
+     1CCC   22
+     1CCD   20
+     1CCE   00
+     1CCF   00
+     1CD0   2B
+     1CD1   2A
+     1CD2   03
+     1CD3   00
+     1CD4   22
+     1CD5   22
+     1CD6   02
+     1CD7   00
+     1CD8   02
+     1CD9   00
+     1CDA   00
+     1CDB   00
+     1CDC   02
+     1CDD   00
+     1CDE   00
+     1CDF   00
+     1CE0   37
+     1CE1   21
+     1CE2   11
+     1CE3   01
+     1CE4   23
+     1CE5   20
+     1CE6   01
+     1CE7   00
+     1CE8   15
+     1CE9   00
+     1CEA   11
+     1CEB   00
+     1CEC   00
+     1CED   00
+     1CEE   00
+     1CEF   00
+     1CF0   03
+     1CF1   00
+     1CF2   01
+     1CF3   00
+     1CF4   02
+     1CF5   00
+     1CF6   00
+     1CF7   00
+     1CF8   00
+     1CF9   00
+     1CFA   00
+     1CFB   00
+     1CFC   00
+     1CFD   00
+     1CFE   00
+     1CFF   00
+     1D00   44
+     1D01   33
+     1D02   EA
+     1D03   B9
+     1D04   99
+     1D05   AA
+     1D06   B3
+     1D07   A0
+     1D08   FF
+     1D09   B8
+     1D0A   51
+     1D0B   10
+     1D0C   B2
+     1D0D   A0
+     1D0E   10
+     1D0F   00
+     1D10   33
+     1D11   22
+     1D12   9B
+     1D13   88
+     1D14   AA
+     1D15   AA
+     1D16   82
+     1D17   80
+     1D18   9A
+     1D19   88
+     1D1A   10
+     1D1B   00
+     1D1C   82
+     1D1D   80
+     1D1E   00
+     1D1F   00
+     1D20   AE
+     1D21   B9
+     1D22   00
+     1D23   11
+     1D24   B3
+     1D25   A0
+     1D26   11
+     1D27   00
+     1D28   15
+     1D29   10
+     1D2A   11
+     1D2B   10
+     1D2C   10
+     1D2D   00
+     1D2E   10
+     1D2F   00
+     1D30   9B
+     1D31   88
+     1D32   11
+     1D33   00
+     1D34   82
+     1D35   80
+     1D36   00
+     1D37   00
+     1D38   10
+     1D39   00
+     1D3A   10
+     1D3B   00
+     1D3C   00
+     1D3D   00
+     1D3E   00
+     1D3F   00
+     1D40   99
+     1D41   AA
+     1D42   3B
+     1D43   28
+     1D44   88
+     1D45   AA
+     1D46   22
+     1D47   20
+     1D48   3A
+     1D49   28
+     1D4A   10
+     1D4B   00
+     1D4C   22
+     1D4D   20
+     1D4E   00
+     1D4F   00
+     1D50   AA
+     1D51   AA
+     1D52   0A
+     1D53   08
+     1D54   AA
+     1D55   AA
+     1D56   02
+     1D57   00
+     1D58   0A
+     1D59   08
+     1D5A   00
+     1D5B   00
+     1D5C   02
+     1D5D   00
+     1D5E   00
+     1D5F   00
+     1D60   3B
+     1D61   28
+     1D62   11
+     1D63   00
+     1D64   22
+     1D65   20
+     1D66   00
+     1D67   00
+     1D68   10
+     1D69   00
+     1D6A   10
+     1D6B   00
+     1D6C   00
+     1D6D   00
+     1D6E   00
+     1D6F   00
+     1D70   0A
+     1D71   08
+     1D72   00
+     1D73   00
+     1D74   02
+     1D75   00
+     1D76   00
+     1D77   00
+     1D78   00
+     1D79   00
+     1D7A   00
+     1D7B   00
+     1D7C   00
+     1D7D   00
+     1D7E   00
+     1D7F   00
+     1D80   FF
+     1D81   A9
+     1D82   51
+     1D83   01
+     1D84   A3
+     1D85   A0
+     1D86   01
+     1D87   00
+     1D88   55
+     1D89   00
+     1D8A   51
+     1D8B   00
+     1D8C   00
+     1D8D   00
+     1D8E   00
+     1D8F   00
+     1D90   8B
+     1D91   88
+     1D92   01
+     1D93   00
+     1D94   82
+     1D95   80
+     1D96   00
+     1D97   00
+     1D98   00
+     1D99   00
+     1D9A   00
+     1D9B   00
+     1D9C   00
+     1D9D   00
+     1D9E   00
+     1D9F   00
+     1DA0   15
+     1DA1   01
+     1DA2   11
+     1DA3   01
+     1DA4   01
+     1DA5   00
+     1DA6   01
+     1DA7   00
+     1DA8   15
+     1DA9   00
+     1DAA   11
+     1DAB   00
+     1DAC   00
+     1DAD   00
+     1DAE   00
+     1DAF   00
+     1DB0   01
+     1DB1   00
+     1DB2   01
+     1DB3   00
+     1DB4   00
+     1DB5   00
+     1DB6   00
+     1DB7   00
+     1DB8   00
+     1DB9   00
+     1DBA   00
+     1DBB   00
+     1DBC   00
+     1DBD   00
+     1DBE   00
+     1DBF   00
+     1DC0   2B
+     1DC1   28
+     1DC2   01
+     1DC3   00
+     1DC4   22
+     1DC5   20
+     1DC6   00
+     1DC7   00
+     1DC8   00
+     1DC9   00
+     1DCA   00
+     1DCB   00
+     1DCC   00
+     1DCD   00
+     1DCE   00
+     1DCF   00
+     1DD0   0A
+     1DD1   08
+     1DD2   00
+     1DD3   00
+     1DD4   02
+     1DD5   00
+     1DD6   00
+     1DD7   00
+     1DD8   00
+     1DD9   00
+     1DDA   00
+     1DDB   00
+     1DDC   00
+     1DDD   00
+     1DDE   00
+     1DDF   00
+     1DE0   01
+     1DE1   00
+     1DE2   01
+     1DE3   00
+     1DE4   00
+     1DE5   00
+     1DE6   00
+     1DE7   00
+     1DE8   00
+     1DE9   00
+     1DEA   00
+     1DEB   00
+     1DEC   00
+     1DED   00
+     1DEE   00
+     1DEF   00
+     1DF0   00
+     1DF1   00
+     1DF2   00
+     1DF3   00
+     1DF4   00
+     1DF5   00
+     1DF6   00
+     1DF7   00
+     1DF8   00
+     1DF9   00
+     1DFA   00
+     1DFB   00
+     1DFC   00
+     1DFD   00
+     1DFE   00
+     1DFF   00
+     1E00   00
+     1E01   00
+     1E02   00
+     1E03   22
+     1E04   00
+     1E05   11
+     1E06   88
+     1E07   FF
+     1E08   00
+     1E09   33
+     1E0A   AA
+     1E0B   B9
+     1E0C   99
+     1E0D   BA
+     1E0E   B3
+     1E0F   F4
+     1E10   00
+     1E11   33
+     1E12   22
+     1E13   77
+     1E14   11
+     1E15   66
+     1E16   FF
+     1E17   EA
+     1E18   33
+     1E19   32
+     1E1A   9B
+     1E1B   DC
+     1E1C   BA
+     1E1D   EE
+     1E1E   D6
+     1E1F   C0
+     1E20   00
+     1E21   22
+     1E22   AA
+     1E23   EC
+     1E24   88
+     1E25   FF
+     1E26   E6
+     1E27   F5
+     1E28   AA
+     1E29   B9
+     1E2A   00
+     1E2B   55
+     1E2C   B3
+     1E2D   F4
+     1E2E   55
+     1E2F   54
+     1E30   22
+     1E31   77
+     1E32   CE
+     1E33   DD
+     1E34   FF
+     1E35   AE
+     1E36   D7
+     1E37   80
+     1E38   9B
+     1E39   DC
+     1E3A   55
+     1E3B   54
+     1E3C   D6
+     1E3D   84
+     1E3E   54
+     1E3F   00
+     1E40   00
+     1E41   11
+     1E42   88
+     1E43   FF
+     1E44   99
+     1E45   CC
+     1E46   DD
+     1E47   EA
+     1E48   99
+     1E49   BA
+     1E4A   3B
+     1E4B   7C
+     1E4C   98
+     1E4D   EE
+     1E4E   76
+     1E4F   60
+     1E50   11
+     1E51   66
+     1E52   FF
+     1E53   EA
+     1E54   CC
+     1E55   AA
+     1E56   EA
+     1E57   AA
+     1E58   BA
+     1E59   EE
+     1E5A   5E
+     1E5B   48
+     1E5C   EE
+     1E5D   AA
+     1E5E   42
+     1E5F   00
+     1E60   88
+     1E61   FF
+     1E62   6E
+     1E63   7D
+     1E64   DD
+     1E65   AE
+     1E66   77
+     1E67   20
+     1E68   3B
+     1E69   7C
+     1E6A   55
+     1E6B   54
+     1E6C   76
+     1E6D   24
+     1E6E   54
+     1E6F   00
+     1E70   FF
+     1E71   AE
+     1E72   5F
+     1E73   08
+     1E74   AE
+     1E75   AA
+     1E76   02
+     1E77   00
+     1E78   5E
+     1E79   0C
+     1E7A   54
+     1E7B   00
+     1E7C   06
+     1E7D   00
+     1E7E   00
+     1E7F   00
+     1E80   00
+     1E81   33
+     1E82   AA
+     1E83   B9
+     1E84   99
+     1E85   AB
+     1E86   B3
+     1E87   E5
+     1E88   BB
+     1E89   B9
+     1E8A   11
+     1E8B   11
+     1E8C   B3
+     1E8D   A0
+     1E8E   11
+     1E8F   44
+     1E90   33
+     1E91   23
+     1E92   9B
+     1E93   CD
+     1E94   AB
+     1E95   EE
+     1E96   C7
+     1E97   C0
+     1E98   9B
+     1E99   88
+     1E9A   11
+     1E9B   44
+     1E9C   82
+     1E9D   C4
+     1E9E   44
+     1E9F   40
+     1EA0   AA
+     1EA1   B9
+     1EA2   00
+     1EA3   55
+     1EA4   B3
+     1EA5   E5
+     1EA6   55
+     1EA7   45
+     1EA8   11
+     1EA9   11
+     1EAA   11
+     1EAB   55
+     1EAC   11
+     1EAD   44
+     1EAE   55
+     1EAF   44
+     1EB0   9B
+     1EB1   CD
+     1EB2   55
+     1EB3   45
+     1EB4   C7
+     1EB5   84
+     1EB6   45
+     1EB7   00
+     1EB8   11
+     1EB9   44
+     1EBA   55
+     1EBB   44
+     1EBC   44
+     1EBD   04
+     1EBE   44
+     1EBF   00
+     1EC0   99
+     1EC1   AB
+     1EC2   3B
+     1EC3   6D
+     1EC4   89
+     1EC5   EE
+     1EC6   67
+     1EC7   60
+     1EC8   3B
+     1EC9   28
+     1ECA   11
+     1ECB   44
+     1ECC   22
+     1ECD   64
+     1ECE   44
+     1ECF   40
+     1ED0   AB
+     1ED1   EE
+     1ED2   4F
+     1ED3   48
+     1ED4   EE
+     1ED5   AA
+     1ED6   42
+     1ED7   00
+     1ED8   0A
+     1ED9   4C
+     1EDA   44
+     1EDB   40
+     1EDC   46
+     1EDD   00
+     1EDE   40
+     1EDF   00
+     1EE0   3B
+     1EE1   6D
+     1EE2   55
+     1EE3   45
+     1EE4   67
+     1EE5   24
+     1EE6   45
+     1EE7   00
+     1EE8   11
+     1EE9   44
+     1EEA   55
+     1EEB   44
+     1EEC   44
+     1EED   04
+     1EEE   44
+     1EEF   00
+     1EF0   4F
+     1EF1   0C
+     1EF2   45
+     1EF3   00
+     1EF4   06
+     1EF5   00
+     1EF6   00
+     1EF7   00
+     1EF8   44
+     1EF9   04
+     1EFA   44
+     1EFB   00
+     1EFC   04
+     1EFD   00
+     1EFE   00
+     1EFF   00
+     1F00   00
+     1F01   33
+     1F02   22
+     1F03   75
+     1F04   11
+     1F05   66
+     1F06   FF
+     1F07   E8
+     1F08   33
+     1F09   30
+     1F0A   99
+     1F0B   DC
+     1F0C   BA
+     1F0D   EC
+     1F0E   D4
+     1F0F   C0
+     1F10   33
+     1F11   66
+     1F12   57
+     1F13   40
+     1F14   66
+     1F15   22
+     1F16   CA
+     1F17   88
+     1F18   12
+     1F19   44
+     1F1A   DC
+     1F1B   C8
+     1F1C   CE
+     1F1D   88
+     1F1E   C0
+     1F1F   80
+     1F20   22
+     1F21   75
+     1F22   CC
+     1F23   DD
+     1F24   FF
+     1F25   AC
+     1F26   D5
+     1F27   80
+     1F28   99
+     1F29   DC
+     1F2A   55
+     1F2B   54
+     1F2C   D4
+     1F2D   84
+     1F2E   54
+     1F2F   00
+     1F30   57
+     1F31   04
+     1F32   DD
+     1F33   88
+     1F34   8E
+     1F35   88
+     1F36   80
+     1F37   80
+     1F38   DC
+     1F39   8C
+     1F3A   54
+     1F3B   00
+     1F3C   84
+     1F3D   80
+     1F3E   00
+     1F3F   00
+     1F40   11
+     1F41   66
+     1F42   FF
+     1F43   E8
+     1F44   CC
+     1F45   AA
+     1F46   EA
+     1F47   A8
+     1F48   BA
+     1F49   EC
+     1F4A   5C
+     1F4B   48
+     1F4C   EE
+     1F4D   A8
+     1F4E   40
+     1F4F   00
+     1F50   66
+     1F51   22
+     1F52   CA
+     1F53   88
+     1F54   AA
+     1F55   AA
+     1F56   8A
+     1F57   88
+     1F58   CE
+     1F59   88
+     1F5A   48
+     1F5B   08
+     1F5C   8A
+     1F5D   88
+     1F5E   00
+     1F5F   00
+     1F60   FF
+     1F61   AC
+     1F62   5D
+     1F63   08
+     1F64   AE
+     1F65   A8
+     1F66   00
+     1F67   00
+     1F68   5C
+     1F69   0C
+     1F6A   54
+     1F6B   00
+     1F6C   04
+     1F6D   00
+     1F6E   00
+     1F6F   00
+     1F70   8E
+     1F71   88
+     1F72   08
+     1F73   08
+     1F74   8A
+     1F75   88
+     1F76   00
+     1F77   00
+     1F78   0C
+     1F79   08
+     1F7A   00
+     1F7B   00
+     1F7C   00
+     1F7D   00
+     1F7E   00
+     1F7F   00
+     1F80   33
+     1F81   21
+     1F82   99
+     1F83   CD
+     1F84   AB
+     1F85   EC
+     1F86   C5
+     1F87   C0
+     1F88   99
+     1F89   88
+     1F8A   11
+     1F8B   44
+     1F8C   80
+     1F8D   C4
+     1F8E   44
+     1F8F   40
+     1F90   03
+     1F91   44
+     1F92   CD
+     1F93   C8
+     1F94   CE
+     1F95   88
+     1F96   C0
+     1F97   80
+     1F98   88
+     1F99   CC
+     1F9A   44
+     1F9B   40
+     1F9C   C4
+     1F9D   80
+     1F9E   40
+     1F9F   00
+     1FA0   99
+     1FA1   CD
+     1FA2   55
+     1FA3   45
+     1FA4   C5
+     1FA5   84
+     1FA6   45
+     1FA7   00
+     1FA8   11
+     1FA9   44
+     1FAA   55
+     1FAB   44
+     1FAC   44
+     1FAD   04
+     1FAE   44
+     1FAF   00
+     1FB0   CD
+     1FB1   8C
+     1FB2   45
+     1FB3   00
+     1FB4   84
+     1FB5   80
+     1FB6   00
+     1FB7   00
+     1FB8   44
+     1FB9   04
+     1FBA   44
+     1FBB   00
+     1FBC   04
+     1FBD   00
+     1FBE   00
+     1FBF   00
+     1FC0   AB
+     1FC1   EC
+     1FC2   4D
+     1FC3   48
+     1FC4   EE
+     1FC5   A8
+     1FC6   40
+     1FC7   00
+     1FC8   08
+     1FC9   4C
+     1FCA   44
+     1FCB   40
+     1FCC   44
+     1FCD   00
+     1FCE   40
+     1FCF   00
+     1FD0   CE
+     1FD1   88
+     1FD2   48
+     1FD3   08
+     1FD4   8A
+     1FD5   88
+     1FD6   00
+     1FD7   00
+     1FD8   4C
+     1FD9   08
+     1FDA   40
+     1FDB   00
+     1FDC   00
+     1FDD   00
+     1FDE   00
+     1FDF   00
+     1FE0   4D
+     1FE1   0C
+     1FE2   45
+     1FE3   00
+     1FE4   04
+     1FE5   00
+     1FE6   00
+     1FE7   00
+     1FE8   44
+     1FE9   04
+     1FEA   44
+     1FEB   00
+     1FEC   04
+     1FED   00
+     1FEE   00
+     1FEF   00
+     1FF0   0C
+     1FF1   08
+     1FF2   00
+     1FF3   00
+     1FF4   00
+     1FF5   00
+     1FF6   00
+     1FF7   00
+     1FF8   04
+     1FF9   00
+     1FFA   00
+     1FFB   00
+     1FFC   00
+     1FFD   00
+     1FFE   00
+     1FFF   00
+     2000   00
+     2001   22
+     2002   AA
+     2003   EC
+     2004   88
+     2005   FF
+     2006   E6
+     2007   F1
+     2008   AA
+     2009   B9
+     200A   00
+     200B   55
+     200C   B3
+     200D   F4
+     200E   55
+     200F   50
+     2010   22
+     2011   77
+     2012   CE
+     2013   D9
+     2014   FF
+     2015   AA
+     2016   D3
+     2017   80
+     2018   9B
+     2019   DC
+     201A   55
+     201B   50
+     201C   D6
+     201D   80
+     201E   50
+     201F   00
+     2020   AA
+     2021   EC
+     2022   44
+     2023   44
+     2024   E6
+     2025   B5
+     2026   44
+     2027   11
+     2028   00
+     2029   55
+     202A   44
+     202B   55
+     202C   55
+     202D   14
+     202E   55
+     202F   10
+     2030   CE
+     2031   9D
+     2032   44
+     2033   11
+     2034   97
+     2035   80
+     2036   11
+     2037   00
+     2038   55
+     2039   14
+     203A   55
+     203B   10
+     203C   14
+     203D   00
+     203E   10
+     203F   00
+     2040   88
+     2041   FF
+     2042   6E
+     2043   79
+     2044   DD
+     2045   AA
+     2046   73
+     2047   20
+     2048   3B
+     2049   7C
+     204A   55
+     204B   50
+     204C   76
+     204D   20
+     204E   50
+     204F   00
+     2050   FF
+     2051   AA
+     2052   5B
+     2053   08
+     2054   AA
+     2055   AA
+     2056   02
+     2057   00
+     2058   5E
+     2059   08
+     205A   50
+     205B   00
+     205C   02
+     205D   00
+     205E   00
+     205F   00
+     2060   6E
+     2061   3D
+     2062   44
+     2063   11
+     2064   37
+     2065   20
+     2066   11
+     2067   00
+     2068   55
+     2069   14
+     206A   55
+     206B   10
+     206C   14
+     206D   00
+     206E   10
+     206F   00
+     2070   1F
+     2071   08
+     2072   11
+     2073   00
+     2074   02
+     2075   00
+     2076   00
+     2077   00
+     2078   14
+     2079   00
+     207A   10
+     207B   00
+     207C   00
+     207D   00
+     207E   00
+     207F   00
+     2080   AA
+     2081   B9
+     2082   00
+     2083   55
+     2084   B3
+     2085   E5
+     2086   55
+     2087   41
+     2088   11
+     2089   11
+     208A   11
+     208B   55
+     208C   11
+     208D   44
+     208E   55
+     208F   40
+     2090   9B
+     2091   CD
+     2092   55
+     2093   41
+     2094   C7
+     2095   80
+     2096   41
+     2097   00
+     2098   11
+     2099   44
+     209A   55
+     209B   40
+     209C   44
+     209D   00
+     209E   40
+     209F   00
+     20A0   00
+     20A1   55
+     20A2   44
+     20A3   55
+     20A4   55
+     20A5   05
+     20A6   55
+     20A7   01
+     20A8   11
+     20A9   55
+     20AA   55
+     20AB   55
+     20AC   55
+     20AD   04
+     20AE   55
+     20AF   00
+     20B0   55
+     20B1   05
+     20B2   55
+     20B3   01
+     20B4   05
+     20B5   00
+     20B6   01
+     20B7   00
+     20B8   55
+     20B9   04
+     20BA   55
+     20BB   00
+     20BC   04
+     20BD   00
+     20BE   00
+     20BF   00
+     20C0   3B
+     20C1   6D
+     20C2   55
+     20C3   41
+     20C4   67
+     20C5   20
+     20C6   41
+     20C7   00
+     20C8   11
+     20C9   44
+     20CA   55
+     20CB   40
+     20CC   44
+     20CD   00
+     20CE   40
+     20CF   00
+     20D0   4F
+     20D1   08
+     20D2   41
+     20D3   00
+     20D4   02
+     20D5   00
+     20D6   00
+     20D7   00
+     20D8   44
+     20D9   00
+     20DA   40
+     20DB   00
+     20DC   00
+     20DD   00
+     20DE   00
+     20DF   00
+     20E0   55
+     20E1   05
+     20E2   55
+     20E3   01
+     20E4   05
+     20E5   00
+     20E6   01
+     20E7   00
+     20E8   55
+     20E9   04
+     20EA   55
+     20EB   00
+     20EC   04
+     20ED   00
+     20EE   00
+     20EF   00
+     20F0   05
+     20F1   00
+     20F2   01
+     20F3   00
+     20F4   00
+     20F5   00
+     20F6   00
+     20F7   00
+     20F8   04
+     20F9   00
+     20FA   00
+     20FB   00
+     20FC   00
+     20FD   00
+     20FE   00
+     20FF   00
+     2100   22
+     2101   75
+     2102   CC
+     2103   D9
+     2104   FF
+     2105   A8
+     2106   D1
+     2107   80
+     2108   99
+     2109   DC
+     210A   55
+     210B   50
+     210C   D4
+     210D   80
+     210E   50
+     210F   00
+     2110   57
+     2111   00
+     2112   D9
+     2113   88
+     2114   8A
+     2115   88
+     2116   80
+     2117   80
+     2118   DC
+     2119   88
+     211A   50
+     211B   00
+     211C   80
+     211D   80
+     211E   00
+     211F   00
+     2120   CC
+     2121   9D
+     2122   44
+     2123   11
+     2124   95
+     2125   80
+     2126   11
+     2127   00
+     2128   55
+     2129   14
+     212A   55
+     212B   10
+     212C   14
+     212D   00
+     212E   10
+     212F   00
+     2130   9D
+     2131   88
+     2132   11
+     2133   00
+     2134   80
+     2135   80
+     2136   00
+     2137   00
+     2138   14
+     2139   00
+     213A   10
+     213B   00
+     213C   00
+     213D   00
+     213E   00
+     213F   00
+     2140   FF
+     2141   A8
+     2142   59
+     2143   08
+     2144   AA
+     2145   A8
+     2146   00
+     2147   00
+     2148   5C
+     2149   08
+     214A   50
+     214B   00
+     214C   00
+     214D   00
+     214E   00
+     214F   00
+     2150   8A
+     2151   88
+     2152   08
+     2153   08
+     2154   8A
+     2155   88
+     2156   00
+     2157   00
+     2158   08
+     2159   08
+     215A   00
+     215B   00
+     215C   00
+     215D   00
+     215E   00
+     215F   00
+     2160   1D
+     2161   08
+     2162   11
+     2163   00
+     2164   00
+     2165   00
+     2166   00
+     2167   00
+     2168   14
+     2169   00
+     216A   10
+     216B   00
+     216C   00
+     216D   00
+     216E   00
+     216F   00
+     2170   08
+     2171   08
+     2172   00
+     2173   00
+     2174   00
+     2175   00
+     2176   00
+     2177   00
+     2178   00
+     2179   00
+     217A   00
+     217B   00
+     217C   00
+     217D   00
+     217E   00
+     217F   00
+     2180   99
+     2181   CD
+     2182   55
+     2183   41
+     2184   C5
+     2185   80
+     2186   41
+     2187   00
+     2188   11
+     2189   44
+     218A   55
+     218B   40
+     218C   44
+     218D   00
+     218E   40
+     218F   00
+     2190   CD
+     2191   88
+     2192   41
+     2193   00
+     2194   80
+     2195   80
+     2196   00
+     2197   00
+     2198   44
+     2199   00
+     219A   40
+     219B   00
+     219C   00
+     219D   00
+     219E   00
+     219F   00
+     21A0   55
+     21A1   05
+     21A2   55
+     21A3   01
+     21A4   05
+     21A5   00
+     21A6   01
+     21A7   00
+     21A8   55
+     21A9   04
+     21AA   55
+     21AB   00
+     21AC   04
+     21AD   00
+     21AE   00
+     21AF   00
+     21B0   05
+     21B1   00
+     21B2   01
+     21B3   00
+     21B4   00
+     21B5   00
+     21B6   00
+     21B7   00
+     21B8   04
+     21B9   00
+     21BA   00
+     21BB   00
+     21BC   00
+     21BD   00
+     21BE   00
+     21BF   00
+     21C0   4D
+     21C1   08
+     21C2   41
+     21C3   00
+     21C4   00
+     21C5   00
+     21C6   00
+     21C7   00
+     21C8   44
+     21C9   00
+     21CA   40
+     21CB   00
+     21CC   00
+     21CD   00
+     21CE   00
+     21CF   00
+     21D0   08
+     21D1   08
+     21D2   00
+     21D3   00
+     21D4   00
+     21D5   00
+     21D6   00
+     21D7   00
+     21D8   00
+     21D9   00
+     21DA   00
+     21DB   00
+     21DC   00
+     21DD   00
+     21DE   00
+     21DF   00
+     21E0   05
+     21E1   00
+     21E2   01
+     21E3   00
+     21E4   00
+     21E5   00
+     21E6   00
+     21E7   00
+     21E8   04
+     21E9   00
+     21EA   00
+     21EB   00
+     21EC   00
+     21ED   00
+     21EE   00
+     21EF   00
+     21F0   00
+     21F1   00
+     21F2   00
+     21F3   00
+     21F4   00
+     21F5   00
+     21F6   00
+     21F7   00
+     21F8   00
+     21F9   00
+     21FA   00
+     21FB   00
+     21FC   00
+     21FD   00
+     21FE   00
+     21FF   00
+     2200   00
+     2201   11
+     2202   88
+     2203   FF
+     2204   99
+     2205   CC
+     2206   D5
+     2207   E2
+     2208   99
+     2209   BA
+     220A   33
+     220B   74
+     220C   90
+     220D   E6
+     220E   76
+     220F   60
+     2210   11
+     2211   66
+     2212   FF
+     2213   EA
+     2214   CC
+     2215   AA
+     2216   E2
+     2217   A2
+     2218   BA
+     2219   EE
+     221A   56
+     221B   40
+     221C   E6
+     221D   A2
+     221E   42
+     221F   00
+     2220   88
+     2221   FF
+     2222   66
+     2223   75
+     2224   D5
+     2225   A6
+     2226   77
+     2227   20
+     2228   33
+     2229   74
+     222A   55
+     222B   54
+     222C   76
+     222D   24
+     222E   54
+     222F   00
+     2230   FF
+     2231   AE
+     2232   57
+     2233   00
+     2234   A6
+     2235   A2
+     2236   02
+     2237   00
+     2238   56
+     2239   04
+     223A   54
+     223B   00
+     223C   06
+     223D   00
+     223E   00
+     223F   00
+     2240   99
+     2241   CC
+     2242   5D
+     2243   6A
+     2244   CC
+     2245   88
+     2246   40
+     2247   22
+     2248   18
+     2249   6E
+     224A   76
+     224B   60
+     224C   44
+     224D   22
+     224E   62
+     224F   20
+     2250   CC
+     2251   AA
+     2252   6A
+     2253   2A
+     2254   88
+     2255   AA
+     2256   22
+     2257   22
+     2258   6E
+     2259   2A
+     225A   42
+     225B   00
+     225C   22
+     225D   22
+     225E   02
+     225F   00
+     2260   5D
+     2261   2E
+     2262   77
+     2263   20
+     2264   04
+     2265   22
+     2266   22
+     2267   20
+     2268   76
+     2269   24
+     226A   54
+     226B   00
+     226C   26
+     226D   20
+     226E   00
+     226F   00
+     2270   2E
+     2271   2A
+     2272   02
+     2273   00
+     2274   22
+     2275   22
+     2276   02
+     2277   00
+     2278   06
+     2279   00
+     227A   00
+     227B   00
+     227C   02
+     227D   00
+     227E   00
+     227F   00
+     2280   99
+     2281   AB
+     2282   33
+     2283   65
+     2284   81
+     2285   E6
+     2286   67
+     2287   60
+     2288   33
+     2289   20
+     228A   11
+     228B   44
+     228C   22
+     228D   64
+     228E   44
+     228F   40
+     2290   AB
+     2291   EE
+     2292   47
+     2293   40
+     2294   E6
+     2295   A2
+     2296   42
+     2297   00
+     2298   02
+     2299   44
+     229A   44
+     229B   40
+     229C   46
+     229D   00
+     229E   40
+     229F   00
+     22A0   33
+     22A1   65
+     22A2   55
+     22A3   45
+     22A4   67
+     22A5   24
+     22A6   45
+     22A7   00
+     22A8   11
+     22A9   44
+     22AA   55
+     22AB   44
+     22AC   44
+     22AD   04
+     22AE   44
+     22AF   00
+     22B0   47
+     22B1   04
+     22B2   45
+     22B3   00
+     22B4   06
+     22B5   00
+     22B6   00
+     22B7   00
+     22B8   44
+     22B9   04
+     22BA   44
+     22BB   00
+     22BC   04
+     22BD   00
+     22BE   00
+     22BF   00
+     22C0   09
+     22C1   6E
+     22C2   67
+     22C3   60
+     22C4   44
+     22C5   22
+     22C6   62
+     22C7   20
+     22C8   22
+     22C9   64
+     22CA   44
+     22CB   40
+     22CC   66
+     22CD   20
+     22CE   40
+     22CF   00
+     22D0   6E
+     22D1   2A
+     22D2   42
+     22D3   00
+     22D4   22
+     22D5   22
+     22D6   02
+     22D7   00
+     22D8   46
+     22D9   00
+     22DA   40
+     22DB   00
+     22DC   02
+     22DD   00
+     22DE   00
+     22DF   00
+     22E0   67
+     22E1   24
+     22E2   45
+     22E3   00
+     22E4   26
+     22E5   20
+     22E6   00
+     22E7   00
+     22E8   44
+     22E9   04
+     22EA   44
+     22EB   00
+     22EC   04
+     22ED   00
+     22EE   00
+     22EF   00
+     22F0   06
+     22F1   00
+     22F2   00
+     22F3   00
+     22F4   02
+     22F5   00
+     22F6   00
+     22F7   00
+     22F8   04
+     22F9   00
+     22FA   00
+     22FB   00
+     22FC   00
+     22FD   00
+     22FE   00
+     22FF   00
+     2300   11
+     2301   66
+     2302   FF
+     2303   E8
+     2304   CC
+     2305   AA
+     2306   E2
+     2307   A0
+     2308   BA
+     2309   EC
+     230A   54
+     230B   40
+     230C   E6
+     230D   A0
+     230E   40
+     230F   00
+     2310   66
+     2311   22
+     2312   CA
+     2313   88
+     2314   AA
+     2315   AA
+     2316   82
+     2317   80
+     2318   CE
+     2319   88
+     231A   40
+     231B   00
+     231C   82
+     231D   80
+     231E   00
+     231F   00
+     2320   FF
+     2321   AC
+     2322   55
+     2323   00
+     2324   A6
+     2325   A0
+     2326   00
+     2327   00
+     2328   54
+     2329   04
+     232A   54
+     232B   00
+     232C   04
+     232D   00
+     232E   00
+     232F   00
+     2330   8E
+     2331   88
+     2332   00
+     2333   00
+     2334   82
+     2335   80
+     2336   00
+     2337   00
+     2338   04
+     2339   00
+     233A   00
+     233B   00
+     233C   00
+     233D   00
+     233E   00
+     233F   00
+     2340   CC
+     2341   AA
+     2342   6A
+     2343   28
+     2344   88
+     2345   AA
+     2346   22
+     2347   20
+     2348   6E
+     2349   28
+     234A   40
+     234B   00
+     234C   22
+     234D   20
+     234E   00
+     234F   00
+     2350   AA
+     2351   AA
+     2352   0A
+     2353   08
+     2354   AA
+     2355   AA
+     2356   02
+     2357   00
+     2358   0A
+     2359   08
+     235A   00
+     235B   00
+     235C   02
+     235D   00
+     235E   00
+     235F   00
+     2360   2E
+     2361   28
+     2362   00
+     2363   00
+     2364   22
+     2365   20
+     2366   00
+     2367   00
+     2368   04
+     2369   00
+     236A   00
+     236B   00
+     236C   00
+     236D   00
+     236E   00
+     236F   00
+     2370   0A
+     2371   08
+     2372   00
+     2373   00
+     2374   02
+     2375   00
+     2376   00
+     2377   00
+     2378   00
+     2379   00
+     237A   00
+     237B   00
+     237C   00
+     237D   00
+     237E   00
+     237F   00
+     2380   AB
+     2381   EC
+     2382   45
+     2383   40
+     2384   E6
+     2385   A0
+     2386   40
+     2387   00
+     2388   00
+     2389   44
+     238A   44
+     238B   40
+     238C   44
+     238D   00
+     238E   40
+     238F   00
+     2390   CE
+     2391   88
+     2392   40
+     2393   00
+     2394   82
+     2395   80
+     2396   00
+     2397   00
+     2398   44
+     2399   00
+     239A   40
+     239B   00
+     239C   00
+     239D   00
+     239E   00
+     239F   00
+     23A0   45
+     23A1   04
+     23A2   45
+     23A3   00
+     23A4   04
+     23A5   00
+     23A6   00
+     23A7   00
+     23A8   44
+     23A9   04
+     23AA   44
+     23AB   00
+     23AC   04
+     23AD   00
+     23AE   00
+     23AF   00
+     23B0   04
+     23B1   00
+     23B2   00
+     23B3   00
+     23B4   00
+     23B5   00
+     23B6   00
+     23B7   00
+     23B8   04
+     23B9   00
+     23BA   00
+     23BB   00
+     23BC   00
+     23BD   00
+     23BE   00
+     23BF   00
+     23C0   6E
+     23C1   28
+     23C2   40
+     23C3   00
+     23C4   22
+     23C5   20
+     23C6   00
+     23C7   00
+     23C8   44
+     23C9   00
+     23CA   40
+     23CB   00
+     23CC   00
+     23CD   00
+     23CE   00
+     23CF   00
+     23D0   0A
+     23D1   08
+     23D2   00
+     23D3   00
+     23D4   02
+     23D5   00
+     23D6   00
+     23D7   00
+     23D8   00
+     23D9   00
+     23DA   00
+     23DB   00
+     23DC   00
+     23DD   00
+     23DE   00
+     23DF   00
+     23E0   04
+     23E1   00
+     23E2   00
+     23E3   00
+     23E4   00
+     23E5   00
+     23E6   00
+     23E7   00
+     23E8   04
+     23E9   00
+     23EA   00
+     23EB   00
+     23EC   00
+     23ED   00
+     23EE   00
+     23EF   00
+     23F0   00
+     23F1   00
+     23F2   00
+     23F3   00
+     23F4   00
+     23F5   00
+     23F6   00
+     23F7   00
+     23F8   00
+     23F9   00
+     23FA   00
+     23FB   00
+     23FC   00
+     23FD   00
+     23FE   00
+     23FF   00
+     2400   88
+     2401   FF
+     2402   66
+     2403   71
+     2404   D5
+     2405   A2
+     2406   73
+     2407   20
+     2408   33
+     2409   74
+     240A   55
+     240B   50
+     240C   76
+     240D   20
+     240E   50
+     240F   00
+     2410   FF
+     2411   AA
+     2412   53
+     2413   00
+     2414   A2
+     2415   A2
+     2416   02
+     2417   00
+     2418   56
+     2419   00
+     241A   50
+     241B   00
+     241C   02
+     241D   00
+     241E   00
+     241F   00
+     2420   66
+     2421   35
+     2422   44
+     2423   11
+     2424   37
+     2425   20
+     2426   11
+     2427   00
+     2428   55
+     2429   14
+     242A   55
+     242B   10
+     242C   14
+     242D   00
+     242E   10
+     242F   00
+     2430   17
+     2431   00
+     2432   11
+     2433   00
+     2434   02
+     2435   00
+     2436   00
+     2437   00
+     2438   14
+     2439   00
+     243A   10
+     243B   00
+     243C   00
+     243D   00
+     243E   00
+     243F   00
+     2440   5D
+     2441   2A
+     2442   73
+     2443   20
+     2444   00
+     2445   22
+     2446   22
+     2447   20
+     2448   76
+     2449   20
+     244A   50
+     244B   00
+     244C   22
+     244D   20
+     244E   00
+     244F   00
+     2450   2A
+     2451   2A
+     2452   02
+     2453   00
+     2454   22
+     2455   22
+     2456   02
+     2457   00
+     2458   02
+     2459   00
+     245A   00
+     245B   00
+     245C   02
+     245D   00
+     245E   00
+     245F   00
+     2460   37
+     2461   20
+     2462   11
+     2463   00
+     2464   22
+     2465   20
+     2466   00
+     2467   00
+     2468   14
+     2469   00
+     246A   10
+     246B   00
+     246C   00
+     246D   00
+     246E   00
+     246F   00
+     2470   02
+     2471   00
+     2472   00
+     2473   00
+     2474   02
+     2475   00
+     2476   00
+     2477   00
+     2478   00
+     2479   00
+     247A   00
+     247B   00
+     247C   00
+     247D   00
+     247E   00
+     247F   00
+     2480   33
+     2481   65
+     2482   55
+     2483   41
+     2484   67
+     2485   20
+     2486   41
+     2487   00
+     2488   11
+     2489   44
+     248A   55
+     248B   40
+     248C   44
+     248D   00
+     248E   40
+     248F   00
+     2490   47
+     2491   00
+     2492   41
+     2493   00
+     2494   02
+     2495   00
+     2496   00
+     2497   00
+     2498   44
+     2499   00
+     249A   40
+     249B   00
+     249C   00
+     249D   00
+     249E   00
+     249F   00
+     24A0   55
+     24A1   05
+     24A2   55
+     24A3   01
+     24A4   05
+     24A5   00
+     24A6   01
+     24A7   00
+     24A8   55
+     24A9   04
+     24AA   55
+     24AB   00
+     24AC   04
+     24AD   00
+     24AE   00
+     24AF   00
+     24B0   05
+     24B1   00
+     24B2   01
+     24B3   00
+     24B4   00
+     24B5   00
+     24B6   00
+     24B7   00
+     24B8   04
+     24B9   00
+     24BA   00
+     24BB   00
+     24BC   00
+     24BD   00
+     24BE   00
+     24BF   00
+     24C0   67
+     24C1   20
+     24C2   41
+     24C3   00
+     24C4   22
+     24C5   20
+     24C6   00
+     24C7   00
+     24C8   44
+     24C9   00
+     24CA   40
+     24CB   00
+     24CC   00
+     24CD   00
+     24CE   00
+     24CF   00
+     24D0   02
+     24D1   00
+     24D2   00
+     24D3   00
+     24D4   02
+     24D5   00
+     24D6   00
+     24D7   00
+     24D8   00
+     24D9   00
+     24DA   00
+     24DB   00
+     24DC   00
+     24DD   00
+     24DE   00
+     24DF   00
+     24E0   05
+     24E1   00
+     24E2   01
+     24E3   00
+     24E4   00
+     24E5   00
+     24E6   00
+     24E7   00
+     24E8   04
+     24E9   00
+     24EA   00
+     24EB   00
+     24EC   00
+     24ED   00
+     24EE   00
+     24EF   00
+     24F0   00
+     24F1   00
+     24F2   00
+     24F3   00
+     24F4   00
+     24F5   00
+     24F6   00
+     24F7   00
+     24F8   00
+     24F9   00
+     24FA   00
+     24FB   00
+     24FC   00
+     24FD   00
+     24FE   00
+     24FF   00
+     2500   FF
+     2501   A8
+     2502   51
+     2503   00
+     2504   A2
+     2505   A0
+     2506   00
+     2507   00
+     2508   54
+     2509   00
+     250A   50
+     250B   00
+     250C   00
+     250D   00
+     250E   00
+     250F   00
+     2510   8A
+     2511   88
+     2512   00
+     2513   00
+     2514   82
+     2515   80
+     2516   00
+     2517   00
+     2518   00
+     2519   00
+     251A   00
+     251B   00
+     251C   00
+     251D   00
+     251E   00
+     251F   00
+     2520   15
+     2521   00
+     2522   11
+     2523   00
+     2524   00
+     2525   00
+     2526   00
+     2527   00
+     2528   14
+     2529   00
+     252A   10
+     252B   00
+     252C   00
+     252D   00
+     252E   00
+     252F   00
+     2530   00
+     2531   00
+     2532   00
+     2533   00
+     2534   00
+     2535   00
+     2536   00
+     2537   00
+     2538   00
+     2539   00
+     253A   00
+     253B   00
+     253C   00
+     253D   00
+     253E   00
+     253F   00
+     2540   2A
+     2541   28
+     2542   00
+     2543   00
+     2544   22
+     2545   20
+     2546   00
+     2547   00
+     2548   00
+     2549   00
+     254A   00
+     254B   00
+     254C   00
+     254D   00
+     254E   00
+     254F   00
+     2550   0A
+     2551   08
+     2552   00
+     2553   00
+     2554   02
+     2555   00
+     2556   00
+     2557   00
+     2558   00
+     2559   00
+     255A   00
+     255B   00
+     255C   00
+     255D   00
+     255E   00
+     255F   00
+     2560   00
+     2561   00
+     2562   00
+     2563   00
+     2564   00
+     2565   00
+     2566   00
+     2567   00
+     2568   00
+     2569   00
+     256A   00
+     256B   00
+     256C   00
+     256D   00
+     256E   00
+     256F   00
+     2570   00
+     2571   00
+     2572   00
+     2573   00
+     2574   00
+     2575   00
+     2576   00
+     2577   00
+     2578   00
+     2579   00
+     257A   00
+     257B   00
+     257C   00
+     257D   00
+     257E   00
+     257F   00
+     2580   45
+     2581   00
+     2582   41
+     2583   00
+     2584   00
+     2585   00
+     2586   00
+     2587   00
+     2588   44
+     2589   00
+     258A   40
+     258B   00
+     258C   00
+     258D   00
+     258E   00
+     258F   00
+     2590   00
+     2591   00
+     2592   00
+     2593   00
+     2594   00
+     2595   00
+     2596   00
+     2597   00
+     2598   00
+     2599   00
+     259A   00
+     259B   00
+     259C   00
+     259D   00
+     259E   00
+     259F   00
+     25A0   05
+     25A1   00
+     25A2   01
+     25A3   00
+     25A4   00
+     25A5   00
+     25A6   00
+     25A7   00
+     25A8   04
+     25A9   00
+     25AA   00
+     25AB   00
+     25AC   00
+     25AD   00
+     25AE   00
+     25AF   00
+     25B0   00
+     25B1   00
+     25B2   00
+     25B3   00
+     25B4   00
+     25B5   00
+     25B6   00
+     25B7   00
+     25B8   00
+     25B9   00
+     25BA   00
+     25BB   00
+     25BC   00
+     25BD   00
+     25BE   00
+     25BF   00
+     25C0   00
+     25C1   00
+     25C2   00
+     25C3   00
+     25C4   00
+     25C5   00
+     25C6   00
+     25C7   00
+     25C8   00
+     25C9   00
+     25CA   00
+     25CB   00
+     25CC   00
+     25CD   00
+     25CE   00
+     25CF   00
+     25D0   00
+     25D1   00
+     25D2   00
+     25D3   00
+     25D4   00
+     25D5   00
+     25D6   00
+     25D7   00
+     25D8   00
+     25D9   00
+     25DA   00
+     25DB   00
+     25DC   00
+     25DD   00
+     25DE   00
+     25DF   00
+     25E0   00
+     25E1   00
+     25E2   00
+     25E3   00
+     25E4   00
+     25E5   00
+     25E6   00
+     25E7   00
+     25E8   00
+     25E9   00
+     25EA   00
+     25EB   00
+     25EC   00
+     25ED   00
+     25EE   00
+     25EF   00
+     25F0   00
+     25F1   00
+     25F2   00
+     25F3   00
+     25F4   00
+     25F5   00
+     25F6   00
+     25F7   00
+     25F8   00
+     25F9   00
+     25FA   00
+     25FB   00
+     25FC   00
+     25FD   00
+     25FE   00
+     25FF   00
+Processed file 'list42_life.asm' ok
+Including file rle_reader_l42.asm
+.rle_reader
+Macro M_COPY:
+     2600   A5 80      LDA &80
+     2602   85 82      STA &82
+     2604   A5 81      LDA &81
+     2606   85 83      STA &83
+End macro M_COPY
+     2608   A5 83      LDA &83
+     260A   18         CLC
+     260B   69 10      ADC #&10
+     260D   85 81      STA &81
+     260F   20 2D 26   JSR &262D
+Macro M_COPY:
+     2612   A5 82      LDA &82
+     2614   85 80      STA &80
+     2616   A5 83      LDA &83
+     2618   85 81      STA &81
+End macro M_COPY
+     261A   A5 83      LDA &83
+     261C   18         CLC
+     261D   69 10      ADC #&10
+     261F   85 81      STA &81
+     2621   20 AC 27   JSR &27AC
+Macro M_COPY:
+     2624   A5 82      LDA &82
+     2626   85 80      STA &80
+     2628   A5 83      LDA &83
+     262A   85 81      STA &81
+End macro M_COPY
+     262C   60         RTS
+.rle_reader_stage1
+     262D   20 72 06   JSR &0672
+     2630   20 89 27   JSR &2789
+     2633   A0 01      LDY #&01
+     2635   20 70 27   JSR &2770
+     2638   20 63 27   JSR &2763
+     263B   20 79 27   JSR &2779
+     263E   20 41 27   JSR &2741
+.loop
+     2641   A5 6B      LDA &6B
+     2643   F0 29      BEQ &266E
+     2645   C9 21      CMP #&21
+     2647   F0 25      BEQ &266E
+     2649   C9 20      CMP #&20
+     264B   F0 1C      BEQ &2669
+     264D   C9 0A      CMP #&0A
+     264F   F0 18      BEQ &2669
+     2651   C9 0D      CMP #&0D
+     2653   F0 14      BEQ &2669
+     2655   C9 30      CMP #&30
+     2657   90 04      BCC &265D
+     2659   C9 3A      CMP #&3A
+     265B   90 40      BCC &269D
+.not_digit
+     265D   C9 62      CMP #&62
+     265F   F0 33      BEQ &2694
+     2661   C9 6F      CMP #&6F
+     2663   F0 32      BEQ &2697
+     2665   C9 24      CMP #&24
+     2667   F0 31      BEQ &269A
+.continue
+     2669   20 1E 07   JSR &071E
+     266C   80 D3      BRA &2641
+.done
+     266E   18         CLC
+     266F   20 01 27   JSR &2701
+     2672   90 FA      BCC &266E
+     2674   A9 00      LDA #&00
+     2676   92 80      STA (&80)
+     2678   91 80      STA (&80),Y
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     267A   A5 80      LDA &80
+     267C   18         CLC
+     267D   69 02      ADC #&02
+     267F   85 80      STA &80
+     2681   90 10      BCC &2693
+     2683   E6 81      INC &81
+     2685   A5 81      LDA &81
+     2687   C9 F4      CMP #&F4
+     2689   D0 08      BNE &2693
+     268B   A9 00      LDA #&00
+     268D   85 80      STA &80
+     268F   A9 50      LDA #&50
+     2691   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     2693   60         RTS
+.jmp_insert_blanks
+     2694   4C C8 26   JMP &26C8
+.jmp_insert_cells
+     2697   4C B1 26   JMP &26B1
+.jmp_insert_eols
+     269A   4C DF 26   JMP &26DF
+.digit
+     269D   29 0F      AND #&0F
+     269F   AA         TAX
+     26A0   20 DC 06   JSR &06DC
+     26A3   8A         TXA
+     26A4   18         CLC
+     26A5   65 68      ADC &68
+     26A7   85 68      STA &68
+     26A9   A5 69      LDA &69
+     26AB   69 00      ADC #&00
+     26AD   85 69      STA &69
+     26AF   80 B8      BRA &2669
+.insert_cells
+     26B1   20 7E 27   JSR &277E
+.cells_loop
+     26B4   A5 68      LDA &68
+     26B6   05 69      ORA &69
+     26B8   F0 AF      BEQ &2669
+     26BA   38         SEC
+     26BB   20 01 27   JSR &2701
+Macro M_DECREMENT:
+     26BE   A5 68      LDA &68
+     26C0   D0 02      BNE &26C4
+     26C2   C6 69      DEC &69
+.nocarry
+     26C4   C6 68      DEC &68
+End macro M_DECREMENT
+     26C6   80 EC      BRA &26B4
+.insert_blanks
+     26C8   20 7E 27   JSR &277E
+.blanks_loop
+     26CB   A5 68      LDA &68
+     26CD   05 69      ORA &69
+     26CF   F0 98      BEQ &2669
+     26D1   18         CLC
+     26D2   20 01 27   JSR &2701
+Macro M_DECREMENT:
+     26D5   A5 68      LDA &68
+     26D7   D0 02      BNE &26DB
+     26D9   C6 69      DEC &69
+.nocarry
+     26DB   C6 68      DEC &68
+End macro M_DECREMENT
+     26DD   80 EC      BRA &26CB
+.insert_eols
+     26DF   18         CLC
+     26E0   20 01 27   JSR &2701
+     26E3   90 FA      BCC &26DF
+     26E5   20 7E 27   JSR &277E
+     26E8   A5 88      LDA &88
+     26EA   38         SEC
+     26EB   E5 68      SBC &68
+     26ED   85 88      STA &88
+     26EF   A5 89      LDA &89
+     26F1   E5 69      SBC &69
+     26F3   85 89      STA &89
+     26F5   20 41 27   JSR &2741
+     26F8   20 63 27   JSR &2763
+     26FB   20 79 27   JSR &2779
+     26FE   4C 69 26   JMP &2669
+.shift_bit
+     2701   26 8E      ROL &8E
+     2703   90 3B      BCC &2740
+     2705   A5 8E      LDA &8E
+     2707   F0 25      BEQ &272E
+     2709   C8         INY
+     270A   91 80      STA (&80),Y
+     270C   88         DEY
+     270D   A5 87      LDA &87
+     270F   91 80      STA (&80),Y
+     2711   A5 86      LDA &86
+     2713   92 80      STA (&80)
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     2715   A5 80      LDA &80
+     2717   18         CLC
+     2718   69 03      ADC #&03
+     271A   85 80      STA &80
+     271C   90 10      BCC &272E
+     271E   E6 81      INC &81
+     2720   A5 81      LDA &81
+     2722   C9 F4      CMP #&F4
+     2724   D0 08      BNE &272E
+     2726   A9 00      LDA #&00
+     2728   85 80      STA &80
+     272A   A9 50      LDA #&50
+     272C   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+.blank
+     272E   A5 86      LDA &86
+     2730   18         CLC
+     2731   69 04      ADC #&04
+     2733   85 86      STA &86
+     2735   A5 87      LDA &87
+     2737   69 00      ADC #&00
+     2739   85 87      STA &87
+     273B   A9 10      LDA #&10
+     273D   85 8E      STA &8E
+     273F   38         SEC
+.not_yet
+     2740   60         RTS
+.insert_y
+     2741   A5 88      LDA &88
+     2743   92 80      STA (&80)
+     2745   A5 89      LDA &89
+     2747   91 80      STA (&80),Y
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     2749   A5 80      LDA &80
+     274B   18         CLC
+     274C   69 02      ADC #&02
+     274E   85 80      STA &80
+     2750   90 10      BCC &2762
+     2752   E6 81      INC &81
+     2754   A5 81      LDA &81
+     2756   C9 F4      CMP #&F4
+     2758   D0 08      BNE &2762
+     275A   A9 00      LDA #&00
+     275C   85 80      STA &80
+     275E   A9 50      LDA #&50
+     2760   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     2762   60         RTS
+.init_xx
+     2763   A9 10      LDA #&10
+     2765   85 8E      STA &8E
+     2767   A5 64      LDA &64
+     2769   85 86      STA &86
+     276B   A5 65      LDA &65
+     276D   85 87      STA &87
+     276F   60         RTS
+.init_yy
+     2770   A5 66      LDA &66
+     2772   85 88      STA &88
+     2774   A5 67      LDA &67
+     2776   85 89      STA &89
+     2778   60         RTS
+.zero_count
+     2779   64 68      STZ &68
+     277B   64 69      STZ &69
+     277D   60         RTS
+.default_count
+     277E   A5 68      LDA &68
+     2780   05 69      ORA &69
+     2782   D0 04      BNE &2788
+     2784   A9 01      LDA #&01
+     2786   85 68      STA &68
+.return
+     2788   60         RTS
+.offset_pattern
+     2789   46 65      LSR &65
+     278B   66 64      ROR &64
+     278D   46 67      LSR &67
+     278F   66 66      ROR &66
+     2791   A9 00      LDA #&00
+     2793   38         SEC
+     2794   E5 64      SBC &64
+     2796   85 64      STA &64
+     2798   A9 C0      LDA #&C0
+     279A   E5 65      SBC &65
+     279C   85 65      STA &65
+     279E   A9 00      LDA #&00
+     27A0   18         CLC
+     27A1   65 66      ADC &66
+     27A3   85 66      STA &66
+     27A5   A9 40      LDA #&40
+     27A7   65 67      ADC &67
+     27A9   85 67      STA &67
+     27AB   60         RTS
+.rle_reader_stage2
+Macro M_COPY:
+     27AC   A5 80      LDA &80
+     27AE   85 8A      STA &8A
+     27B0   A5 81      LDA &81
+     27B2   85 8B      STA &8B
+End macro M_COPY
+     27B4   A0 01      LDY #&01
+.level1
+     27B6   B2 8A      LDA (&8A)
+     27B8   85 88      STA &88
+     27BA   B1 8A      LDA (&8A),Y
+     27BC   85 89      STA &89
+     27BE   05 88      ORA &88
+     27C0   D0 20      BNE &27E2
+     27C2   A9 00      LDA #&00
+     27C4   92 82      STA (&82)
+     27C6   91 82      STA (&82),Y
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     27C8   A5 82      LDA &82
+     27CA   18         CLC
+     27CB   69 02      ADC #&02
+     27CD   85 82      STA &82
+     27CF   90 10      BCC &27E1
+     27D1   E6 83      INC &83
+     27D3   A5 83      LDA &83
+     27D5   C9 F4      CMP #&F4
+     27D7   D0 08      BNE &27E1
+     27D9   A9 00      LDA #&00
+     27DB   85 82      STA &82
+     27DD   A9 50      LDA #&50
+     27DF   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     27E1   60         RTS
+.not_return
+     27E2   A5 80      LDA &80
+     27E4   C5 8A      CMP &8A
+     27E6   D0 44      BNE &282C
+     27E8   A5 81      LDA &81
+     27EA   C5 8B      CMP &8B
+     27EC   D0 3E      BNE &282C
+     27EE   A5 88      LDA &88
+     27F0   29 01      AND #&01
+     27F2   D0 38      BNE &282C
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     27F4   A5 80      LDA &80
+     27F6   18         CLC
+     27F7   69 02      ADC #&02
+     27F9   85 80      STA &80
+     27FB   90 10      BCC &280D
+     27FD   E6 81      INC &81
+     27FF   A5 81      LDA &81
+     2801   C9 F4      CMP #&F4
+     2803   D0 08      BNE &280D
+     2805   A9 00      LDA #&00
+     2807   85 80      STA &80
+     2809   A9 50      LDA #&50
+     280B   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+.advance_loop
+     280D   B1 80      LDA (&80),Y
+     280F   10 A5      BPL &27B6
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     2811   A5 80      LDA &80
+     2813   18         CLC
+     2814   69 03      ADC #&03
+     2816   85 80      STA &80
+     2818   90 10      BCC &282A
+     281A   E6 81      INC &81
+     281C   A5 81      LDA &81
+     281E   C9 F4      CMP #&F4
+     2820   D0 08      BNE &282A
+     2822   A9 00      LDA #&00
+     2824   85 80      STA &80
+     2826   A9 50      LDA #&50
+     2828   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+     282A   80 E1      BRA &280D
+.not_continue
+     282C   A5 8A      LDA &8A
+     282E   C5 80      CMP &80
+     2830   D0 2E      BNE &2860
+     2832   A5 8B      LDA &8B
+     2834   C5 81      CMP &81
+     2836   D0 28      BNE &2860
+     2838   A5 88      LDA &88
+     283A   18         CLC
+     283B   69 01      ADC #&01
+     283D   92 82      STA (&82)
+     283F   A5 89      LDA &89
+     2841   69 00      ADC #&00
+     2843   91 82      STA (&82),Y
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     2845   A5 80      LDA &80
+     2847   18         CLC
+     2848   69 02      ADC #&02
+     284A   85 80      STA &80
+     284C   90 10      BCC &285E
+     284E   E6 81      INC &81
+     2850   A5 81      LDA &81
+     2852   C9 F4      CMP #&F4
+     2854   D0 08      BNE &285E
+     2856   A9 00      LDA #&00
+     2858   85 80      STA &80
+     285A   A9 50      LDA #&50
+     285C   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+     285E   80 4F      BRA &28AF
+.else1
+     2860   A5 88      LDA &88
+     2862   92 82      STA (&82)
+     2864   A5 89      LDA &89
+     2866   91 82      STA (&82),Y
+Macro M_INCREMENT_BY_2_NOSWITCH:
+Macro M_INCREMENT_BY_N:
+     2868   A5 8A      LDA &8A
+     286A   18         CLC
+     286B   69 02      ADC #&02
+     286D   85 8A      STA &8A
+     286F   90 10      BCC &2881
+     2871   E6 8B      INC &8B
+     2873   A5 8B      LDA &8B
+     2875   C9 F4      CMP #&F4
+     2877   D0 08      BNE &2881
+     2879   A9 00      LDA #&00
+     287B   85 8A      STA &8A
+     287D   A9 50      LDA #&50
+     287F   85 8B      STA &8B
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2_NOSWITCH
+     2881   A5 88      LDA &88
+     2883   38         SEC
+     2884   E9 01      SBC #&01
+     2886   85 4A      STA &4A
+     2888   A5 89      LDA &89
+     288A   E9 00      SBC #&00
+     288C   D1 80      CMP (&80),Y
+     288E   D0 1F      BNE &28AF
+     2890   A5 4A      LDA &4A
+     2892   D2 80      CMP (&80)
+     2894   D0 19      BNE &28AF
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     2896   A5 80      LDA &80
+     2898   18         CLC
+     2899   69 02      ADC #&02
+     289B   85 80      STA &80
+     289D   90 10      BCC &28AF
+     289F   E6 81      INC &81
+     28A1   A5 81      LDA &81
+     28A3   C9 F4      CMP #&F4
+     28A5   D0 08      BNE &28AF
+     28A7   A9 00      LDA #&00
+     28A9   85 80      STA &80
+     28AB   A9 50      LDA #&50
+     28AD   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+.else2
+.endif2
+.endif1
+Macro M_INCREMENT_BY_2:
+Macro M_INCREMENT_BY_N:
+     28AF   A5 82      LDA &82
+     28B1   18         CLC
+     28B2   69 02      ADC #&02
+     28B4   85 82      STA &82
+     28B6   90 10      BCC &28C8
+     28B8   E6 83      INC &83
+     28BA   A5 83      LDA &83
+     28BC   C9 F4      CMP #&F4
+     28BE   D0 08      BNE &28C8
+     28C0   A9 00      LDA #&00
+     28C2   85 82      STA &82
+     28C4   A9 50      LDA #&50
+     28C6   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_2
+.level2
+     28C8   B2 8A      LDA (&8A)
+     28CA   85 86      STA &86
+     28CC   B1 8A      LDA (&8A),Y
+     28CE   85 87      STA &87
+Macro M_ASSIGN_IF_GREATER:
+     28D0   A5 86      LDA &86
+     28D2   D2 80      CMP (&80)
+     28D4   A5 87      LDA &87
+     28D6   F1 80      SBC (&80),Y
+     28D8   50 02      BVC &28DC
+     28DA   49 80      EOR #&80
+.label
+     28DC   30 08      BMI &28E6
+     28DE   B2 80      LDA (&80)
+     28E0   85 86      STA &86
+     28E2   B1 80      LDA (&80),Y
+     28E4   85 87      STA &87
+.skip_assign_val
+End macro M_ASSIGN_IF_GREATER
+     28E6   A5 87      LDA &87
+     28E8   30 03      BMI &28ED
+     28EA   4C 77 29   JMP &2977
+.x_negative
+     28ED   64 48      STZ &48
+     28EF   64 49      STZ &49
+Macro M_UPDATE_CHUNK_IF_EQUAL_TO_X:
+     28F1   B2 8A      LDA (&8A)
+     28F3   C5 86      CMP &86
+     28F5   D0 25      BNE &291C
+     28F7   B1 8A      LDA (&8A),Y
+     28F9   C5 87      CMP &87
+     28FB   D0 1F      BNE &291C
+     28FD   C8         INY
+     28FE   B1 8A      LDA (&8A),Y
+     2900   85 48      STA &48
+     2902   88         DEY
+Macro M_INCREMENT_BY_3_NOSWITCH:
+Macro M_INCREMENT_BY_N:
+     2903   A5 8A      LDA &8A
+     2905   18         CLC
+     2906   69 03      ADC #&03
+     2908   85 8A      STA &8A
+     290A   90 10      BCC &291C
+     290C   E6 8B      INC &8B
+     290E   A5 8B      LDA &8B
+     2910   C9 F4      CMP #&F4
+     2912   D0 08      BNE &291C
+     2914   A9 00      LDA #&00
+     2916   85 8A      STA &8A
+     2918   A9 50      LDA #&50
+     291A   85 8B      STA &8B
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3_NOSWITCH
+.skip_inc
+End macro M_UPDATE_CHUNK_IF_EQUAL_TO_X
+Macro M_UPDATE_CHUNK_IF_EQUAL_TO_X:
+     291C   B2 80      LDA (&80)
+     291E   C5 86      CMP &86
+     2920   D0 25      BNE &2947
+     2922   B1 80      LDA (&80),Y
+     2924   C5 87      CMP &87
+     2926   D0 1F      BNE &2947
+     2928   C8         INY
+     2929   B1 80      LDA (&80),Y
+     292B   85 49      STA &49
+     292D   88         DEY
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     292E   A5 80      LDA &80
+     2930   18         CLC
+     2931   69 03      ADC #&03
+     2933   85 80      STA &80
+     2935   90 10      BCC &2947
+     2937   E6 81      INC &81
+     2939   A5 81      LDA &81
+     293B   C9 F4      CMP #&F4
+     293D   D0 08      BNE &2947
+     293F   A9 00      LDA #&00
+     2941   85 80      STA &80
+     2943   A9 50      LDA #&50
+     2945   85 81      STA &81
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+.skip_inc
+End macro M_UPDATE_CHUNK_IF_EQUAL_TO_X
+     2947   A5 86      LDA &86
+     2949   92 82      STA (&82)
+     294B   A5 87      LDA &87
+     294D   91 82      STA (&82),Y
+     294F   C8         INY
+     2950   A5 48      LDA &48
+     2952   0A         ASL A
+     2953   0A         ASL A
+     2954   0A         ASL A
+     2955   0A         ASL A
+     2956   05 49      ORA &49
+     2958   91 82      STA (&82),Y
+     295A   88         DEY
+Macro M_INCREMENT_BY_3:
+Macro M_INCREMENT_BY_N:
+     295B   A5 82      LDA &82
+     295D   18         CLC
+     295E   69 03      ADC #&03
+     2960   85 82      STA &82
+     2962   90 10      BCC &2974
+     2964   E6 83      INC &83
+     2966   A5 83      LDA &83
+     2968   C9 F4      CMP #&F4
+     296A   D0 08      BNE &2974
+     296C   A9 00      LDA #&00
+     296E   85 82      STA &82
+     2970   A9 50      LDA #&50
+     2972   85 83      STA &83
+.nowrap
+.nocarry
+End macro M_INCREMENT_BY_N
+End macro M_INCREMENT_BY_3
+     2974   4C C8 28   JMP &28C8
+.level2_break
+Macro M_COPY:
+     2977   A5 80      LDA &80
+     2979   85 8A      STA &8A
+     297B   A5 81      LDA &81
+     297D   85 8B      STA &8B
+End macro M_COPY
+     297F   4C B6 27   JMP &27B6
+Processed file 'rle_reader_l42.asm' ok
+Including file beeb_wrapper.asm
+.beeb_life
+     2982   20 39 2E   JSR &2E39
+     2985   A9 07      LDA #&07
+     2987   85 50      STA &50
+     2989   A9 00      LDA #&00
+     298B   85 51      STA &51
+     298D   A9 00      LDA #&00
+     298F   85 52      STA &52
+     2991   A9 03      LDA #&03
+     2993   85 54      STA &54
+.warm_boot
+     2995   A2 FF      LDX #&FF
+     2997   9A         TXS
+     2998   A9 EF      LDA #&EF
+     299A   8D 20 02   STA &0220
+     299D   A9 2D      LDA #&2D
+     299F   8D 21 02   STA &0221
+     29A2   A9 04      LDA #&04
+     29A4   A2 01      LDX #&01
+     29A6   20 F4 FF   JSR &FFF4
+     29A9   A9 E5      LDA #&E5
+     29AB   A2 01      LDX #&01
+     29AD   A0 00      LDY #&00
+     29AF   20 F4 FF   JSR &FFF4
+     29B2   A9 0E      LDA #&0E
+     29B4   A2 02      LDX #&02
+     29B6   20 F4 FF   JSR &FFF4
+     29B9   20 03 04   JSR &0403
+     29BC   16
+     29BD   04
+     29BE   43 6F 6E ...
+     29E3   0A
+     29E4   0A
+     29E5   0D
+     29E6   55 73 69 ...
+     29F0   36 34 4B ...
+     29F5   4C 69 73 ...
+     29FB   20 4C 69 ...
+     2A07   0A
+     2A08   0A
+     2A09   0D
+     2A0A   EA         NOP
+     2A0B   20 FE 08   JSR &08FE
+     2A0E   48         PHA
+     2A0F   20 03 04   JSR &0403
+     2A12   0A
+     2A13   0D
+     2A14   50 72 65 ...
+     2A20   EA         NOP
+     2A21   68         PLA
+     2A22   20 EE FF   JSR &FFEE
+     2A25   20 03 04   JSR &0403
+     2A28   20 66 6F ...
+     2A3D   EA         NOP
+     2A3E   20 E0 FF   JSR &FFE0
+     2A41   20 EE FF   JSR &FFEE
+     2A44   48         PHA
+     2A45   20 03 04   JSR &0403
+     2A48   16
+     2A49   04
+     2A4A   17
+     2A4B   01
+     2A4C   00
+     2A4D   00
+     2A4E   00
+     2A4F   00
+     2A50   00
+     2A51   00
+     2A52   00
+     2A53   00
+     2A54   EA         NOP
+     2A55   20 27 04   JSR &0427
+     2A58   68         PLA
+     2A59   20 7C 07   JSR &077C
+     2A5C   C9 02      CMP #&02
+     2A5E   F0 0E      BEQ &2A6E
+     2A60   A9 00      LDA #&00
+     2A62   85 80      STA &80
+     2A64   A9 50      LDA #&50
+     2A66   85 81      STA &81
+     2A68   20 70 0F   JSR &0F70
+     2A6B   20 27 04   JSR &0427
+.skip_load_buffer
+Macro M_COPY:
+     2A6E   A5 80      LDA &80
+     2A70   85 82      STA &82
+     2A72   A5 81      LDA &81
+     2A74   85 83      STA &83
+End macro M_COPY
+     2A76   A9 00      LDA #&00
+     2A78   85 80      STA &80
+     2A7A   A9 50      LDA #&50
+     2A7C   85 81      STA &81
+     2A7E   20 D2 2D   JSR &2DD2
+     2A81   A2 00      LDX #&00
+     2A83   20 A7 05   JSR &05A7
+     2A86   20 0A 2C   JSR &2C0A
+     2A89   64 53      STZ &53
+     2A8B   64 57      STZ &57
+     2A8D   64 55      STZ &55
+     2A8F   C6 53      DEC &53
+.generation_loop
+     2A91   24 52      BIT &52
+     2A93   30 0B      BMI &2AA0
+     2A95   E6 53      INC &53
+     2A97   A5 53      LDA &53
+     2A99   A6 51      LDX &51
+     2A9B   DD 44 2B   CMP &2B44,X
+     2A9E   90 05      BCC &2AA5
+.force_update
+     2AA0   20 F6 2C   JSR &2CF6
+     2AA3   64 53      STZ &53
+.skip_update
+     2AA5   A5 55      LDA &55
+     2AA7   F0 14      BEQ &2ABD
+.read_keyboard
+     2AA9   20 E0 FF   JSR &FFE0
+     2AAC   AA         TAX
+     2AAD   20 4E 2B   JSR &2B4E
+     2AB0   A9 80      LDA #&80
+     2AB2   A2 FF      LDX #&FF
+     2AB4   20 F4 FF   JSR &FFF4
+     2AB7   E0 00      CPX #&00
+     2AB9   D0 EE      BNE &2AA9
+     2ABB   64 55      STZ &55
+.skip_read_keyboard
+     2ABD   24 56      BIT &56
+     2ABF   30 04      BMI &2AC5
+     2AC1   24 52      BIT &52
+     2AC3   30 3B      BMI &2B00
+.new_generation
+     2AC5   A0 00      LDY #&00
+     2AC7   98         TYA
+     2AC8   91 82      STA (&82),Y
+     2ACA   C8         INY
+     2ACB   91 82      STA (&82),Y
+Macro M_COPY:
+     2ACD   A5 82      LDA &82
+     2ACF   85 58      STA &58
+     2AD1   A5 83      LDA &83
+     2AD3   85 59      STA &59
+End macro M_COPY
+     2AD5   20 96 0B   JSR &0B96
+Macro M_COPY:
+     2AD8   A5 58      LDA &58
+     2ADA   85 80      STA &80
+     2ADC   A5 59      LDA &59
+     2ADE   85 81      STA &81
+End macro M_COPY
+     2AE0   A5 57      LDA &57
+     2AE2   D0 13      BNE &2AF7
+Macro M_COPY:
+     2AE4   A5 82      LDA &82
+     2AE6   85 58      STA &58
+     2AE8   A5 83      LDA &83
+     2AEA   85 59      STA &59
+End macro M_COPY
+     2AEC   20 7D 0E   JSR &0E7D
+Macro M_COPY:
+     2AEF   A5 58      LDA &58
+     2AF1   85 80      STA &80
+     2AF3   A5 59      LDA &59
+     2AF5   85 81      STA &81
+End macro M_COPY
+.skip_prune
+     2AF7   A2 00      LDX #&00
+     2AF9   A9 01      LDA #&01
+     2AFB   20 B1 05   JSR &05B1
+     2AFE   64 56      STZ &56
+.skip_new_generation
+     2B00   E6 57      INC &57
+Macro M_UPDATE_VIEWPOINT_COORD:
+     2B02   A5 6A      LDA &6A
+     2B04   05 6B      ORA &6B
+     2B06   F0 07      BEQ &2B0F
+     2B08   A2 6A      LDX #&6A
+     2B0A   A0 62      LDY #&62
+     2B0C   20 1F 2B   JSR &2B1F
+.skip_pan
+End macro M_UPDATE_VIEWPOINT_COORD
+Macro M_UPDATE_VIEWPOINT_COORD:
+     2B0F   A5 6C      LDA &6C
+     2B11   05 6D      ORA &6D
+     2B13   F0 07      BEQ &2B1C
+     2B15   A2 6C      LDX #&6C
+     2B17   A0 64      LDY #&64
+     2B19   20 1F 2B   JSR &2B1F
+.skip_pan
+End macro M_UPDATE_VIEWPOINT_COORD
+     2B1C   4C 91 2A   JMP &2A91
+.update_pan
+     2B1F   B5 01      LDA &01,X
+     2B21   0A         ASL A
+     2B22   B5 01      LDA &01,X
+     2B24   6A         ROR A
+     2B25   85 71      STA &71
+     2B27   B5 00      LDA &00,X
+     2B29   6A         ROR A
+     2B2A   85 70      STA &70
+     2B2C   A5 57      LDA &57
+     2B2E   29 01      AND #&01
+     2B30   D0 01      BNE &2B33
+     2B32   18         CLC
+.odd_frame
+     2B33   B9 00 00   LDA &0000,Y
+     2B36   65 70      ADC &70
+     2B38   99 00 00   STA &0000,Y
+     2B3B   B9 01 00   LDA &0001,Y
+     2B3E   65 71      ADC &71
+     2B40   99 01 00   STA &0001,Y
+     2B43   60         RTS
+.ui_rate_table
+     2B44   01
+     2B45   02
+     2B46   03
+     2B47   04
+     2B48   05
+     2B49   0A
+     2B4A   14
+     2B4B   32
+     2B4C   64
+     2B4D   C8
+.ui_rate_table_end
+.process_key_press
+     2B4E   E0 1B      CPX #&1B
+     2B50   D0 03      BNE &2B55
+     2B52   4C 95 29   JMP &2995
+.not_escape
+     2B55   E0 0D      CPX #&0D
+     2B57   D0 05      BNE &2B5E
+     2B59   A5 52      LDA &52
+     2B5B   85 56      STA &56
+     2B5D   60         RTS
+.not_step
+     2B5E   E0 5A      CPX #&5A
+     2B60   D0 06      BNE &2B68
+     2B62   20 F9 2B   JSR &2BF9
+     2B65   4C F5 2B   JMP &2BF5
+.not_zoom_in
+     2B68   E0 58      CPX #&58
+     2B6A   D0 06      BNE &2B72
+     2B6C   20 02 2C   JSR &2C02
+     2B6F   4C F5 2B   JMP &2BF5
+.not_zoom_out
+     2B72   E0 87      CPX #&87
+     2B74   D0 05      BNE &2B7B
+     2B76   20 E6 2D   JSR &2DE6
+     2B79   80 7A      BRA &2BF5
+.not_reset_pan
+     2B7B   E0 09      CPX #&09
+     2B7D   D0 05      BNE &2B84
+     2B7F   20 D2 2D   JSR &2DD2
+     2B82   80 71      BRA &2BF5
+.not_reset_viewpoint
+     2B84   E0 88      CPX #&88
+     2B86   D0 0F      BNE &2B97
+Macro M_UPDATE_COORD:
+     2B88   A5 6A      LDA &6A
+     2B8A   18         CLC
+     2B8B   69 FF      ADC #&FF
+     2B8D   85 6A      STA &6A
+     2B8F   A5 6B      LDA &6B
+     2B91   69 FF      ADC #&FF
+     2B93   85 6B      STA &6B
+.skip_update
+End macro M_UPDATE_COORD
+     2B95   80 5E      BRA &2BF5
+.not_left
+     2B97   E0 89      CPX #&89
+     2B99   D0 0F      BNE &2BAA
+Macro M_UPDATE_COORD:
+     2B9B   A5 6A      LDA &6A
+     2B9D   18         CLC
+     2B9E   69 01      ADC #&01
+     2BA0   85 6A      STA &6A
+     2BA2   A5 6B      LDA &6B
+     2BA4   69 00      ADC #&00
+     2BA6   85 6B      STA &6B
+.skip_update
+End macro M_UPDATE_COORD
+     2BA8   80 4B      BRA &2BF5
+.not_right
+     2BAA   E0 8A      CPX #&8A
+     2BAC   D0 0F      BNE &2BBD
+Macro M_UPDATE_COORD:
+     2BAE   A5 6C      LDA &6C
+     2BB0   18         CLC
+     2BB1   69 FF      ADC #&FF
+     2BB3   85 6C      STA &6C
+     2BB5   A5 6D      LDA &6D
+     2BB7   69 FF      ADC #&FF
+     2BB9   85 6D      STA &6D
+.skip_update
+End macro M_UPDATE_COORD
+     2BBB   80 38      BRA &2BF5
+.not_up
+     2BBD   E0 8B      CPX #&8B
+     2BBF   D0 0F      BNE &2BD0
+Macro M_UPDATE_COORD:
+     2BC1   A5 6C      LDA &6C
+     2BC3   18         CLC
+     2BC4   69 01      ADC #&01
+     2BC6   85 6C      STA &6C
+     2BC8   A5 6D      LDA &6D
+     2BCA   69 00      ADC #&00
+     2BCC   85 6D      STA &6D
+.skip_update
+End macro M_UPDATE_COORD
+     2BCE   80 25      BRA &2BF5
+.not_down
+     2BD0   E0 52      CPX #&52
+     2BD2   D0 0F      BNE &2BE3
+     2BD4   A5 51      LDA &51
+     2BD6   18         CLC
+     2BD7   69 01      ADC #&01
+     2BD9   C9 0A      CMP #&0A
+     2BDB   90 02      BCC &2BDF
+     2BDD   A9 00      LDA #&00
+.store_rate
+     2BDF   85 51      STA &51
+     2BE1   80 12      BRA &2BF5
+.not_rate
+     2BE3   E0 53      CPX #&53
+     2BE5   D0 04      BNE &2BEB
+     2BE7   E6 50      INC &50
+     2BE9   80 0A      BRA &2BF5
+.not_show
+     2BEB   E0 20      CPX #&20
+     2BED   D0 09      BNE &2BF8
+     2BEF   A5 52      LDA &52
+     2BF1   49 80      EOR #&80
+     2BF3   85 52      STA &52
+.refresh
+     2BF5   4C 0A 2C   JMP &2C0A
+.not_toggle_step
+     2BF8   60         RTS
+.increment_zoom
+     2BF9   A6 54      LDX &54
+     2BFB   E0 06      CPX #&06
+     2BFD   F0 0A      BEQ &2C09
+     2BFF   E8         INX
+     2C00   80 05      BRA &2C07
+.decrement_zoom
+     2C02   A6 54      LDX &54
+     2C04   F0 03      BEQ &2C09
+     2C06   CA         DEX
+.change_zoom
+     2C07   86 54      STX &54
+.zoom_return
+     2C09   60         RTS
+.refresh_panel
+     2C0A   20 03 04   JSR &0403
+     2C0D   1E
+     2C0E   47 65 6E ...
+     2C12   0A
+     2C13   0D
+     2C14   20 20 20 ...
+     2C1C   0A
+     2C1D   0A
+     2C1E   0D
+     2C1F   43 65 6C ...
+     2C25   0A
+     2C26   0D
+     2C27   20 20 20 ...
+     2C2F   0A
+     2C30   0A
+     2C31   0D
+     2C32   58 2D 52 ...
+     2C38   0A
+     2C39   0D
+     2C3A   20 20 20 ...
+     2C42   0A
+     2C43   0A
+     2C44   0D
+     2C45   59 2D 52 ...
+     2C4B   0A
+     2C4C   0D
+     2C4D   20 20 20 ...
+     2C55   0A
+     2C56   0A
+     2C57   0D
+     2C58   5A 6F 6F ...
+     2C5D   0A
+     2C5E   0D
+     2C5F   EA         NOP
+     2C60   A5 54      LDA &54
+     2C62   0A         ASL A
+     2C63   0A         ASL A
+     2C64   AA         TAX
+     2C65   A0 04      LDY #&04
+.zoom_loop
+     2C67   BD DA 2C   LDA &2CDA,X
+     2C6A   20 EE FF   JSR &FFEE
+     2C6D   E8         INX
+     2C6E   88         DEY
+     2C6F   D0 F6      BNE &2C67
+     2C71   20 03 04   JSR &0403
+     2C74   0A
+     2C75   0A
+     2C76   0D
+     2C77   52 61 74 ...
+     2C7C   0A
+     2C7D   0D
+     2C7E   EA         NOP
+     2C7F   A6 51      LDX &51
+     2C81   BD 44 2B   LDA &2B44,X
+     2C84   85 70      STA &70
+     2C86   64 71      STZ &71
+     2C88   A2 70      LDX #&70
+     2C8A   20 E7 05   JSR &05E7
+     2C8D   20 03 04   JSR &0403
+     2C90   0A
+     2C91   0A
+     2C92   0D
+     2C93   58 2D 50 ...
+     2C99   0A
+     2C9A   0D
+     2C9B   EA         NOP
+     2C9C   A2 6A      LDX #&6A
+     2C9E   20 CF 05   JSR &05CF
+     2CA1   20 03 04   JSR &0403
+     2CA4   20 
+     2CA5   0A
+     2CA6   0A
+     2CA7   0D
+     2CA8   59 2D 50 ...
+     2CAE   0A
+     2CAF   0D
+     2CB0   EA         NOP
+     2CB1   A2 6C      LDX #&6C
+     2CB3   20 CF 05   JSR &05CF
+     2CB6   24 52      BIT &52
+     2CB8   30 10      BMI &2CCA
+     2CBA   20 03 04   JSR &0403
+     2CBD   20 
+     2CBE   0A
+     2CBF   0A
+     2CC0   0D
+     2CC1   52 75 6E ...
+     2CC8   EA         NOP
+     2CC9   60         RTS
+.single_step
+     2CCA   20 03 04   JSR &0403
+     2CCD   20 
+     2CCE   0A
+     2CCF   0A
+     2CD0   0D
+     2CD1   53 74 6F ...
+     2CD8   EA         NOP
+     2CD9   60         RTS
+.ui_zoom_table
+     2CDA   31 2F 38 ...
+.list_life_update_screen
+     2CF6   A5 50      LDA &50
+     2CF8   24 52      BIT &52
+     2CFA   10 02      BPL &2CFE
+     2CFC   A9 07      LDA #&07
+.not_single
+     2CFE   48         PHA
+     2CFF   29 01      AND #&01
+     2D01   F0 03      BEQ &2D06
+     2D03   20 7C 2D   JSR &2D7C
+.skip_show_gen
+     2D06   68         PLA
+     2D07   48         PHA
+     2D08   29 02      AND #&02
+     2D0A   F0 03      BEQ &2D0F
+     2D0C   20 87 2D   JSR &2D87
+.skip_show_cells
+     2D0F   68         PLA
+     2D10   29 04      AND #&04
+     2D12   F0 03      BEQ &2D17
+     2D14   20 9D 2D   JSR &2D9D
+.skip_show_ref
+Macro M_COPY:
+     2D17   A5 80      LDA &80
+     2D19   85 60      STA &60
+     2D1B   A5 81      LDA &81
+     2D1D   85 61      STA &61
+End macro M_COPY
+     2D1F   A9 00      LDA #&00
+     2D21   85 72      STA &72
+     2D23   A9 F6      LDA #&F6
+     2D25   85 73      STA &73
+     2D27   A9 00      LDA #&00
+     2D29   85 91      STA &91
+     2D2B   A9 30      LDA #&30
+     2D2D   85 92      STA &92
+     2D2F   A9 FF      LDA #&FF
+     2D31   20 EE FF   JSR &FFEE
+Macro M_COPY:
+     2D34   A5 62      LDA &62
+     2D36   85 5A      STA &5A
+     2D38   A5 63      LDA &63
+     2D3A   85 5B      STA &5B
+End macro M_COPY
+Macro M_COPY:
+     2D3C   A5 64      LDA &64
+     2D3E   85 5C      STA &5C
+     2D40   A5 65      LDA &65
+     2D42   85 5D      STA &5D
+End macro M_COPY
+     2D44   20 E6 0D   JSR &0DE6
+     2D47   A2 20      LDX #&20
+.loop
+     2D49   8A         TXA
+     2D4A   48         PHA
+     2D4B   20 1E 04   JSR &041E
+     2D4E   A5 54      LDA &54
+     2D50   20 71 0F   JSR &0F71
+     2D53   20 3F 04   JSR &043F
+     2D56   20 4B 04   JSR &044B
+     2D59   20 6F 04   JSR &046F
+Macro M_COPY:
+     2D5C   A5 68      LDA &68
+     2D5E   85 64      STA &64
+     2D60   A5 69      LDA &69
+     2D62   85 65      STA &65
+End macro M_COPY
+     2D64   E6 92      INC &92
+     2D66   68         PLA
+     2D67   AA         TAX
+     2D68   CA         DEX
+     2D69   D0 DE      BNE &2D49
+Macro M_COPY:
+     2D6B   A5 5A      LDA &5A
+     2D6D   85 62      STA &62
+     2D6F   A5 5B      LDA &5B
+     2D71   85 63      STA &63
+End macro M_COPY
+Macro M_COPY:
+     2D73   A5 5C      LDA &5C
+     2D75   85 64      STA &64
+     2D77   A5 5D      LDA &5D
+     2D79   85 65      STA &65
+End macro M_COPY
+     2D7B   60         RTS
+.show_gen
+     2D7C   A2 01      LDX #&01
+     2D7E   20 C4 2D   JSR &2DC4
+     2D81   A2 00      LDX #&00
+     2D83   20 F8 05   JSR &05F8
+     2D86   60         RTS
+.show_cells
+     2D87   A2 04      LDX #&04
+     2D89   20 C4 2D   JSR &2DC4
+Macro M_COPY:
+     2D8C   A5 80      LDA &80
+     2D8E   85 60      STA &60
+     2D90   A5 81      LDA &81
+     2D92   85 61      STA &61
+End macro M_COPY
+     2D94   20 2A 0E   JSR &0E2A
+     2D97   A2 04      LDX #&04
+     2D99   20 F8 05   JSR &05F8
+     2D9C   60         RTS
+.show_ref
+     2D9D   A2 07      LDX #&07
+     2D9F   20 C4 2D   JSR &2DC4
+     2DA2   A2 62      LDX #&62
+     2DA4   20 B2 2D   JSR &2DB2
+     2DA7   A2 0A      LDX #&0A
+     2DA9   20 C4 2D   JSR &2DC4
+     2DAC   A2 64      LDX #&64
+     2DAE   20 B2 2D   JSR &2DB2
+     2DB1   60         RTS
+.print_coord
+     2DB2   B5 00      LDA &00,X
+     2DB4   85 70      STA &70
+     2DB6   B5 01      LDA &01,X
+     2DB8   29 7F      AND #&7F
+     2DBA   18         CLC
+     2DBB   69 C0      ADC #&C0
+     2DBD   85 71      STA &71
+     2DBF   A2 70      LDX #&70
+     2DC1   4C CF 05   JMP &05CF
+.goto_row
+     2DC4   A9 1F      LDA #&1F
+     2DC6   20 EE FF   JSR &FFEE
+     2DC9   A9 00      LDA #&00
+     2DCB   20 EE FF   JSR &FFEE
+     2DCE   8A         TXA
+     2DCF   4C EE FF   JMP &FFEE
+.reset_viewpoint
+     2DD2   A9 00      LDA #&00
+     2DD4   85 62      STA &62
+     2DD6   A9 C0      LDA #&C0
+     2DD8   85 63      STA &63
+     2DDA   A9 00      LDA #&00
+     2DDC   85 64      STA &64
+     2DDE   A9 40      LDA #&40
+     2DE0   85 65      STA &65
+     2DE2   A9 03      LDA #&03
+     2DE4   85 54      STA &54
+.reset_pan
+     2DE6   64 6A      STZ &6A
+     2DE8   64 6B      STZ &6B
+     2DEA   64 6C      STZ &6C
+     2DEC   64 6D      STZ &6D
+     2DEE   60         RTS
+.event_handler
+     2DEF   08         PHP
+     2DF0   C9 02      CMP #&02
+     2DF2   D0 02      BNE &2DF6
+     2DF4   84 55      STY &55
+.return
+     2DF6   28         PLP
+     2DF7   60         RTS
+Processed file 'beeb_wrapper.asm' ok
+Including file vdu_driver.asm
+.vdu_driver_start
+     2DF8   C9 FF      CMP #&FF
+     2DFA   F0 03      BEQ &2DFF
+     2DFC   6C 37 2E   JMP (&2E37)
+.update_display
+     2DFF   48         PHA
+     2E00   8A         TXA
+     2E01   48         PHA
+     2E02   98         TYA
+     2E03   48         PHA
+     2E04   A0 40      LDY #&40
+     2E06   84 80      STY &80
+     2E08   A9 58      LDA #&58
+     2E0A   85 81      STA &81
+     2E0C   A0 00      LDY #&00
+.idle1
+     2E0E   2C E0 FE   BIT &FEE0
+     2E11   10 FB      BPL &2E0E
+     2E13   AD E1 FE   LDA &FEE1
+     2E16   91 80      STA (&80),Y
+.idle2
+     2E18   2C E0 FE   BIT &FEE0
+     2E1B   10 FB      BPL &2E18
+     2E1D   AC E1 FE   LDY &FEE1
+     2E20   D0 EC      BNE &2E0E
+.zero
+     2E22   18         CLC
+     2E23   A5 80      LDA &80
+     2E25   69 40      ADC #&40
+     2E27   85 80      STA &80
+     2E29   A5 81      LDA &81
+     2E2B   69 01      ADC #&01
+     2E2D   85 81      STA &81
+     2E2F   10 DD      BPL &2E0E
+     2E31   68         PLA
+     2E32   A8         TAY
+     2E33   68         PLA
+     2E34   AA         TAX
+     2E35   68         PLA
+     2E36   60         RTS
+.oldwrcvec
+     2E37   A4 E0
+.vdu_driver_end
+.install_vdu_driver
+     2E39   A9 0E      LDA #&0E
+     2E3B   8D AB 2E   STA &2EAB
+     2E3E   A9 02      LDA #&02
+     2E40   8D AC 2E   STA &2EAC
+     2E43   20 8F 2E   JSR &2E8F
+     2E46   8D 37 2E   STA &2E37
+     2E49   20 8F 2E   JSR &2E8F
+     2E4C   8D 38 2E   STA &2E38
+     2E4F   A9 F8      LDA #&F8
+     2E51   85 80      STA &80
+     2E53   8D AB 2E   STA &2EAB
+     2E56   A9 2D      LDA #&2D
+     2E58   85 81      STA &81
+     2E5A   8D AC 2E   STA &2EAC
+.copy_vdu_loop
+     2E5D   A0 00      LDY #&00
+     2E5F   B1 80      LDA (&80),Y
+     2E61   20 93 2E   JSR &2E93
+     2E64   E6 80      INC &80
+     2E66   D0 02      BNE &2E6A
+     2E68   E6 81      INC &81
+.copy_vdu_nocarry
+     2E6A   A5 80      LDA &80
+     2E6C   C9 39      CMP #&39
+     2E6E   D0 ED      BNE &2E5D
+     2E70   A5 81      LDA &81
+     2E72   C9 2E      CMP #&2E
+     2E74   D0 E7      BNE &2E5D
+     2E76   A9 0E      LDA #&0E
+     2E78   8D AB 2E   STA &2EAB
+     2E7B   A9 02      LDA #&02
+     2E7D   8D AC 2E   STA &2EAC
+     2E80   A9 F8      LDA #&F8
+     2E82   20 93 2E   JSR &2E93
+     2E85   A9 2D      LDA #&2D
+     2E87   20 93 2E   JSR &2E93
+     2E8A   A9 00      LDA #&00
+     2E8C   4C EE FF   JMP &FFEE
+.osword_05
+     2E8F   A9 05      LDA #&05
+     2E91   D0 05      BNE &2E98
+.osword_06
+     2E93   8D AF 2E   STA &2EAF
+     2E96   A9 06      LDA #&06
+.osword_param
+     2E98   A2 AB      LDX #&AB
+     2E9A   A0 2E      LDY #&2E
+     2E9C   20 F1 FF   JSR &FFF1
+     2E9F   EE AB 2E   INC &2EAB
+     2EA2   D0 03      BNE &2EA7
+     2EA4   EE AC 2E   INC &2EAC
+.nocarry
+     2EA7   AD AF 2E   LDA &2EAF
+     2EAA   60         RTS
+.param
+     2EAB   00
+     2EAC   00
+     2EAD   00
+     2EAE   00
+     2EAF   00
+Processed file 'vdu_driver.asm' ok
+.end
+Saving file '../build/BLIFE42'
+Processed file 'common_BLIFE.asm' ok
+Processed file 'top_BLIFE42.asm' ok
