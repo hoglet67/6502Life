@@ -537,11 +537,6 @@ ENDMACRO
         ;; Set the list to be rendered
         M_COPY this, list
 
-        LDA #<DELTA_BASE
-        STA delta
-        LDA #>DELTA_BASE
-        STA delta + 1
-
         LDA #<SCRN_BASE
         STA scrn
         LDA #>SCRN_BASE

@@ -28,7 +28,7 @@
         LDY #&00
         TYA
 .clear_delta_loop
-        STA (delta), Y
+        STA DELTA_BASE, Y
         DEY
         BNE clear_delta_loop
         RTS

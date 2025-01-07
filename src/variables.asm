@@ -55,7 +55,6 @@ outcome         = &4C
 ;; Utils
 
 tmp             = &70
-delta           = &72           ; pointer to 8-line block storing
                                 ; difference between this and next
 ;; list42_life rendering
 
