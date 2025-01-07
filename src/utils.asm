@@ -54,36 +54,6 @@
         RTS
 }
 
-.eor_screen_to_delta
-{
-        RTS
-}
-
-.eor_delta_to_screen
-{
-        RTS
-}
-
-.send_screen_delta
-        LDA #&FF                ; send the VDU command to expect a new display
-        JSR OSWRCH
-
-        LDA #<SCRN_BASE
-        STA delta
-        LDA #>SCRN_BASE
-        STA delta + 1
-        LDX #&20
-.send_loop
-        JSR send_delta
-        INC delta + 1
-        DEX
-        BNE send_loop
-        RTS
-
-;; Send one one strip 8 pixels heigh x 256 pixels wide to VDU driver
-;; Converting from row linear atom" to character striped "beeb" screen format on the fly
-;; And compressing zeros
-
 .send_delta
 {
 ;; X is the index in beeb format

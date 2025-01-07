@@ -570,12 +570,6 @@ ENDMACRO
         LDA ui_zoom
         JSR list_life_update_delta
 
-        ;; initialize the delta with the current screen
-        JSR eor_screen_to_delta
-
-        ;; EOR the delta back into the local copy of the screen
-        JSR eor_delta_to_screen
-
         ;; delta is now the difference between the previous and current screens
         JSR send_delta
 
