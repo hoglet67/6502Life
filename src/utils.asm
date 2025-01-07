@@ -56,27 +56,12 @@
 
 .eor_screen_to_delta
 {
-        LDY #0
-.loop
-        LDA (delta), Y
-        EOR (scrn), Y
-        STA (delta), Y
-        INY
-        BNE loop
         RTS
 }
 
 .eor_delta_to_screen
 {
-        LDY #0
-.loop
-        LDA (scrn), Y
-        EOR (delta), Y
-        STA (scrn), Y
-        INY
-        BNE loop
         RTS
-
 }
 
 .send_screen_delta
@@ -121,13 +106,12 @@
         INX
         BEQ wait_for_space2
 
-        LDA char_to_linear_map, X
-        TAY
-        LDA (delta), Y
-
+        LDY char_to_linear_map, X
+        LDA DELTA_BASE, Y
+        CMP (scrn), Y
         BEQ skip_blank
 
-        LDA (scrn), Y
+        STA (scrn), Y
 
 .wait_for_space2
         BIT &FEF8
