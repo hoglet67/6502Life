@@ -5,27 +5,6 @@
 
 CPU 1                           ; allow 65C02 opcodes
 
-_ATOM           = FALSE
-
-IF _ATOM_LIFE_ENGINE
-
-ROWS_PER_SCREEN = &FE           ; Y resolution
-
-WKSPC0          = &3400         ; workspace 1 (temp copy of a screen row)
-WKSPC1          = &3500         ; workspace 2 (temp copy of a screen row)
-WKSPC2          = &3600         ; workspace 3 (temp copy of a screen row)
-SUM             = &3700         ; pixel accumulator
-DELTA_BASE      = &3800         ; 8 row buffer for accumulating delta
-GEN_LO          = &3F00         ; generation counter
-GEN_HI          = &3F01         ; the C% integer variable on the Beeb
-SCRN_BASE       = &4000         ; base address of screen memory
-
-RLE_DST         = SCRN_BASE
-
-GUARD             SCRN_BASE - 1
-
-ELSE
-
 DELTA_BASE      = &F600         ; 8 row buffer for accumulating delta
 
 IF _MATCHBOX
@@ -46,8 +25,6 @@ RLE_DST         = BUFFER
 SCRN_BASE       = &3000         ; base address of screen memory
 
 GUARD             SCRN_BASE - 1
-
-ENDIF
 
 ENDIF
 
@@ -73,13 +50,7 @@ include "rle_utils.asm"
 
 include "patterns.asm"
 
-IF _ATOM_LIFE_ENGINE
-
-include "macros_al.asm"
-include "atom_life.asm"
-include "rle_reader_al.asm"
-
-ELIF _LIST8_LIFE_ENGINE
+IF _LIST8_LIFE_ENGINE
 
 include "macros_l8.asm"
 include "list8_life.asm"

@@ -57,9 +57,7 @@ IF _MATCHBOX
 ELSE
         EQUS "64KB "
 ENDIF
-IF _ATOM_LIFE_ENGINE
-        EQUS "Atom"
-ELIF _LIST8_LIFE_ENGINE
+IF _LIST8_LIFE_ENGINE
         EQUS "List8"
 ELIF _LIST42_LIFE_ENGINE
         EQUS "List42"
@@ -98,8 +96,6 @@ ENDIF
 
         PLA                     ; create initial pattern
         JSR draw_pattern
-
-IF not(_ATOM_LIFE_ENGINE)
 
 ;; ************************************************************
 ;; LIST_LIFE_ENGINE
@@ -680,67 +676,6 @@ ENDIF
         STZ pan_y + 1
         RTS
 }
-
-ELSE
-
-;; ************************************************************
-;; ATOM LIFE ENGINE
-;; ************************************************************
-
-;; This code won't be around for much longer
-
-        JSR send_screen_delta
-
-        LDA #<DELTA_BASE
-        STA delta
-        LDA #>DELTA_BASE
-        STA delta + 1
-
-        JSR clear_delta
-
-        LDA #&20                ; start at line 1, as line 0 is skipped by generation code
-        STA delta
-
-        LDA #&FF                ; fill workspace buffers with 0xFF
-        LDY #&00                ; so work-skipping optimization will be pessimistic
-.init_ws_loop
-        STA WKSPC0, Y           ; a better solution would be to add correct
-        STA WKSPC1, Y           ; wrapping to work-skipping optimization in
-        STA WKSPC2, Y           ; atom_life engine
-        INY
-        BNE init_ws_loop
-
-.generation_loop
-
-        LDA #&FF                ; send the VDU command to expect a new display
-        JSR OSWRCH
-
-        JSR next_generation
-
-        JSR mirror_edges
-
-        BRA generation_loop
-
-
-;; For some reason an extra pixel of padding is needed on left/right
-;; probably due to an edge condition with atom life engine
-extra = 1
-
-.mirror_edges
-        ;; Copy row 1 to row 255
-        COPY_ROW 1, 255
-        ;; Copy row 254 to row 0
-        COPY_ROW 254, 0
-
-        ;; Copying columns is not actually necessary, as the atom life engine mirrors l/r
-
-        ;; Copy col 1 to col 255
-        ;; COPY_COLUMN 1 + extra, 255 - extra
-        ;; Copy col 254 to col 0
-        ;; COPY_COLUMN 254 - extra, 0 + extra
-        RTS
-
-ENDIF
 
 .event_handler
 {
