@@ -25,12 +25,18 @@
 
 .clear_delta
 {
-        LDY #&00
-        TYA
+        LDX #&1F
 .clear_delta_loop
-        STA DELTA_BASE, Y
-        DEY
-        BNE clear_delta_loop
+        STZ DELTA_BASE+&00, X
+        STZ DELTA_BASE+&20, X
+        STZ DELTA_BASE+&40, X
+        STZ DELTA_BASE+&60, X
+        STZ DELTA_BASE+&80, X
+        STZ DELTA_BASE+&A0, X
+        STZ DELTA_BASE+&C0, X
+        STZ DELTA_BASE+&E0, X
+        DEX
+        BPL clear_delta_loop
         RTS
 }
 
@@ -57,9 +63,6 @@
 .send_delta
 {
 ;; X is the index in beeb format
-
-        TXA
-        PHA
 
         LDX #0
 
@@ -90,9 +93,6 @@
 
         CPX #0
         BNE wait_for_space1
-
-        PLA
-        TAX
 
         RTS
 }
