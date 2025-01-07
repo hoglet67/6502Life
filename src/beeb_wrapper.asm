@@ -558,9 +558,6 @@ ENDMACRO
         TXA
         PHA
 
-        ;; Clear the delta
-        JSR clear_delta
-
         ;; OR render the new strip into the delta
         LDA ui_zoom
         JSR list_life_update_delta

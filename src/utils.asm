@@ -23,22 +23,6 @@
         JMP (tmp)
 }
 
-.clear_delta
-{
-        LDX #&1F
-.clear_delta_loop
-        STZ DELTA_BASE+&00, X
-        STZ DELTA_BASE+&20, X
-        STZ DELTA_BASE+&40, X
-        STZ DELTA_BASE+&60, X
-        STZ DELTA_BASE+&80, X
-        STZ DELTA_BASE+&A0, X
-        STZ DELTA_BASE+&C0, X
-        STZ DELTA_BASE+&E0, X
-        DEX
-        BPL clear_delta_loop
-        RTS
-}
 
 ;; Clear entire screen
 .clear_screen
@@ -57,16 +41,37 @@
         INC scrn + 1
         DEX
         BNE clear_loop
+        ;; Fall through to clear_delta
+}
+
+.clear_delta
+{
+        LDX #&1F
+.clear_delta_loop
+        STZ DELTA_BASE+&00, X
+        STZ DELTA_BASE+&20, X
+        STZ DELTA_BASE+&40, X
+        STZ DELTA_BASE+&60, X
+        STZ DELTA_BASE+&80, X
+        STZ DELTA_BASE+&A0, X
+        STZ DELTA_BASE+&C0, X
+        STZ DELTA_BASE+&E0, X
+        DEX
+        BPL clear_delta_loop
         RTS
 }
 
 .send_delta
 {
-;; X is the index in beeb format
+;; Self modifing code: assumes scrn is page aligned
+        LDA scrn+1
+        STA addr1+2
+        STA addr2+2
 
-        LDX #0
+;; Y is the index in beeb format
+        LDY #0
 
-;; always send the data for X=0
+;; always send the data for Y=0
         LDA (scrn)
 
 .wait_for_space1
@@ -75,22 +80,24 @@
         STA &FEF9               ; send data
 
 .skip_blank
-        INX
+        INY
         BEQ wait_for_space2
 
-        LDY char_to_linear_map, X
-        LDA DELTA_BASE, Y
-        CMP (scrn), Y
+        LDX char_to_linear_map, Y
+        LDA DELTA_BASE, X
+        STZ DELTA_BASE, X
+.addr1
+        CMP &FF00, X
         BEQ skip_blank
-
-        STA (scrn), Y
+.addr2
+        STA &FF00, X
 
 .wait_for_space2
         BIT &FEF8
         BVC wait_for_space2
-        STX &FEF9               ; send index
+        STY &FEF9               ; send index
 
-        CPX #0
+        CPY #0
         BNE wait_for_space1
 
         RTS
