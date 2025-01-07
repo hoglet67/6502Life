@@ -67,8 +67,7 @@
         LDX #0
 
 ;; always send the data for X=0
-        LDY #0
-        LDA (scrn), Y
+        LDA (scrn)
 
 .wait_for_space1
         BIT &FEF8
