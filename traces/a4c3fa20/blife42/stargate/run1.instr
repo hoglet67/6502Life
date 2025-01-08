@@ -1,0 +1,1534 @@
+==============================================================================
+Profiler: instr; Args:
+==============================================================================
+
+.start
+
+.print_string
+
+.print_string.loop
+
+.print_string.nocarry
+
+.print_string.done
+
+.clear_delta
+041e LDX #1F      :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+
+.clear_delta.clear_delta_loop
+0420 STZ F600,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+0423 STZ F620,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+0426 STZ F640,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+0429 STZ F660,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+042c STZ F680,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+042f STZ F6A0,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+0432 STZ F6C0,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+0435 STZ F6E0,X   :   512000 cycles (  0.563105%)   102400 ins (5.00 cpi) ******
+0438 DEX          :   204800 cycles (  0.225242%)   102400 ins (2.00 cpi) **
+0439 BPL 0420     :   304000 cycles (  0.334343%)   102400 ins (2.97 cpi) ***
+043b RTS          :    19200 cycles (  0.021116%)     3200 ins (6.00 cpi)
+
+.clear_screen
+
+.clear_screen.clear_loop
+
+.send_delta
+0454 LDX #00      :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0456 LDA (91)     :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+
+.send_delta.wait_for_space1
+0458 BIT FEF8     :   192480 cycles (  0.211692%)    48120 ins (4.00 cpi) **
+045b BVC 0458     :    96240 cycles (  0.105846%)    48120 ins (2.00 cpi) *
+045d STA FEF9     :   192480 cycles (  0.211692%)    48120 ins (4.00 cpi) **
+
+.send_delta.skip_blank
+0460 INX          :  1638400 cycles (  1.801935%)   819200 ins (2.00 cpi) ********************
+0461 BEQ 046F     :  1641600 cycles (  1.805454%)   819200 ins (2.00 cpi) ********************
+0463 LDY 047C,X   :  3660800 cycles (  4.026198%)   816000 ins (4.49 cpi) ********************************************
+0466 LDA F600,Y   :  3264000 cycles (  3.589792%)   816000 ins (4.00 cpi) ****************************************
+0469 CMP (91),Y   :  4080000 cycles (  4.487240%)   816000 ins (5.00 cpi) **************************************************
+046b BEQ 0460     :  2403080 cycles (  2.642941%)   816000 ins (2.94 cpi) *****************************
+046d STA (91),Y   :   269520 cycles (  0.296422%)    44920 ins (6.00 cpi) ***
+
+.send_delta.wait_for_space2
+046f BIT FEF8     :   192480 cycles (  0.211692%)    48120 ins (4.00 cpi) **
+0472 BVC 046F     :    96240 cycles (  0.105846%)    48120 ins (2.00 cpi) *
+0474 STX FEF9     :   192480 cycles (  0.211692%)    48120 ins (4.00 cpi) **
+0477 CPX #00      :    96240 cycles (  0.105846%)    48120 ins (2.00 cpi) *
+0479 BNE 0458     :   141160 cycles (  0.155250%)    48120 ins (2.93 cpi) *
+047b RTS          :    19200 cycles (  0.021116%)     3200 ins (6.00 cpi)
+
+.char_to_linear_map
+
+.gen_count
+
+.cell_count
+
+.bcd_count
+
+.clear_count
+0588 STZ 057C,X   :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+058b STZ 057D,X   :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+058e STZ 057E,X   :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+0591 RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.add_to_count
+0592 SED          :   102138 cycles (  0.112333%)    51069 ins (2.00 cpi) *
+0593 CLC          :   102138 cycles (  0.112333%)    51069 ins (2.00 cpi) *
+0594 ADC 057C,X   :   255345 cycles (  0.280832%)    51069 ins (5.00 cpi) ***
+0597 STA 057C,X   :   255345 cycles (  0.280832%)    51069 ins (5.00 cpi) ***
+059a BCC 05AE     :   152127 cycles (  0.167311%)    51069 ins (2.98 cpi) *
+059c LDA 057D,X   :     4320 cycles (  0.004751%)     1080 ins (4.00 cpi)
+059f ADC #00      :     3240 cycles (  0.003563%)     1080 ins (3.00 cpi)
+05a1 STA 057D,X   :     5400 cycles (  0.005939%)     1080 ins (5.00 cpi)
+05a4 BCC 05AE     :     3240 cycles (  0.003563%)     1080 ins (3.00 cpi)
+
+.add_to_count.done
+05ae CLD          :   102138 cycles (  0.112333%)    51069 ins (2.00 cpi) *
+05af RTS          :   306414 cycles (  0.336998%)    51069 ins (6.00 cpi) ***
+
+.print_as_signed
+05b0 BIT 01,X     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+05b2 BPL 05C8     :      600 cycles (  0.000660%)      200 ins (3.00 cpi)
+
+.print_as_unsigned
+05c8 LDA 00,X     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+05ca STA 70       :      600 cycles (  0.000660%)      200 ins (3.00 cpi)
+05cc LDA 01,X     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+05ce STA 71       :      600 cycles (  0.000660%)      200 ins (3.00 cpi)
+
+.print_tmp
+05d0 JSR 05F8     :     1200 cycles (  0.001320%)      200 ins (6.00 cpi)
+05d3 LDX #0A      :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+05d5 LDY #02      :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+05d7 BRA 05DD     :      600 cycles (  0.000660%)      200 ins (3.00 cpi)
+
+.print_count
+05d9 LDY #02      :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+05db INX          :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+05dc INX          :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+
+.print_count_inner.loop
+05dd LDA 057C,X   :     4800 cycles (  0.005279%)     1200 ins (4.00 cpi)
+05e0 JSR 05E8     :     7200 cycles (  0.007919%)     1200 ins (6.00 cpi)
+05e3 DEX          :     2400 cycles (  0.002640%)     1200 ins (2.00 cpi)
+05e4 DEY          :     2400 cycles (  0.002640%)     1200 ins (2.00 cpi)
+05e5 BPL 05DD     :     3200 cycles (  0.003519%)     1200 ins (2.67 cpi)
+05e7 RTS          :     2400 cycles (  0.002640%)      400 ins (6.00 cpi)
+
+.print_count_inner.print_bcd
+05e8 PHA          :     3600 cycles (  0.003959%)     1200 ins (3.00 cpi)
+05e9 LSR A        :     2400 cycles (  0.002640%)     1200 ins (2.00 cpi)
+05ea LSR A        :     2400 cycles (  0.002640%)     1200 ins (2.00 cpi)
+05eb LSR A        :     2400 cycles (  0.002640%)     1200 ins (2.00 cpi)
+05ec LSR A        :     2400 cycles (  0.002640%)     1200 ins (2.00 cpi)
+05ed JSR 05F1     :     7200 cycles (  0.007919%)     1200 ins (6.00 cpi)
+05f0 PLA          :     4800 cycles (  0.005279%)     1200 ins (4.00 cpi)
+
+.print_count_inner.print_bcd_digit
+05f1 AND #0F      :     4800 cycles (  0.005279%)     2400 ins (2.00 cpi)
+05f3 ORA #30      :     4800 cycles (  0.005279%)     2400 ins (2.00 cpi)
+05f5 JMP FFEE     :     7200 cycles (  0.007919%)     2400 ins (3.00 cpi)
+
+.bin_to_bcd
+05f8 SED          :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+05f9 STZ 0584     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+05fc STZ 0585     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+05ff STZ 0586     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+0602 LDX #10      :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+
+.bin_to_bcd.CNVBIT
+0604 ASL 70       :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+0606 ROL 71       :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+0608 LDA 0584     :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+060b ADC 0584     :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+060e STA 0584     :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+0611 LDA 0585     :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+0614 ADC 0585     :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+0617 STA 0585     :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+061a LDA 0586     :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+061d ADC 0586     :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+0620 STA 0586     :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+0623 DEX          :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0624 BNE 0604     :     9400 cycles (  0.010338%)     3200 ins (2.94 cpi)
+0626 CLD          :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+0627 RTS          :     1200 cycles (  0.001320%)      200 ins (6.00 cpi)
+
+.skip_line
+
+.skip_whitespace
+
+.skip_whitespace.skip
+
+.parse_rle_header
+
+.parse_rle_header.skip_comments
+
+.parse_rle_header.process
+
+.parse_rle_header.not_x
+
+.parse_rle_header.not_y
+
+.parse_size
+
+.parse_size.digit_loop
+
+.parse_size.return
+
+.count_times_10
+
+.rle_open_file
+
+.rle_open_file.not_found
+
+.rle_close_file
+
+.rle_next_byte
+
+.rle_next_byte.skip_read_block
+
+.rle_next_byte.skip_increment
+
+.rle_next_byte.file_handle
+
+.rle_next_byte.address
+
+.rle_next_byte.length
+
+.rle_next_byte.ptr
+
+.draw_pattern
+
+.type_random
+
+.type_l42
+
+.default_random
+
+.type_pattern
+
+.pattern_loop1
+
+.pattern_loop2
+
+.not_found_error
+
+.name_loop
+
+.type_rle
+
+.l42_pattern
+
+.l42_copy
+
+._313.nocarry
+
+.l42_copy_y
+
+._315.nocarry
+
+._316.nocarry
+
+._317.nocarry
+
+._318.nocarry
+
+.random_pattern
+
+.random_pattern.seed_loop
+
+.random_pattern.random_loop
+
+.random_pattern.random_next
+
+.random_pattern.clear_loop
+
+.random
+
+.random.loop
+
+.inc_src
+
+.inc_src.nocarry
+
+.list_patterns
+
+.list_patterns.pattern_loop
+
+.list_patterns.name_loop
+
+.list_patterns.name_done
+
+.list_patterns.list_done
+
+.seed
+
+.pattern_table
+
+.pattern_table_terminator
+
+.patternA.start
+
+.patternA.name
+
+.patternB.start
+
+.patternB.name
+
+.patternC.start
+
+.patternC.name
+
+.patternD.start
+
+.patternD.name
+
+.patternE.start
+
+.patternE.name
+
+.patternF.start
+
+.patternF.name
+
+.patternG.start
+
+.patternG.name
+
+.patternH.start
+
+.patternH.name
+
+.patternI.start
+
+.patternI.name
+
+.patternJ.start
+
+.patternJ.name
+
+.patternK.start
+
+.patternK.name
+
+.patternL.start
+
+.patternL.name
+
+.patternM.start
+
+.patternM.name
+
+.patternN.start
+
+.patternN.name
+
+.patternO.start
+
+.patternO.name
+
+.patternP.start
+
+.patternP.name
+
+.patternQ.start
+
+.patternQ.name
+
+.patternR.start
+
+.patternR.name
+
+.patternS.start
+
+.patternS.name
+
+.patternT.start
+
+.patternT.name
+
+.patternU.start
+
+.patternU.name
+
+.patternV.start
+
+.patternV.name
+
+.patternW.start
+
+.patternW.name
+
+.patternX.start
+
+.patternX.name
+
+.patternY.start
+
+.patternY.name
+
+.list_life
+0b77 LDY #01      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0b79 STZ 46       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b7b LDA 80       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b7d STA 8A       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b7f LDA 81       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b81 STA 8B       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b83 STZ 40       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b85 STZ 44       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b87 STZ 42       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b89 STZ 45       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0b8b LDA #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0b8d STA (82)     :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+0b8f STA (82),Y   :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.list_life.level1
+0b91 LDA (82),Y   :    32774 cycles (  0.036045%)     6550 ins (5.00 cpi)
+0b93 BPL 0BAE     :    13340 cycles (  0.014672%)     6550 ins (2.04 cpi)
+0b95 LDA 82       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0b97 CLC          :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0b98 ADC #03      :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0b9a STA 82       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0b9c BCC 0BAE     :    18849 cycles (  0.020730%)     6310 ins (2.99 cpi)
+0b9e INC 83       :      405 cycles (  0.000445%)       81 ins (5.00 cpi)
+0ba0 LDA 83       :      243 cycles (  0.000267%)       81 ins (3.00 cpi)
+0ba2 CMP #F4      :      162 cycles (  0.000178%)       81 ins (2.00 cpi)
+0ba4 BNE 0BAE     :      242 cycles (  0.000266%)       81 ins (2.99 cpi)
+0ba6 LDA #00      :        2 cycles (  0.000002%)        1 ins (2.00 cpi)
+0ba8 STA 82       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+0baa LDA #50      :        2 cycles (  0.000002%)        1 ins (2.00 cpi)
+0bac STA 83       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+
+.list_life.skip_inc_new
+0bae LDA 8A       :    19650 cycles (  0.021611%)     6550 ins (3.00 cpi)
+0bb0 CMP 80       :    19650 cycles (  0.021611%)     6550 ins (3.00 cpi)
+0bb2 BNE 0C03     :    25720 cycles (  0.028287%)     6550 ins (3.93 cpi)
+0bb4 LDA 8B       :      720 cycles (  0.000792%)      240 ins (3.00 cpi)
+0bb6 CMP 81       :      720 cycles (  0.000792%)      240 ins (3.00 cpi)
+0bb8 BNE 0C03     :      480 cycles (  0.000528%)      240 ins (2.00 cpi)
+0bba LDA (80)     :     1200 cycles (  0.001320%)      240 ins (5.00 cpi)
+0bbc ORA (80),Y   :     1201 cycles (  0.001321%)      240 ins (5.00 cpi)
+0bbe BNE 0BE0     :      620 cycles (  0.000682%)      240 ins (2.58 cpi)
+0bc0 LDA #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0bc2 STA (82)     :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+0bc4 STA (82),Y   :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+0bc6 LDA 82       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0bc8 CLC          :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0bc9 ADC #02      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0bcb STA 82       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0bcd BCC 0BDF     :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+.list_life._3.nocarry
+0bdf RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.list_life.this_not_zero
+0be0 LDA (80)     :      700 cycles (  0.000770%)      140 ins (5.00 cpi)
+0be2 STA 88       :      420 cycles (  0.000462%)      140 ins (3.00 cpi)
+0be4 LDA (80),Y   :      701 cycles (  0.000771%)      140 ins (5.01 cpi)
+0be6 STA 89       :      420 cycles (  0.000462%)      140 ins (3.00 cpi)
+0be8 LDA 80       :      420 cycles (  0.000462%)      140 ins (3.00 cpi)
+0bea CLC          :      280 cycles (  0.000308%)      140 ins (2.00 cpi)
+0beb ADC #02      :      280 cycles (  0.000308%)      140 ins (2.00 cpi)
+0bed STA 80       :      420 cycles (  0.000462%)      140 ins (3.00 cpi)
+0bef BCC 0C01     :      556 cycles (  0.000611%)      140 ins (3.97 cpi)
+0bf1 INC 81       :       10 cycles (  0.000011%)        2 ins (5.00 cpi)
+0bf3 LDA 81       :        6 cycles (  0.000007%)        2 ins (3.00 cpi)
+0bf5 CMP #F4      :        4 cycles (  0.000004%)        2 ins (2.00 cpi)
+0bf7 BNE 0C01     :        8 cycles (  0.000009%)        2 ins (4.00 cpi)
+
+.list_life._5.nocarry
+0c01 BRA 0C58     :      420 cycles (  0.000462%)      140 ins (3.00 cpi)
+
+.list_life.else1
+0c03 LDA (8A)     :    31550 cycles (  0.034699%)     6310 ins (5.00 cpi)
+0c05 CMP 88       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0c07 BNE 0C28     :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0c09 LDA (8A),Y   :    31577 cycles (  0.034729%)     6310 ins (5.00 cpi)
+0c0b CMP 89       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0c0d BNE 0C28     :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0c0f LDA 8A       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0c11 CLC          :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0c12 ADC #02      :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0c14 STA 8A       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0c16 BCC 0C28     :    18882 cycles (  0.020767%)     6310 ins (2.99 cpi)
+0c18 INC 8B       :      240 cycles (  0.000264%)       48 ins (5.00 cpi)
+0c1a LDA 8B       :      144 cycles (  0.000158%)       48 ins (3.00 cpi)
+0c1c CMP #F4      :       96 cycles (  0.000106%)       48 ins (2.00 cpi)
+0c1e BNE 0C28     :      144 cycles (  0.000158%)       48 ins (3.00 cpi)
+
+.list_life.skip_inc_prev
+0c28 LDA 88       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0c2a SEC          :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0c2b SBC #02      :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0c2d STA 88       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0c2f BCS 0C33     :    18830 cycles (  0.020709%)     6310 ins (2.98 cpi)
+0c31 DEC 89       :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+
+.list_life.no_carry
+0c33 LDA (80)     :    31550 cycles (  0.034699%)     6310 ins (5.00 cpi)
+0c35 CMP 88       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0c37 BNE 0C58     :    12760 cycles (  0.014034%)     6310 ins (2.02 cpi)
+0c39 LDA (80),Y   :    30876 cycles (  0.033958%)     6170 ins (5.00 cpi)
+0c3b CMP 89       :    18510 cycles (  0.020358%)     6170 ins (3.00 cpi)
+0c3d BNE 0C58     :    12340 cycles (  0.013572%)     6170 ins (2.00 cpi)
+0c3f LDA 80       :    18510 cycles (  0.020358%)     6170 ins (3.00 cpi)
+0c41 CLC          :    12340 cycles (  0.013572%)     6170 ins (2.00 cpi)
+0c42 ADC #02      :    12340 cycles (  0.013572%)     6170 ins (2.00 cpi)
+0c44 STA 80       :    18510 cycles (  0.020358%)     6170 ins (3.00 cpi)
+0c46 BCC 0C58     :    18464 cycles (  0.020307%)     6170 ins (2.99 cpi)
+0c48 INC 81       :      230 cycles (  0.000253%)       46 ins (5.00 cpi)
+0c4a LDA 81       :      138 cycles (  0.000152%)       46 ins (3.00 cpi)
+0c4c CMP #F4      :       92 cycles (  0.000101%)       46 ins (2.00 cpi)
+0c4e BNE 0C58     :      138 cycles (  0.000152%)       46 ins (3.00 cpi)
+
+.list_life.endif1
+0c58 LDA 88       :    19350 cycles (  0.021281%)     6450 ins (3.00 cpi)
+0c5a CLC          :    12900 cycles (  0.014188%)     6450 ins (2.00 cpi)
+0c5b ADC #01      :    12900 cycles (  0.014188%)     6450 ins (2.00 cpi)
+0c5d STA (82)     :    32250 cycles (  0.035469%)     6450 ins (5.00 cpi)
+0c5f LDA 89       :    19350 cycles (  0.021281%)     6450 ins (3.00 cpi)
+0c61 ADC #00      :    12900 cycles (  0.014188%)     6450 ins (2.00 cpi)
+0c63 STA (82),Y   :    38700 cycles (  0.042563%)     6450 ins (6.00 cpi)
+
+.list_life.level2
+0c65 LDA (8A)     :   133895 cycles (  0.147260%)    26779 ins (5.00 cpi) *
+0c67 STA 86       :    80337 cycles (  0.088356%)    26779 ins (3.00 cpi)
+0c69 LDA (8A),Y   :   134005 cycles (  0.147381%)    26779 ins (5.00 cpi) *
+0c6b STA 87       :    80337 cycles (  0.088356%)    26779 ins (3.00 cpi)
+0c6d LDA 86       :    80337 cycles (  0.088356%)    26779 ins (3.00 cpi)
+0c6f CMP (80)     :   133895 cycles (  0.147260%)    26779 ins (5.00 cpi) *
+0c71 LDA 87       :    80337 cycles (  0.088356%)    26779 ins (3.00 cpi)
+0c73 SBC (80),Y   :   134004 cycles (  0.147379%)    26779 ins (5.00 cpi) *
+0c75 BVC 0C79     :    79866 cycles (  0.087838%)    26779 ins (2.98 cpi)
+0c77 EOR #80      :      942 cycles (  0.001036%)      471 ins (2.00 cpi)
+
+.list_life._11.label
+0c79 BMI 0C83     :    60220 cycles (  0.066231%)    26779 ins (2.25 cpi)
+0c7b LDA (80)     :   100585 cycles (  0.110625%)    20117 ins (5.00 cpi) *
+0c7d STA 86       :    60351 cycles (  0.066375%)    20117 ins (3.00 cpi)
+0c7f LDA (80),Y   :   100669 cycles (  0.110717%)    20117 ins (5.00 cpi) *
+0c81 STA 87       :    60351 cycles (  0.066375%)    20117 ins (3.00 cpi)
+
+.list_life._11.skip_assign_val
+0c83 LDA 87       :    80337 cycles (  0.088356%)    26779 ins (3.00 cpi)
+0c85 BMI 0C8A     :    73887 cycles (  0.081262%)    26779 ins (2.76 cpi)
+0c87 JMP 0B91     :    19350 cycles (  0.021281%)     6450 ins (3.00 cpi)
+
+.list_life.level3
+0c8a STZ 44       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0c8c STZ 45       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0c8e LDA (8A)     :   622665 cycles (  0.684816%)   124533 ins (5.00 cpi) *******
+0c90 CMP 86       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0c92 BNE 0CB9     :   322655 cycles (  0.354860%)   124533 ins (2.59 cpi) ***
+0c94 LDA (8A),Y   :   254934 cycles (  0.280380%)    50944 ins (5.00 cpi) ***
+0c96 CMP 87       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0c98 BNE 0CB9     :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0c9a INY          :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0c9b LDA (8A),Y   :   255116 cycles (  0.280580%)    50944 ins (5.01 cpi) ***
+0c9d STA 44       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0c9f DEY          :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0ca0 LDA 8A       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0ca2 CLC          :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0ca3 ADC #03      :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0ca5 STA 8A       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0ca7 BCC 0CB9     :   152233 cycles (  0.167428%)    50944 ins (2.99 cpi) *
+0ca9 INC 8B       :     2995 cycles (  0.003294%)      599 ins (5.00 cpi)
+0cab LDA 8B       :     1797 cycles (  0.001976%)      599 ins (3.00 cpi)
+0cad CMP #F4      :     1198 cycles (  0.001318%)      599 ins (2.00 cpi)
+0caf BNE 0CB9     :     1794 cycles (  0.001973%)      599 ins (2.99 cpi)
+0cb1 LDA #00      :        6 cycles (  0.000007%)        3 ins (2.00 cpi)
+0cb3 STA 8A       :        9 cycles (  0.000010%)        3 ins (3.00 cpi)
+0cb5 LDA #50      :        6 cycles (  0.000007%)        3 ins (2.00 cpi)
+0cb7 STA 8B       :        9 cycles (  0.000010%)        3 ins (3.00 cpi)
+
+.list_life._12.skip_inc
+0cb9 LDA (80)     :   622665 cycles (  0.684816%)   124533 ins (5.00 cpi) *******
+0cbb CMP 86       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0cbd BNE 0CE4     :   322655 cycles (  0.354860%)   124533 ins (2.59 cpi) ***
+0cbf LDA (80),Y   :   254934 cycles (  0.280380%)    50944 ins (5.00 cpi) ***
+0cc1 CMP 87       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0cc3 BNE 0CE4     :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0cc5 INY          :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0cc6 LDA (80),Y   :   255116 cycles (  0.280580%)    50944 ins (5.01 cpi) ***
+0cc8 STA 45       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0cca DEY          :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0ccb LDA 80       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0ccd CLC          :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0cce ADC #03      :   101888 cycles (  0.112058%)    50944 ins (2.00 cpi) *
+0cd0 STA 80       :   152832 cycles (  0.168087%)    50944 ins (3.00 cpi) *
+0cd2 BCC 0CE4     :   152233 cycles (  0.167428%)    50944 ins (2.99 cpi) *
+0cd4 INC 81       :     2995 cycles (  0.003294%)      599 ins (5.00 cpi)
+0cd6 LDA 81       :     1797 cycles (  0.001976%)      599 ins (3.00 cpi)
+0cd8 CMP #F4      :     1198 cycles (  0.001318%)      599 ins (2.00 cpi)
+0cda BNE 0CE4     :     1794 cycles (  0.001973%)      599 ins (2.99 cpi)
+0cdc LDA #00      :        6 cycles (  0.000007%)        3 ins (2.00 cpi)
+0cde STA 80       :        9 cycles (  0.000010%)        3 ins (3.00 cpi)
+0ce0 LDA #50      :        6 cycles (  0.000007%)        3 ins (2.00 cpi)
+0ce2 STA 81       :        9 cycles (  0.000010%)        3 ins (3.00 cpi)
+
+.list_life._15.skip_inc
+0ce4 LDA 40       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0ce6 ORA 44       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0ce8 ORA 42       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0cea ORA 45       :   373599 cycles (  0.410889%)   124533 ins (3.00 cpi) ****
+0cec BNE 0CF1     :   353270 cycles (  0.388531%)   124533 ins (2.84 cpi) ****
+0cee JMP 0C65     :    60987 cycles (  0.067074%)    20329 ins (3.00 cpi)
+
+.list_life.not_break
+0cf1 STZ 4C       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0cf3 LDA 40       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0cf5 ORA 42       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0cf7 BEQ 0D15     :   271314 cycles (  0.298395%)   104204 ins (2.60 cpi) ***
+0cf9 LDX 42       :   218253 cycles (  0.240038%)    72751 ins (3.00 cpi) **
+0cfb LDA 1400,X   :   291004 cycles (  0.320050%)    72751 ins (4.00 cpi) ***
+0cfe STA 41       :   218253 cycles (  0.240038%)    72751 ins (3.00 cpi) **
+0d00 LDA (40)     :   363755 cycles (  0.400063%)    72751 ins (5.00 cpi) ****
+0d02 AND #C0      :   145502 cycles (  0.160025%)    72751 ins (2.00 cpi) *
+0d04 STA 4C       :   218253 cycles (  0.240038%)    72751 ins (3.00 cpi) **
+0d06 LDX 40       :   218253 cycles (  0.240038%)    72751 ins (3.00 cpi) **
+0d08 LDA 1500,X   :   291004 cycles (  0.320050%)    72751 ins (4.00 cpi) ***
+0d0b STA 43       :   218253 cycles (  0.240038%)    72751 ins (3.00 cpi) **
+0d0d LDA (42)     :   363755 cycles (  0.400063%)    72751 ins (5.00 cpi) ****
+0d0f AND #0C      :   145502 cycles (  0.160025%)    72751 ins (2.00 cpi) *
+0d11 ORA 4C       :   218253 cycles (  0.240038%)    72751 ins (3.00 cpi) **
+0d13 STA 4C       :   218253 cycles (  0.240038%)    72751 ins (3.00 cpi) **
+
+.list_life.left_zero
+0d15 LDA 42       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d17 AND #30      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d19 STA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d1b LDA 45       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d1d AND #C0      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d1f ORA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d21 TAX          :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d22 LDA 1400,X   :   416816 cycles (  0.458420%)   104204 ins (4.00 cpi) *****
+0d25 STA 47       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d27 LDA 40       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d29 AND #33      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d2b STA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d2d LDA 44       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d2f AND #CC      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d31 ORA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d33 TAY          :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d34 LDA (46),Y   :   521020 cycles (  0.573025%)   104204 ins (5.00 cpi) ******
+0d36 AND #30      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d38 ORA 4C       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d3a STA 4C       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d3c LDA 40       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d3e AND #03      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d40 STA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d42 LDA 44       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d44 AND #0C      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d46 ORA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d48 CLC          :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d49 ADC #16      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d4b STA 47       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d4d LDA 42       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d4f AND #33      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d51 STA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d53 LDA 45       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d55 AND #CC      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d57 ORA 4A       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d59 TAY          :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d5a LDA (46),Y   :   521020 cycles (  0.573025%)   104204 ins (5.00 cpi) ******
+0d5c AND #03      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d5e LDY #01      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0d60 ORA 4C       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0d62 BEQ 0DB1     :   261643 cycles (  0.287759%)   104204 ins (2.51 cpi) ***
+0d64 STA 4C       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+0d66 LDA (82),Y   :   255065 cycles (  0.280524%)    50969 ins (5.00 cpi) ***
+0d68 BMI 0D85     :   146597 cycles (  0.161229%)    50969 ins (2.88 cpi) *
+0d6a LDA 82       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0d6c CLC          :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0d6d ADC #02      :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0d6f STA 82       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0d71 BCC 0D83     :    18883 cycles (  0.020768%)     6310 ins (2.99 cpi)
+0d73 INC 83       :      235 cycles (  0.000258%)       47 ins (5.00 cpi)
+0d75 LDA 83       :      141 cycles (  0.000155%)       47 ins (3.00 cpi)
+0d77 CMP #F4      :       94 cycles (  0.000103%)       47 ins (2.00 cpi)
+0d79 BNE 0D83     :      141 cycles (  0.000155%)       47 ins (3.00 cpi)
+
+.list_life._18.nocarry
+0d83 BRA 0D9E     :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+
+.list_life.last_was_x
+0d85 LDA 82       :   133977 cycles (  0.147350%)    44659 ins (3.00 cpi) *
+0d87 CLC          :    89318 cycles (  0.098233%)    44659 ins (2.00 cpi) *
+0d88 ADC #03      :    89318 cycles (  0.098233%)    44659 ins (2.00 cpi) *
+0d8a STA 82       :   133977 cycles (  0.147350%)    44659 ins (3.00 cpi) *
+0d8c BCC 0D9E     :   133458 cycles (  0.146779%)    44659 ins (2.99 cpi) *
+0d8e INC 83       :     2595 cycles (  0.002854%)      519 ins (5.00 cpi)
+0d90 LDA 83       :     1557 cycles (  0.001712%)      519 ins (3.00 cpi)
+0d92 CMP #F4      :     1038 cycles (  0.001142%)      519 ins (2.00 cpi)
+0d94 BNE 0D9E     :     1554 cycles (  0.001709%)      519 ins (2.99 cpi)
+0d96 LDA #00      :        6 cycles (  0.000007%)        3 ins (2.00 cpi)
+0d98 STA 82       :        9 cycles (  0.000010%)        3 ins (3.00 cpi)
+0d9a LDA #50      :        6 cycles (  0.000007%)        3 ins (2.00 cpi)
+0d9c STA 83       :        9 cycles (  0.000010%)        3 ins (3.00 cpi)
+
+.list_life.store_x
+0d9e LDA 86       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+0da0 SEC          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0da1 SBC #03      :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0da3 STA (82)     :   254845 cycles (  0.280282%)    50969 ins (5.00 cpi) ***
+0da5 LDA 87       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+0da7 SBC #00      :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0da9 STA (82),Y   :   305814 cycles (  0.336338%)    50969 ins (6.00 cpi) ***
+0dab INY          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0dac LDA 4C       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+0dae STA (82),Y   :   305814 cycles (  0.336338%)    50969 ins (6.00 cpi) ***
+0db0 DEY          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+
+.list_life.endif2
+0db1 LDA 44       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0db3 STA 40       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0db5 LDA 45       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0db7 STA 42       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0db9 LDA 86       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0dbb CLC          :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0dbc ADC #04      :   208408 cycles (  0.229210%)   104204 ins (2.00 cpi) **
+0dbe STA 86       :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+0dc0 BCC 0DC4     :   310764 cycles (  0.341783%)   104204 ins (2.98 cpi) ***
+0dc2 INC 87       :     9240 cycles (  0.010162%)     1848 ins (5.00 cpi)
+
+.list_life.jmp_level3
+0dc4 JMP 0C8A     :   312612 cycles (  0.343815%)   104204 ins (3.00 cpi) ***
+
+.list_life_offset_top_left
+0dc7 LDX 54       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dc9 LDA 62       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dcb SEC          :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0dcc SBC 0DFD,X   :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+0dcf STA 62       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dd1 LDA 63       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dd3 SBC 0E04,X   :      400 cycles (  0.000440%)      100 ins (4.00 cpi)
+0dd6 STA 63       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dd8 LDA 64       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dda CLC          :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0ddb ADC 0DFD,X   :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+0dde STA 64       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0de0 LDA 65       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0de2 ADC 0E04,X   :      400 cycles (  0.000440%)      100 ins (4.00 cpi)
+0de5 STA 65       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0de7 SEC          :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0de8 LDA 62       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dea SBC #03      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0dec STA 78       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0dee LDA 63       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0df0 SBC #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0df2 STA 79       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+0df4 LDX #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+
+.list_life_offset_top_left.loop
+0df6 STZ F700,X   :   128000 cycles (  0.140776%)    25600 ins (5.00 cpi) *
+0df9 DEX          :    51200 cycles (  0.056310%)    25600 ins (2.00 cpi)
+0dfa BNE 0DF6     :    76700 cycles (  0.084356%)    25600 ins (3.00 cpi)
+0dfc RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.list_life_offset_top_left.zoom_correction_lo
+
+.list_life_offset_top_left.zoom_correction_hi
+
+.list_life_count_cells
+0e0b LDX #04      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+0e0d JSR 0588     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+0e10 LDY #01      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+
+.list_life_count_cells.loop
+0e12 LDA (60),Y   :   287137 cycles (  0.315797%)    57379 ins (5.00 cpi) ***
+0e14 BPL 0E3E     :   121168 cycles (  0.133262%)    57379 ins (2.11 cpi) *
+0e16 INY          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0e17 LDA (60),Y   :   255244 cycles (  0.280721%)    50969 ins (5.01 cpi) ***
+0e19 DEY          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0e1a TAX          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0e1b LDA 1300,X   :   203876 cycles (  0.224226%)    50969 ins (4.00 cpi) **
+0e1e LDX #04      :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0e20 JSR 0592     :   305814 cycles (  0.336338%)    50969 ins (6.00 cpi) ***
+0e23 LDA 60       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+0e25 CLC          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0e26 ADC #03      :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+0e28 STA 60       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+0e2a BCC 0E3C     :   152306 cycles (  0.167508%)    50969 ins (2.99 cpi) *
+0e2c INC 61       :     3005 cycles (  0.003305%)      601 ins (5.00 cpi)
+0e2e LDA 61       :     1803 cycles (  0.001983%)      601 ins (3.00 cpi)
+0e30 CMP #F4      :     1202 cycles (  0.001322%)      601 ins (2.00 cpi)
+0e32 BNE 0E3C     :     1799 cycles (  0.001979%)      601 ins (2.99 cpi)
+0e34 LDA #00      :        8 cycles (  0.000009%)        4 ins (2.00 cpi)
+0e36 STA 60       :       12 cycles (  0.000013%)        4 ins (3.00 cpi)
+0e38 LDA #50      :        8 cycles (  0.000009%)        4 ins (2.00 cpi)
+0e3a STA 61       :       12 cycles (  0.000013%)        4 ins (3.00 cpi)
+
+.list_life_count_cells._1.nocarry
+0e3c BRA 0E12     :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+
+.list_life_count_cells.y_or_termiator
+0e3e ORA (60)     :    32050 cycles (  0.035249%)     6410 ins (5.00 cpi)
+0e40 BEQ 0E5D     :    12920 cycles (  0.014210%)     6410 ins (2.02 cpi)
+
+.list_life_count_cells.inc_by_2
+0e42 LDA 60       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0e44 CLC          :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0e45 ADC #02      :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0e47 STA 60       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0e49 BCC 0E5B     :    18883 cycles (  0.020768%)     6310 ins (2.99 cpi)
+0e4b INC 61       :      235 cycles (  0.000258%)       47 ins (5.00 cpi)
+0e4d LDA 61       :      141 cycles (  0.000155%)       47 ins (3.00 cpi)
+0e4f CMP #F4      :       94 cycles (  0.000103%)       47 ins (2.00 cpi)
+0e51 BNE 0E5B     :      141 cycles (  0.000155%)       47 ins (3.00 cpi)
+
+.list_life_count_cells.inc_by_2.nocarry
+0e5b BRA 0E12     :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+
+.list_life_count_cells.exit
+0e5d RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.list_life_prune_cells
+0e5e LDY #01      :        2 cycles (  0.000002%)        1 ins (2.00 cpi)
+
+.list_life_prune_cells.loop
+0e60 LDA (80),Y   :     2833 cycles (  0.003116%)      566 ins (5.01 cpi)
+0e62 BPL 0EAE     :     1195 cycles (  0.001314%)      566 ins (2.11 cpi)
+0e64 CMP #80      :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e66 BEQ 0E93     :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e68 CMP #FF      :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e6a BEQ 0E93     :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e6c INY          :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e6d LDA (80),Y   :     2520 cycles (  0.002772%)      503 ins (5.01 cpi)
+0e6f STA (82),Y   :     3018 cycles (  0.003319%)      503 ins (6.00 cpi)
+0e71 DEY          :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e72 LDA (80),Y   :     2518 cycles (  0.002769%)      503 ins (5.01 cpi)
+0e74 STA (82),Y   :     3018 cycles (  0.003319%)      503 ins (6.00 cpi)
+0e76 LDA (80)     :     2515 cycles (  0.002766%)      503 ins (5.00 cpi)
+0e78 STA (82)     :     2515 cycles (  0.002766%)      503 ins (5.00 cpi)
+0e7a LDA 82       :     1509 cycles (  0.001660%)      503 ins (3.00 cpi)
+0e7c CLC          :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e7d ADC #03      :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e7f STA 82       :     1509 cycles (  0.001660%)      503 ins (3.00 cpi)
+0e81 BCC 0E93     :     1502 cycles (  0.001652%)      503 ins (2.99 cpi)
+0e83 INC 83       :       35 cycles (  0.000038%)        7 ins (5.00 cpi)
+0e85 LDA 83       :       21 cycles (  0.000023%)        7 ins (3.00 cpi)
+0e87 CMP #F4      :       14 cycles (  0.000015%)        7 ins (2.00 cpi)
+0e89 BNE 0E93     :       21 cycles (  0.000023%)        7 ins (3.00 cpi)
+
+.list_life_prune_cells.skip_copy_x
+0e93 LDA 80       :     1509 cycles (  0.001660%)      503 ins (3.00 cpi)
+0e95 CLC          :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e96 ADC #03      :     1006 cycles (  0.001106%)      503 ins (2.00 cpi)
+0e98 STA 80       :     1509 cycles (  0.001660%)      503 ins (3.00 cpi)
+0e9a BCC 0EAC     :     1503 cycles (  0.001653%)      503 ins (2.99 cpi)
+0e9c INC 81       :       30 cycles (  0.000033%)        6 ins (5.00 cpi)
+0e9e LDA 81       :       18 cycles (  0.000020%)        6 ins (3.00 cpi)
+0ea0 CMP #F4      :       12 cycles (  0.000013%)        6 ins (2.00 cpi)
+0ea2 BNE 0EAC     :       18 cycles (  0.000020%)        6 ins (3.00 cpi)
+
+.list_life_prune_cells.skip_copy_x.nocarry
+0eac BRA 0E60     :     1509 cycles (  0.001660%)      503 ins (3.00 cpi)
+
+.list_life_prune_cells.is_y_or_terminator
+0eae TAX          :      126 cycles (  0.000139%)       63 ins (2.00 cpi)
+0eaf ORA (80)     :      315 cycles (  0.000346%)       63 ins (5.00 cpi)
+0eb1 BEQ 0F31     :      128 cycles (  0.000141%)       63 ins (2.03 cpi)
+0eb3 TXA          :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0eb4 CMP #7F      :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0eb6 BEQ 0EF9     :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0eb8 CMP #00      :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0eba BEQ 0EF9     :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0ebc LDA (80),Y   :      310 cycles (  0.000341%)       62 ins (5.00 cpi)
+0ebe STA (82),Y   :      372 cycles (  0.000409%)       62 ins (6.00 cpi)
+0ec0 LDA (80)     :      310 cycles (  0.000341%)       62 ins (5.00 cpi)
+0ec2 STA (82)     :      310 cycles (  0.000341%)       62 ins (5.00 cpi)
+0ec4 LDA 82       :      186 cycles (  0.000205%)       62 ins (3.00 cpi)
+0ec6 CLC          :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0ec7 ADC #02      :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0ec9 STA 82       :      186 cycles (  0.000205%)       62 ins (3.00 cpi)
+0ecb BCC 0EDD     :      186 cycles (  0.000205%)       62 ins (3.00 cpi)
+
+.list_life_prune_cells._5.nocarry
+0edd LDA 80       :      186 cycles (  0.000205%)       62 ins (3.00 cpi)
+0edf CLC          :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0ee0 ADC #02      :      124 cycles (  0.000136%)       62 ins (2.00 cpi)
+0ee2 STA 80       :      186 cycles (  0.000205%)       62 ins (3.00 cpi)
+0ee4 BCC 0EF6     :      186 cycles (  0.000205%)       62 ins (3.00 cpi)
+
+.list_life_prune_cells._7.nocarry
+0ef6 JMP 0E60     :      186 cycles (  0.000205%)       62 ins (3.00 cpi)
+
+.list_life_prune_cells.skip_row
+
+.list_life_prune_cells.skip_row_loop
+
+.list_life_prune_cells._11.nocarry
+
+.list_life_prune_cells.terminator
+0f31 LDA #00      :        2 cycles (  0.000002%)        1 ins (2.00 cpi)
+0f33 STA (82)     :        5 cycles (  0.000005%)        1 ins (5.00 cpi)
+0f35 STA (82),Y   :        6 cycles (  0.000007%)        1 ins (6.00 cpi)
+0f37 LDA 82       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+0f39 CLC          :        2 cycles (  0.000002%)        1 ins (2.00 cpi)
+0f3a ADC #02      :        2 cycles (  0.000002%)        1 ins (2.00 cpi)
+0f3c STA 82       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+0f3e BCC 0F50     :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+
+.list_life_prune_cells._13.nocarry
+0f50 RTS          :        6 cycles (  0.000007%)        1 ins (6.00 cpi)
+
+.list_life_load_buffer
+
+.list_life_update_delta
+0f52 LDX 54       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f54 LDA (60)     :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+0f56 EOR 64       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f58 AND #01      :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0f5a BEQ 0F70     :     8400 cycles (  0.009238%)     3200 ins (2.62 cpi)
+0f5c LDY 1283,X   :     4800 cycles (  0.005279%)     1200 ins (4.00 cpi)
+0f5f LDX #00      :     2400 cycles (  0.002640%)     1200 ins (2.00 cpi)
+
+.list_life_update_delta.copy_loop
+0f61 LDA F700,X   :   153600 cycles (  0.168931%)    38400 ins (4.00 cpi) *
+0f64 STA F600,X   :   192000 cycles (  0.211164%)    38400 ins (5.00 cpi) **
+0f67 STZ F700,X   :   192000 cycles (  0.211164%)    38400 ins (5.00 cpi) **
+0f6a INX          :    76800 cycles (  0.084466%)    38400 ins (2.00 cpi)
+0f6b DEY          :    76800 cycles (  0.084466%)    38400 ins (2.00 cpi)
+0f6c BNE 0F61     :   114000 cycles (  0.125379%)    38400 ins (2.97 cpi) *
+0f6e LDX 54       :     3600 cycles (  0.003959%)     1200 ins (3.00 cpi)
+
+.list_life_update_delta.no_straddle
+0f70 CLC          :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0f71 LDA 62       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f73 ADC 126E,X   :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+0f76 STA 66       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f78 LDA 63       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f7a ADC 1275,X   :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+0f7d STA 67       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f7f LDA 64       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f81 SEC          :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0f82 SBC 127C,X   :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+0f85 STA 68       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f87 LDA 65       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f89 SBC #00      :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0f8b STA 69       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f8d LDA 64       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f8f CLC          :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0f90 ADC #01      :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0f92 STA 7A       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f94 LDA 65       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+0f96 ADC #00      :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+0f98 STA 7B       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+
+.list_life_update_delta.while_level1
+0f9a LDY #00      :    19020 cycles (  0.020918%)     9510 ins (2.00 cpi)
+0f9c LDA (60),Y   :    47550 cycles (  0.052296%)     9510 ins (5.00 cpi)
+0f9e STA 88       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fa0 INY          :    19020 cycles (  0.020918%)     9510 ins (2.00 cpi)
+0fa1 LDA (60),Y   :    47589 cycles (  0.052339%)     9510 ins (5.00 cpi)
+0fa3 STA 89       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fa5 LDA 7A       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fa7 CMP 88       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fa9 LDA 7B       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fab SBC 89       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fad BCS 0FE9     :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+
+.list_life_update_delta._1.nocarry
+
+.list_life_update_delta.skip_over_x
+
+.list_life_update_delta._3.nocarry
+
+.list_life_update_delta.else1
+0fe9 LDA 68       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0feb CMP 88       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fed LDA 69       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0fef SBC 89       :    28530 cycles (  0.031378%)     9510 ins (3.00 cpi)
+0ff1 BCC 0FF4     :    25330 cycles (  0.027858%)     9510 ins (2.66 cpi)
+0ff3 RTS          :    19200 cycles (  0.021116%)     3200 ins (6.00 cpi)
+
+.list_life_update_delta.not_else2
+0ff4 LDA 60       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0ff6 CLC          :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0ff7 ADC #02      :    12620 cycles (  0.013880%)     6310 ins (2.00 cpi)
+0ff9 STA 60       :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+0ffb BCC 100D     :    25146 cycles (  0.027656%)     6310 ins (3.99 cpi)
+0ffd INC 61       :      235 cycles (  0.000258%)       47 ins (5.00 cpi)
+0fff LDA 61       :      141 cycles (  0.000155%)       47 ins (3.00 cpi)
+1001 CMP #F4      :       94 cycles (  0.000103%)       47 ins (2.00 cpi)
+1003 BNE 100D     :      141 cycles (  0.000155%)       47 ins (3.00 cpi)
+
+.list_life_update_delta.while_level2
+100d LDY #00      :   114558 cycles (  0.125992%)    57279 ins (2.00 cpi) *
+100f LDA (60),Y   :   286395 cycles (  0.314981%)    57279 ins (5.00 cpi) ***
+1011 STA 86       :   171837 cycles (  0.188989%)    57279 ins (3.00 cpi) **
+1013 INY          :   114558 cycles (  0.125992%)    57279 ins (2.00 cpi) *
+1014 LDA (60),Y   :   286636 cycles (  0.315246%)    57279 ins (5.00 cpi) ***
+1016 STA 87       :   171837 cycles (  0.188989%)    57279 ins (3.00 cpi) **
+1018 BMI 101D     :   165527 cycles (  0.182049%)    57279 ins (2.89 cpi) **
+101a JMP 0F9A     :    18930 cycles (  0.020819%)     6310 ins (3.00 cpi)
+
+.list_life_update_delta.less_than_zero
+101d INY          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+101e LDA (60),Y   :   255244 cycles (  0.280721%)    50969 ins (5.01 cpi) ***
+1020 STA 8E       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1022 LDA 60       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1024 CLC          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+1025 ADC #03      :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+1027 STA 60       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1029 BCC 103B     :   152306 cycles (  0.167508%)    50969 ins (2.99 cpi) *
+102b INC 61       :     3005 cycles (  0.003305%)      601 ins (5.00 cpi)
+102d LDA 61       :     1803 cycles (  0.001983%)      601 ins (3.00 cpi)
+102f CMP #F4      :     1202 cycles (  0.001322%)      601 ins (2.00 cpi)
+1031 BNE 103B     :     1799 cycles (  0.001979%)      601 ins (2.99 cpi)
+1033 LDA #00      :        8 cycles (  0.000009%)        4 ins (2.00 cpi)
+1035 STA 60       :       12 cycles (  0.000013%)        4 ins (3.00 cpi)
+1037 LDA #50      :        8 cycles (  0.000009%)        4 ins (2.00 cpi)
+1039 STA 61       :       12 cycles (  0.000013%)        4 ins (3.00 cpi)
+
+.list_life_update_delta._7.nocarry
+103b LDA 86       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+103d CMP 78       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+103f LDA 87       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1041 SBC 79       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1043 BCC 100D     :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+1045 LDA 86       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1047 CMP 66       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1049 LDA 87       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+104b SBC 67       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+104d BCS 100D     :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+104f LDA 64       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1051 SEC          :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+1052 SBC 88       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1054 STA 76       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1056 LDA 65       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+1058 SBC 89       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+105a STA 77       :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+105c LDY #02      :   101938 cycles (  0.112113%)    50969 ins (2.00 cpi) *
+
+.list_life_update_delta.point_loop1
+105e PHY          :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+105f LDA 86       :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+1061 SEC          :   203876 cycles (  0.224226%)   101938 ins (2.00 cpi) **
+1062 SBC 62       :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+1064 STA 74       :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+1066 LDA 87       :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+1068 SBC 63       :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+106a STA 75       :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+106c LDX #04      :   203876 cycles (  0.224226%)   101938 ins (2.00 cpi) **
+
+.list_life_update_delta.point_loop2
+106e ASL 8E       :  2038760 cycles (  2.242256%)   407752 ins (5.00 cpi) ************************
+1070 BCC 108B     :  1111233 cycles (  1.222149%)   407752 ins (2.73 cpi) *************
+1072 LDA 77       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+1074 BMI 108B     :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1076 PHX          :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+1077 LDA 54       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+1079 ASL A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+107a TAX          :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+107b LDA 74       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+107d CMP 10A1,X   :   448092 cycles (  0.492818%)   112023 ins (4.00 cpi) *****
+1080 LDA 75       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+1082 SBC 10A2,X   :   448092 cycles (  0.492818%)   112023 ins (4.00 cpi) *****
+1085 BCS 108A     :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1087 JMP (10AF,X) :   672138 cycles (  0.739227%)   112023 ins (6.00 cpi) ********
+
+.list_life_update_delta.plot_point_return
+108a PLX          :   448092 cycles (  0.492818%)   112023 ins (4.00 cpi) *****
+
+.list_life_update_delta.skip_plot
+108b INC 74       :  2038760 cycles (  2.242256%)   407752 ins (5.00 cpi) ************************
+108d BNE 1091     :  1223256 cycles (  1.345354%)   407752 ins (3.00 cpi) **************
+
+.list_life_update_delta.skip_plot.nocarry
+1091 DEX          :   815504 cycles (  0.896903%)   407752 ins (2.00 cpi) *********
+1092 BNE 106E     :  1121318 cycles (  1.233241%)   407752 ins (2.75 cpi) *************
+1094 INC 76       :   509690 cycles (  0.560564%)   101938 ins (5.00 cpi) ******
+1096 BNE 109A     :   305814 cycles (  0.336338%)   101938 ins (3.00 cpi) ***
+
+.list_life_update_delta._10.nocarry
+109a PLY          :   407752 cycles (  0.448451%)   101938 ins (4.00 cpi) ****
+109b DEY          :   203876 cycles (  0.224226%)   101938 ins (2.00 cpi) **
+109c BNE 105E     :   254845 cycles (  0.280282%)   101938 ins (2.50 cpi) ***
+109e JMP 100D     :   152907 cycles (  0.168169%)    50969 ins (3.00 cpi) *
+
+.list_life_update_delta.x_limit_table
+
+.list_life_update_delta.plot_point_table
+
+.plot_point_1_8x
+
+.plot_point_1_4x
+
+.plot_point_1_2x
+
+.overflow_row
+114a LDA F700,Y   :    29336 cycles (  0.032264%)     7334 ins (4.00 cpi)
+114d ORA 1156,X   :    29336 cycles (  0.032264%)     7334 ins (4.00 cpi)
+1150 STA F700,Y   :    36670 cycles (  0.040330%)     7334 ins (5.00 cpi)
+1153 JMP 108A     :    22002 cycles (  0.024198%)     7334 ins (3.00 cpi)
+
+.pixel_mask
+
+.plot_point_1x
+115e LDA 74       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+1160 AND #07      :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1162 TAX          :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1163 LDA 74       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+1165 LSR A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1166 LSR A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1167 LSR A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1168 STA 84       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+116a LDA 76       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+116c ASL A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+116d ASL A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+116e ASL A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+116f ASL A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1170 ASL A        :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1171 ORA 84       :   336069 cycles (  0.369613%)   112023 ins (3.00 cpi) ****
+1173 TAY          :   224046 cycles (  0.246409%)   112023 ins (2.00 cpi) **
+1174 BCS 114A     :   231380 cycles (  0.254475%)   112023 ins (2.07 cpi) **
+1176 LDA F600,Y   :   418756 cycles (  0.460554%)   104689 ins (4.00 cpi) *****
+1179 ORA 1156,X   :   418756 cycles (  0.460554%)   104689 ins (4.00 cpi) *****
+117c STA F600,Y   :   523445 cycles (  0.575692%)   104689 ins (5.00 cpi) ******
+117f JMP 108A     :   314067 cycles (  0.345415%)   104689 ins (3.00 cpi) ***
+
+.plot_point_2x
+
+.plot_point_2x.overflow_row
+
+.plot_point_2x.pixel_mask
+
+.plot_point_4x
+
+.plot_point_4x.overflow_row
+
+.plot_point_4x.pixel_mask
+
+.plot_point_8x
+
+.plot_point_8x.overflow_row
+
+.window_size_x_lsb
+
+.window_size_x_msb
+
+.window_size_y_lsb
+
+.overflow_size
+
+.bitcnt
+
+.bp3_convert
+
+.bp4_convert
+
+.table_base
+
+.rle_reader
+
+.rle_reader_stage1
+
+.rle_reader_stage1.loop
+
+.rle_reader_stage1.not_digit
+
+.rle_reader_stage1.continue
+
+.rle_reader_stage1.done
+
+.rle_reader_stage1._1.nocarry
+
+.rle_reader_stage1.jmp_insert_blanks
+
+.rle_reader_stage1.jmp_insert_cells
+
+.rle_reader_stage1.jmp_insert_eols
+
+.rle_reader_stage1.digit
+
+.rle_reader_stage1.insert_cells
+
+.rle_reader_stage1.cells_loop
+
+.rle_reader_stage1._3.nocarry
+
+.rle_reader_stage1.insert_blanks
+
+.rle_reader_stage1.blanks_loop
+
+.rle_reader_stage1._4.nocarry
+
+.rle_reader_stage1.insert_eols
+
+.shift_bit
+
+.shift_bit.blank
+
+.shift_bit.not_yet
+
+.insert_y
+
+.insert_y._1.nocarry
+
+.init_xx
+
+.init_yy
+
+.zero_count
+
+.default_count
+
+.default_count.return
+
+.offset_pattern
+
+.rle_reader_stage2
+
+.rle_reader_stage2.level1
+
+.rle_reader_stage2._2.nocarry
+
+.rle_reader_stage2.not_return
+
+.rle_reader_stage2.advance_loop
+
+.rle_reader_stage2._6.nocarry
+
+.rle_reader_stage2.not_continue
+
+.rle_reader_stage2._8.nocarry
+
+.rle_reader_stage2.else1
+
+.rle_reader_stage2._10.nocarry
+
+.rle_reader_stage2.endif1
+
+.rle_reader_stage2.level2
+
+.rle_reader_stage2._16.label
+
+.rle_reader_stage2._16.skip_assign_val
+
+.rle_reader_stage2.x_negative
+
+.rle_reader_stage2._17.skip_inc
+
+.rle_reader_stage2._20.skip_inc
+
+.rle_reader_stage2._23.nocarry
+
+.rle_reader_stage2.level2_break
+
+.beeb_life
+
+.warm_boot
+
+.skip_load_buffer
+
+.generation_loop
+2a91 BIT 52       :      303 cycles (  0.000333%)      101 ins (3.00 cpi)
+2a93 BMI 2AA0     :      202 cycles (  0.000222%)      101 ins (2.00 cpi)
+2a95 INC 53       :      505 cycles (  0.000555%)      101 ins (5.00 cpi)
+2a97 LDA 53       :      303 cycles (  0.000333%)      101 ins (3.00 cpi)
+2a99 LDX 51       :      303 cycles (  0.000333%)      101 ins (3.00 cpi)
+2a9b CMP 2B55,X   :      404 cycles (  0.000444%)      101 ins (4.00 cpi)
+2a9e BCC 2AA5     :      203 cycles (  0.000223%)      101 ins (2.01 cpi)
+
+.force_update
+2aa0 JSR 2D07     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2aa3 STZ 53       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+.skip_update
+2aa5 LDA 057C     :      404 cycles (  0.000444%)      101 ins (4.00 cpi)
+2aa8 CMP #00      :      202 cycles (  0.000222%)      101 ins (2.00 cpi)
+2aaa BNE 2AB6     :      301 cycles (  0.000331%)      101 ins (2.98 cpi)
+2aac LDA 057D     :        8 cycles (  0.000009%)        2 ins (4.00 cpi)
+2aaf CMP #01      :        4 cycles (  0.000004%)        2 ins (2.00 cpi)
+2ab1 BNE 2AB6     :        5 cycles (  0.000005%)        2 ins (2.50 cpi)
+2ab3 JMP 2995     :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+
+.skip_update.skip
+2ab6 LDA 55       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2ab8 BEQ 2ACE     :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+.read_keyboard
+
+.skip_read_keyboard
+2ace BIT 56       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2ad0 BMI 2AD6     :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2ad2 BIT 52       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2ad4 BMI 2B11     :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+
+.new_generation
+2ad6 LDY #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2ad8 TYA          :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2ad9 STA (82),Y   :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2adb INY          :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2adc STA (82),Y   :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2ade LDA 82       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2ae0 STA 58       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2ae2 LDA 83       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2ae4 STA 59       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2ae6 JSR 0B77     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2ae9 LDA 58       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2aeb STA 80       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2aed LDA 59       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2aef STA 81       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2af1 LDA 57       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2af3 BNE 2B08     :      398 cycles (  0.000438%)      100 ins (3.98 cpi)
+2af5 LDA 82       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+2af7 STA 58       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+2af9 LDA 83       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+2afb STA 59       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+2afd JSR 0E5E     :        6 cycles (  0.000007%)        1 ins (6.00 cpi)
+2b00 LDA 58       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+2b02 STA 80       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+2b04 LDA 59       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+2b06 STA 81       :        3 cycles (  0.000003%)        1 ins (3.00 cpi)
+
+.skip_prune
+2b08 LDX #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2b0a LDA #01      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2b0c JSR 0592     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2b0f STZ 56       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+.skip_new_generation
+2b11 INC 57       :      500 cycles (  0.000550%)      100 ins (5.00 cpi)
+2b13 LDA 6A       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2b15 ORA 6B       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2b17 BEQ 2B20     :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+._1030.skip_pan
+2b20 LDA 6C       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2b22 ORA 6D       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2b24 BEQ 2B2D     :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+._1031.skip_pan
+2b2d JMP 2A91     :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+.update_pan
+
+.update_pan.odd_frame
+
+.ui_rate_table
+
+.process_key_press
+
+.process_key_press.not_escape
+
+.process_key_press.not_step
+
+.process_key_press.not_zoom_in
+
+.process_key_press.not_zoom_out
+
+.process_key_press.not_reset_pan
+
+.process_key_press.not_reset_viewpoint
+
+.process_key_press._1.skip_update
+
+.process_key_press.not_left
+
+.process_key_press._2.skip_update
+
+.process_key_press.not_right
+
+.process_key_press._3.skip_update
+
+.process_key_press.not_up
+
+.process_key_press._4.skip_update
+
+.process_key_press.not_down
+
+.process_key_press.store_rate
+
+.process_key_press.not_rate
+
+.process_key_press.not_show
+
+.process_key_press.refresh
+
+.process_key_press.not_toggle_step
+
+.increment_zoom
+
+.decrement_zoom
+
+.change_zoom
+
+.zoom_return
+
+.refresh_panel
+
+.refresh_panel.zoom_loop
+
+.refresh_panel.single_step
+
+.refresh_panel.ui_zoom_table
+
+.list_life_update_screen
+2d07 LDA 50       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d09 BIT 52       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d0b BPL 2D0F     :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+
+.list_life_update_screen.not_single
+2d0f PHA          :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d10 AND #01      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d12 BEQ 2D17     :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d14 JSR 2D7F     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.list_life_update_screen.skip_show_gen
+2d17 PLA          :      400 cycles (  0.000440%)      100 ins (4.00 cpi)
+2d18 PHA          :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d19 AND #02      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d1b BEQ 2D20     :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d1d JSR 2D8A     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.list_life_update_screen.skip_show_cells
+2d20 PLA          :      400 cycles (  0.000440%)      100 ins (4.00 cpi)
+2d21 AND #04      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d23 BEQ 2D28     :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d25 JSR 2DA0     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.list_life_update_screen.skip_show_ref
+2d28 LDA 80       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d2a STA 60       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d2c LDA 81       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d2e STA 61       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d30 LDA #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d32 STA 91       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d34 LDA #30      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d36 STA 92       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d38 LDA #FF      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d3a JSR FFEE     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2d3d LDA 62       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d3f STA 5A       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d41 LDA 63       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d43 STA 5B       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d45 LDA 64       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d47 STA 5C       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d49 LDA 65       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d4b STA 5D       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d4d JSR 0DC7     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2d50 LDX #20      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+
+.list_life_update_screen.loop
+2d52 TXA          :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+2d53 PHA          :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+2d54 JSR 041E     :    19200 cycles (  0.021116%)     3200 ins (6.00 cpi)
+2d57 LDA 54       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+2d59 JSR 0F52     :    19200 cycles (  0.021116%)     3200 ins (6.00 cpi)
+2d5c JSR 0454     :    19200 cycles (  0.021116%)     3200 ins (6.00 cpi)
+2d5f LDA 68       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+2d61 STA 64       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+2d63 LDA 69       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+2d65 STA 65       :     9600 cycles (  0.010558%)     3200 ins (3.00 cpi)
+2d67 INC 92       :    16000 cycles (  0.017597%)     3200 ins (5.00 cpi)
+2d69 PLA          :    12800 cycles (  0.014078%)     3200 ins (4.00 cpi)
+2d6a TAX          :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+2d6b DEX          :     6400 cycles (  0.007039%)     3200 ins (2.00 cpi)
+2d6c BNE 2D52     :     9500 cycles (  0.010448%)     3200 ins (2.97 cpi)
+2d6e LDA 5A       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d70 STA 62       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d72 LDA 5B       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d74 STA 63       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d76 LDA 5C       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d78 STA 64       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d7a LDA 5D       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d7c STA 65       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d7e RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.show_gen
+2d7f LDX #01      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d81 JSR 2DC7     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2d84 LDX #00      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d86 JSR 05D9     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2d89 RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.show_cells
+2d8a LDX #04      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d8c JSR 2DC7     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2d8f LDA 80       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d91 STA 60       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d93 LDA 81       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d95 STA 61       :      300 cycles (  0.000330%)      100 ins (3.00 cpi)
+2d97 JSR 0E0B     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2d9a LDX #04      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2d9c JSR 05D9     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2d9f RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.show_ref
+2da0 LDX #07      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2da2 JSR 2DC7     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2da5 LDX #62      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2da7 JSR 2DB5     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2daa LDX #0A      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2dac JSR 2DC7     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2daf LDX #64      :      200 cycles (  0.000220%)      100 ins (2.00 cpi)
+2db1 JSR 2DB5     :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+2db4 RTS          :      600 cycles (  0.000660%)      100 ins (6.00 cpi)
+
+.print_coord
+2db5 LDA 00,X     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+2db7 STA 70       :      600 cycles (  0.000660%)      200 ins (3.00 cpi)
+2db9 LDA 01,X     :      800 cycles (  0.000880%)      200 ins (4.00 cpi)
+2dbb AND #7F      :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+2dbd CLC          :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+2dbe ADC #C0      :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+2dc0 STA 71       :      600 cycles (  0.000660%)      200 ins (3.00 cpi)
+2dc2 LDX #70      :      400 cycles (  0.000440%)      200 ins (2.00 cpi)
+2dc4 JMP 05B0     :      600 cycles (  0.000660%)      200 ins (3.00 cpi)
+
+.goto_row
+2dc7 LDA #1F      :      800 cycles (  0.000880%)      400 ins (2.00 cpi)
+2dc9 JSR FFEE     :     2400 cycles (  0.002640%)      400 ins (6.00 cpi)
+2dcc LDA #00      :      800 cycles (  0.000880%)      400 ins (2.00 cpi)
+2dce JSR FFEE     :     2400 cycles (  0.002640%)      400 ins (6.00 cpi)
+2dd1 TXA          :      800 cycles (  0.000880%)      400 ins (2.00 cpi)
+2dd2 JMP FFEE     :     1200 cycles (  0.001320%)      400 ins (3.00 cpi)
+
+.reset_viewpoint
+
+.reset_pan
+
+.event_handler
+
+.event_handler.return
+
+.vdu_driver_start
+
+.update_display
+
+.update_display.idle1
+
+.update_display.idle2
+
+.update_display.zero
+
+.oldwrcvec
+
+.install_vdu_driver
+
+.copy_vdu_loop
+
+.copy_vdu_nocarry
+
+.osword_05
+
+.osword_06
+
+.osword_param
+
+.osword_param.nocarry
+
+.param
+
+.end
+f962 BIT FEF8     :    14800 cycles (  0.016277%)     3700 ins (4.00 cpi)
+f965 NOP          :     7400 cycles (  0.008139%)     3700 ins (2.00 cpi)
+f966 BVC F962     :     7400 cycles (  0.008139%)     3700 ins (2.00 cpi)
+f968 STA FEF9     :    14800 cycles (  0.016277%)     3700 ins (4.00 cpi)
+f96b RTS          :    22200 cycles (  0.024416%)     3700 ins (6.00 cpi)
+ffee JMP (020E)   :    22200 cycles (  0.024416%)     3700 ins (6.00 cpi)
+     : 90924480 cycles (100.000000%) 29000861 ins (3.14 cpi)
+     :    44266 branch page crossing cycles (  0.048684%)

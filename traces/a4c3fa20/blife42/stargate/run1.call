@@ -1,0 +1,36 @@
+==============================================================================
+Profiler: call; Args:
+==============================================================================
+   15078 cycles (  0.016583%)        0 calls:
+    2514 cycles (  0.002765%)      100 calls: add_to_count
+33185821 cycles ( 36.498225%)      100 calls: list_life
+   45234 cycles (  0.049749%)        1 calls: list_life_prune_cells
+  187200 cycles (  0.205885%)      100 calls: list_life_update_screen
+ 4630400 cycles (  5.092578%)     3200 calls: list_life_update_screen->clear_delta
+18198800 cycles ( 20.015292%)     3200 calls: list_life_update_screen->send_delta
+  263400 cycles (  0.289691%)      100 calls: list_life_update_screen->list_life_offset_top_left
+30190765 cycles ( 33.204221%)     3200 calls: list_life_update_screen->list_life_update_delta
+    2200 cycles (  0.002420%)      100 calls: list_life_update_screen->show_gen
+    6200 cycles (  0.006819%)      100 calls: list_life_update_screen->show_gen->print_count
+   15600 cycles (  0.017157%)      300 calls: list_life_update_screen->show_gen->print_count->print_count_inner.print_bcd
+    9300 cycles (  0.010228%)      300 calls: list_life_update_screen->show_gen->print_count->print_count_inner.print_bcd->print_count_inner.print_bcd_digit
+    4500 cycles (  0.004949%)      100 calls: list_life_update_screen->show_gen->goto_row
+    4800 cycles (  0.005279%)      200 calls: list_life_update_screen->show_gen->goto_row->FFEE
+    4000 cycles (  0.004399%)      100 calls: list_life_update_screen->show_cells
+    6200 cycles (  0.006819%)      100 calls: list_life_update_screen->show_cells->print_count
+   15600 cycles (  0.017157%)      300 calls: list_life_update_screen->show_cells->print_count->print_count_inner.print_bcd
+    9300 cycles (  0.010228%)      300 calls: list_life_update_screen->show_cells->print_count->print_count_inner.print_bcd->print_count_inner.print_bcd_digit
+ 2551837 cycles (  2.806546%)      100 calls: list_life_update_screen->show_cells->list_life_count_cells
+    2100 cycles (  0.002310%)      100 calls: list_life_update_screen->show_cells->list_life_count_cells->clear_count
+ 1289331 cycles (  1.418024%)    50969 calls: list_life_update_screen->show_cells->list_life_count_cells->add_to_count
+    4500 cycles (  0.004949%)      100 calls: list_life_update_screen->show_cells->goto_row
+    4800 cycles (  0.005279%)      200 calls: list_life_update_screen->show_cells->goto_row->FFEE
+    3800 cycles (  0.004179%)      100 calls: list_life_update_screen->show_ref
+   23000 cycles (  0.025296%)      200 calls: list_life_update_screen->show_ref->print_coord
+   31200 cycles (  0.034314%)      600 calls: list_life_update_screen->show_ref->print_coord->print_count_inner.print_bcd
+   18600 cycles (  0.020457%)      600 calls: list_life_update_screen->show_ref->print_coord->print_count_inner.print_bcd->print_count_inner.print_bcd_digit
+  177400 cycles (  0.195107%)      200 calls: list_life_update_screen->show_ref->print_coord->bin_to_bcd
+    9000 cycles (  0.009898%)      200 calls: list_life_update_screen->show_ref->goto_row
+    9600 cycles (  0.010558%)      400 calls: list_life_update_screen->show_ref->goto_row->FFEE
+    2400 cycles (  0.002640%)      100 calls: list_life_update_screen->FFEE
+90924480 cycles (100.000000%)
