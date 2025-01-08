@@ -5,6 +5,8 @@
 
 CPU 1                           ; allow 65C02 opcodes
 
+GENERATION_LIMIT =? 0           ; BCD format generation limit
+
 DELTA_BASE      = &F600         ; 8 row buffer for accumulating delta
 
 IF _MATCHBOX

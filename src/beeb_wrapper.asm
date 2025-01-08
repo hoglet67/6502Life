@@ -176,6 +176,19 @@ ENDIF
         STZ ui_count
 .skip_update
 
+IF GENERATION_LIMIT > 0
+{
+        LDA count_base
+        CMP #<GENERATION_LIMIT
+        BNE skip
+        LDA count_base+1
+        CMP #>GENERATION_LIMIT
+        BNE skip
+        JMP warm_boot
+.skip
+}
+ENDIF
+
         ;; Determine if a keyboard scan is due
         LDA key_pressed         ; Has a key press event been received?
         BEQ skip_read_keyboard  ; no, then nothing further to do

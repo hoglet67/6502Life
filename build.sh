@@ -34,6 +34,7 @@ do
         -v \
         -dd \
         -labels ../${build}/${name}.labels \
+        $* \
         >& ../${build}/${name}.log
 
     # Check if ROM has been build, otherwise fail early
