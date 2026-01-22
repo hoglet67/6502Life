@@ -27,14 +27,14 @@ mode4_linelen  = 320
         LDY #0
 
 .idle1
-        BIT &FEE0
+.*elk1  BIT &FEE0    ; patched for electron if necessary
         BPL idle1
-        LDA &FEE1
+.*elk2  LDA &FEE1    ; patched for electron if necessary
         STA (ptr),Y
 .idle2
-        BIT &FEE0
+.*elk3  BIT &FEE0    ; patched for electron if necessary
         BPL idle2
-        LDY &FEE1
+.*elk4  LDY &FEE1    ; patched for electron if necessary
         BNE idle1
 .zero
         CLC
@@ -60,6 +60,20 @@ mode4_linelen  = 320
 .vdu_driver_end
 
 .install_vdu_driver
+
+;; Test for electron
+        LDA #&00
+        LDX #&FF
+        JSR OSBYTE
+        CPX #&00     ; &00 = Electron/Communicator (OS 1.0)
+        BNE not_electron
+        LDA #&FC     ; Patch MSB of tube address to &FCxx
+        STA elk1+2
+        STA elk2+2
+        STA elk3+2
+        STA elk4+2
+
+.not_electron
 
 ;; Read old OSWRCH vector
         LDA #<WRCVEC
